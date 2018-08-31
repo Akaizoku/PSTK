@@ -170,8 +170,14 @@ function ParseProperties {
     .PARAMETER Directory
     The Directory parameter should be the path to the directory containing the property file.
 
+    .PARAMETER Section
+    The Section parameter indicates if properties should be grouped depending on existing sections in the file
+
     .EXAMPLE
     ParseProperties -File "default.ini" -Directory ".\conf"
+
+    .EXAMPLE
+    ParseProperties -File "default.ini" -Directory ".\conf" -Section
   #>
   [CmdletBinding ()]
   param (
@@ -192,125 +198,114 @@ function ParseProperties {
     [Parameter (
       Position    = 3,
       Mandatory   = $false,
-      HelpMessage = "Define if section headers should be used to group properties or ignored"
+      HelpMessage = "Define if section headers should be used to group properties or be   ignored"
       )]
     [Alias ("S")]
     [Switch]
-    $Section = $false
+    $Section
   )
   # Properties path
-  $PropertyFile     = Join-Path $Directory $File
+  $PropertyFile = Join-Path $Directory $File
+  $Properties   = [ordered]@{}
+  $Sections     = [ordered]@{}
+  $Header       = $null
   # Check that the file exists
   if (Test-Path $PropertyFile) {
+    $FileContent  = Get-Content $PropertyFile
+    $EndOfFile    = $FileContent | Measure-Object -Line
+    $LineNumber   = 0
     # Read the property file line by line
-    $FileContent    = Get-Content $PropertyFile
-    $Properties     = [ordered]@{}
-    $Property       = [ordered]@{}
-    $LineNumber     = 0
-    $Offset         = 2
     foreach ($Content in $FileContent) {
-      $LineNumber  += 1
-      # Ignore comments, sections, and blank lines
-      if ($Content[0] -ne "#" -And $Content[0] -ne ";" -And $Content[0] -ne "[" -And $Content -ne "") {
-        $Index        = $Content.IndexOf("=")
-        if ($Index -gt 0) {
-          $Key          = $Content.Substring(0, $Index -1)
-          $Value        = $Content.Substring($Index + $Offset, $Content.Length - $Index - $Offset)
-          $Property.Add("Key", $Key.Trim())
-          $Property.Add("Value", $Value.Trim())
-          # Check that properties has a name and value
-          if ($Property.Key -And $Property.Value) {
-            # Add configuration to the list of properties
+      $LineNumber += 1
+      # If properties have to be grouped by section
+      if ($Section) {
+        # If end of file and section is open
+        if ($LineNumber -eq $EndOfFile.Lines + 1 -And $Header) {
+          if ($Content[0] -ne "#" -And $Content[0] -ne ";" -And $Content -ne "") {
+            $Property = ParseProperty -Content $Content
+            if ($Property.Count -gt 0) {
+              $Sections.Add($Property.Key, $Property.Value)
+            } else {
+              LogMessage -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
+            }
+          }
+          $Clone = CloneOrderedHashtable -Hashtable $Sections
+          $Properties.Add($Header, $Clone)
+        } elseif ($Content[0] -eq "[") {
+          # If previous section exists add it to the property list
+          if ($Header) {
+            $Clone = CloneOrderedHashtable -Hashtable $Sections
+            $Properties.Add($Header, $Clone)
+          }
+          # Create new property group
+          $Header = $Content.Substring(1, $Content.Length - 2)
+          $Sections.Clear()
+        } elseif ($Header -And $Content[0] -ne "#" -And $Content[0] -ne ";" -And $Content -ne "") {
+          $Property = ParseProperty -Content $Content
+          if ($Property.Count -gt 0) {
+            $Sections.Add($Property.Key, $Property.Value)
+          } else {
+            LogMessage -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
+          }
+        }
+      } else {
+        # Ignore comments, sections, and blank lines
+        if ($Content[0] -ne "#" -And $Content[0] -ne ";" -And $Content[0] -ne "[" -And $Content -ne "") {
+          $Property = ParseProperty -Content $Content
+          if ($Property.Count -gt 0) {
             $Properties.Add($Property.Key, $Property.Value)
           } else {
             LogMessage -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
           }
-          $Property.Clear()
         }
       }
     }
-    # LogMessage -Type "INFO" -Message "Configuration loaded"
-    return $Properties
   } else {
     # Alert that configuration file does not exists at specified location
     LogMessage -Type "ERROR" -Message "The $File file cannot be found under $(Resolve-Path $Directory)"
-    exit 1
   }
+  return $Properties
 }
 
 # ------------------------------------------------------------------------------
-# Server properties parsing function
+# Properties parsing function
 # ------------------------------------------------------------------------------
-function SetServerProperties {
+function ParseProperty {
   <#
     .SYNOPSIS
-    Parse server properties file
+    Parse property content
 
     .DESCRIPTION
-    Parse server properties file to generate hashtable
+    Parse property content
 
-    .PARAMETER File
-    The File parameter should be the name of the property file.
-
-    .PARAMETER Directory
-    The Directory parameter should be the path to the directory containing the property file.
+    .PARAMETER Content
+    The Content parameter should be the content of the property
 
     .EXAMPLE
-    SetServerProperties -File "server.properties"
+    ParseProperty -Content "Key = Value"
   #>
   [CmdletBinding ()]
   param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
-      HelpMessage = "Property file name"
+      HelpMessage = "Property content"
     )]
-    [Alias ("F")]
-    $File,
-    [Parameter (
-      Position    = 2,
-      Mandatory   = $true,
-      HelpMessage = "Path to the directory containing the property file"
-      )]
-    [Alias ("D", "Dir")]
-    $Directory
+    [ValidateNotNullOrEmpty ()]
+    [Alias ("C")]
+    [String]
+    $Content
   )
-  # Server properties path
-  $ServerProperties = Join-Path $Directory $File
-  $FileContent      = Get-Content $ServerProperties
-  # Initialise variables
-  $Environments = [ordered]@{}
-  $Environment  = $null
-  $Properties   = @{}
-  $Property     = @{}
-  $LineNumber   = 0
-  # Read the property file line by line
-  foreach ($Content in $FileContent) {
-    $LineNumber  += 1
-    # Check that line is neither a comment nor an empty line
-    if ($Content[0] -ne "#" -And $Content[0] -ne "!" -And $Content -ne "") {
-      $Index = $Content.IndexOf("=")
-      # If entering a section (environment)
-      if ($Content[0] -eq "[" -And $Index -lt 0) {
-        # Save previous environment properties (if any)
-        if ($Environment) {$Environments.Add($Environment, $Properties.Clone())}
-        $Environment = $Content.Substring(1, $Content.Length -2)
-        $Properties.Clear()
-      } elseif ($Index -gt 0) {
-        $Key    = $Content.Substring(0, $Index -1)
-        $Value  = $Content.Substring($Index + $Offset, $Content.Length - $Index - $Offset)
-        $Property.Add("Key", $Key.Trim())
-        $Property.Add("Value", $Value.Trim())
-        if ($Property.Key -And $Property.Value) {
-          $Properties.Add($Property.Key, $Property.Value)
-        } else {
-          LogMessage -Type "WARN" -Message "Unable to process line $LineNumber from $ServerProperties"
-        }
-      }
-      $Property.Clear()
-    }
+  $Property = [ordered]@{}
+  $Index    = $Content.IndexOf("=")
+  if ($Index -gt 0) {
+    $Offset = 1
+    $Key    = $Content.Substring(0, $Index)
+    $Value  = $Content.Substring($Index + $Offset, $Content.Length - $Index - $Offset)
+    $Property.Add("Key", $Key.Trim())
+    $Property.Add("Value", $Value.Trim())
   }
-  return $Environments
+  return $Property
 }
 
 # ------------------------------------------------------------------------------
@@ -327,17 +322,23 @@ function SetProperties {
     .PARAMETER File
     The File parameter should be the name of the property file.
 
-    .PARAMETER Custom
-    The Custom parameter should be the name of the custom property file.
-
     .PARAMETER Directory
     The Directory parameter should be the path to the directory containing the property file.
+
+    .PARAMETER Custom
+    The Custom parameter should be the name of the custom property file.
 
     .PARAMETER CustomDirectory
     The CustomDirectory parameter should be the path to the directory containing the custom property file.
 
     .EXAMPLE
-    SetProperties -File "default.ini" -Custom "custom.properties" -Directory ".\conf"
+    SetProperties -File "default.ini" -Directory ".\conf"
+
+    .EXAMPLE
+    SetProperties -File "default.ini" -Directory ".\conf" -Custom "custom.properties"
+
+    .EXAMPLE
+    SetProperties -File "default.ini" -Directory ".\conf" -Custom "custom.properties" -CustomDirectory ".\shared"
   #>
   [CmdletBinding ()]
   param (
@@ -347,38 +348,139 @@ function SetProperties {
       HelpMessage = "Property file name"
     )]
     [Alias ("F")]
+    [String]
     $File,
     [Parameter (
       Position    = 2,
       Mandatory   = $true,
-      HelpMessage = "Custom property file name"
-    )]
-    [Alias ("C")]
-    $Custom,
-    [Parameter (
-      Position    = 3,
-      Mandatory   = $true,
       HelpMessage = "Path to the directory containing the property files"
     )]
     [Alias ("D", "Dir")]
+    [String]
     $Directory,
+    [Parameter (
+      Position    = 3,
+      Mandatory   = $false,
+      HelpMessage = "Custom property file name"
+    )]
+    [Alias ("C")]
+    [String]
+    $Custom,
     [Parameter (
       Position    = 4,
       Mandatory   = $false,
       HelpMessage = "Path to the directory containing the custom property file"
     )]
+    [Alias ("CD")]
+    [String]
     $CustomDirectory = $Directory
   )
   # Parse properties
   $Properties = ParseProperties -File $File   -Directory $Directory
-  $Customs    = ParseProperties -File $Custom -Directory $CustomDirectory
-  # Override default with custom
-  foreach ($Property in $Customs.Keys) {
-    if ($Properties.$Property) {
-      $Properties.$Property = $Customs.$Property
-    } else {
-      LogMessage -Type "WARN" -Message "The ""$Property"" property defined in $Custom is unknown"
+  if ($Custom) {
+    $Customs    = ParseProperties -File $Custom -Directory $CustomDirectory
+    # Override default with custom
+    foreach ($Property in $Customs.Keys) {
+      if ($Properties.$Property) {
+        $Properties.$Property = $Customs.$Property
+      } else {
+        LogMessage -Type "WARN" -Message "The ""$Property"" property defined in $Custom is unknown"
+      }
     }
   }
   return $Properties
+}
+
+# ------------------------------------------------------------------------------
+# Function to compare hashtables content
+# ------------------------------------------------------------------------------
+function CompareHashtables {
+  <#
+    .SYNOPSIS
+    Compares hashtables content
+
+    .DESCRIPTION
+    Check that two given hashtables are identic
+
+    .PARAMETER Reference
+    The Reference parameter should be the hashtable to check
+
+    .PARAMETER Difference
+    The Difference parameter should be the hashtable to check the first one against
+
+    .EXAMPLE
+    CompareHashtables -Reference $Hashtable1 -Difference $Hashtable2
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Reference hashtable"
+    )]
+    [Alias ("R", "Ref")]
+    $Reference,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $true,
+      HelpMessage = "Difference hashtable"
+      )]
+    [Alias ("D", "Dif")]
+    $Difference
+  )
+  $Check = $true
+  # Check that hashtables are of the same size
+  if ($Reference.Count -ne $Difference.Count) {
+    $Check = $false
+  } else {
+    # Loop through tables
+    foreach ($Key in $Reference.Keys) {
+      # Check that they contain the same keys
+      if ($Difference.$Key) {
+        # Check that they contain the same values
+        if ($Difference.$Key -ne $Reference.$Key) {
+          $Check = $false
+          break
+        }
+      } else {
+        $Check = $false
+        break
+      }
+    }
+  }
+  return $Check
+}
+
+# ------------------------------------------------------------------------------
+# Function to compare hashtables content
+# ------------------------------------------------------------------------------
+function CloneOrderedHashtable {
+  <#
+    .SYNOPSIS
+    Clone an ordered hashtable
+
+    .DESCRIPTION
+    Clone an ordered hashtable
+
+    .PARAMETER Hashtable
+    The Hashtable parameter should be the hashtable to clone
+
+    .EXAMPLE
+    CloneOrderedHashtable -Hashtable $Hashtable
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Hashtable to clone"
+    )]
+    [Alias ("H", "Hash", "T", "Table")]
+    $Hashtable
+  )
+  $Clone = [ordered]@{}
+  foreach ($Item in $Hashtable.GetEnumerator()) {
+    $Clone[$Item.Key] = $Item.Value
+  }
+  return $Clone
 }
