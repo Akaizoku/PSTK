@@ -212,7 +212,6 @@ function ParseProperties {
   # Check that the file exists
   if (Test-Path $PropertyFile) {
     $FileContent  = Get-Content $PropertyFile
-    $EndOfFile    = $FileContent | Measure-Object -Line
     $LineNumber   = 0
     # Read the property file line by line
     foreach ($Content in $FileContent) {
@@ -220,7 +219,7 @@ function ParseProperties {
       # If properties have to be grouped by section
       if ($Section) {
         # If end of file and section is open
-        if ($LineNumber -eq $EndOfFile.Lines + 1 -And $Header) {
+        if ($LineNumber -eq $FileContent.Count -And $Header) {
           if ($Content[0] -ne "#" -And $Content[0] -ne ";" -And $Content -ne "") {
             $Property = ParseProperty -Content $Content
             if ($Property.Count -gt 0) {
