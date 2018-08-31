@@ -3,7 +3,7 @@
   ParseProperties Unit Testing
 
   .DESCRIPTION
-  Unit Test for ParseProperties function from PowerShell-Toolbox
+  Unit Test for ParseProperties function from PSTK module
 
   .NOTES
   File name:      ParseProperties.ps1
@@ -18,7 +18,7 @@
 $Path       = Split-Path $MyInvocation.MyCommand.Definition
 $Repository = Split-Path $Path -Parent
 # Import toolbox
-Import-Module "$Repository\PowerShell-Toolbox.psm1" -Force
+Import-Module "$Repository\PSTK.psm1" -Force
 # ------------------------------------------------------------------------------
 # Expected results
 # ------------------------------------------------------------------------------

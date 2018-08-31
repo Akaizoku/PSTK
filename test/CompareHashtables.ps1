@@ -3,7 +3,7 @@
   CompareHashtables Unit Testing
 
   .DESCRIPTION
-  Unit Test for CompareHashtables function from PowerShell-Toolbox
+  Unit Test for CompareHashtables function from PSTK module
 
   .NOTES
   File name:      CompareHashtables.ps1
@@ -18,7 +18,7 @@
 $Path       = Split-Path $MyInvocation.MyCommand.Definition
 $Repository = Split-Path $Path -Parent
 # Import toolbox
-Import-Module "$Repository\PowerShell-Toolbox.psm1" -Force
+Import-Module "$Repository\PSTK.psm1" -Force
 
 # ------------------------------------------------------------------------------
 # Test objects

@@ -6,7 +6,7 @@
   Collection of useful functions and procedures
 
   .NOTES
-  File name:      PowerShell-Toolbox.psm1
+  File name:      PSTK.psm1
   Author:         Florian Carrier
   Creation date:  23/08/2018
   Last modified:  31/08/2018
@@ -339,6 +339,9 @@ function SetProperties {
 
     .EXAMPLE
     SetProperties -File "default.ini" -Directory ".\conf" -Custom "custom.properties" -CustomDirectory ".\shared"
+
+    .NOTES
+    SetProperties does not currently allow the use of sections to group properties in custom files
   #>
   [CmdletBinding ()]
   param (
@@ -373,14 +376,26 @@ function SetProperties {
     )]
     [Alias ("CD")]
     [String]
-    $CustomDirectory = $Directory
+    $CustomDirectory = $Directory,
+    [Parameter (
+      Position    = 5,
+      Mandatory   = $false,
+      HelpMessage = "Define if section headers should be used to group properties or be ignored"
+      )]
+    [Alias ("S")]
+    [Switch]
+    $Section
   )
   # Parse properties
-  $Properties = ParseProperties -File $File   -Directory $Directory
+  if ($Section) {
+    $Properties = ParseProperties -File $File -Directory $Directory -Section
+  } else {
+    $Properties = ParseProperties -File $File -Directory $Directory
+  }
   if ($Custom) {
-    $Customs    = ParseProperties -File $Custom -Directory $CustomDirectory
-    # Override default with custom
+    $Customs = ParseProperties -File $Custom -Directory $CustomDirectory
     foreach ($Property in $Customs.Keys) {
+      # Override default with custom
       if ($Properties.$Property) {
         $Properties.$Property = $Customs.$Property
       } else {
