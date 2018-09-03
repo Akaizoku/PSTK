@@ -228,12 +228,12 @@ function ParseProperties {
               LogMessage -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
             }
           }
-          $Clone = CloneOrderedHashtable -Hashtable $Sections
+          $Clone = CloneOrderedHashtable -Hashtable $Sections -Deep
           $Properties.Add($Header, $Clone)
         } elseif ($Content[0] -eq "[") {
           # If previous section exists add it to the property list
           if ($Header) {
-            $Clone = CloneOrderedHashtable -Hashtable $Sections
+            $Clone = CloneOrderedHashtable -Hashtable $Sections -Deep
             $Properties.Add($Header, $Clone)
           }
           # Create new property group
@@ -490,11 +490,30 @@ function CloneOrderedHashtable {
       HelpMessage = "Hashtable to clone"
     )]
     [Alias ("H", "Hash", "T", "Table")]
-    $Hashtable
+    $Hashtable,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $false,
+      HelpMessage = "Define if the copy should be shallow or deep"
+    )]
+    [Alias ("D", "DeepCopy")]
+    [Switch]
+    $Deep = $false
   )
   $Clone = [ordered]@{}
-  foreach ($Item in $Hashtable.GetEnumerator()) {
-    $Clone[$Item.Key] = $Item.Value
+  # If deep copy
+  if ($Deep) {
+    $MemoryStream           = New-Object System.IO.MemoryStream
+    $BinaryFormatter        = New-Object System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+    $BinaryFormatter.Serialize($MemoryStream, $Hashtable)
+    $MemoryStream.Position  = 0
+    $Clone                  = $BinaryFormatter.Deserialize($MemoryStream)
+    $MemoryStream.Close()
+  } else {
+    # Shallow copy
+    foreach ($Item in $Hashtable.GetEnumerator()) {
+      $Clone[$Item.Key] = $Item.Value
+    }
   }
   return $Clone
 }

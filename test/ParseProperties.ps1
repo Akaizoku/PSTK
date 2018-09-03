@@ -35,6 +35,7 @@ $Expected1    = [ordered]@{
   Property9   = 9
   Property10  = 10
 }
+
 # With Sections
 $Expected2      = [ordered]@{
   Section1      = [ordered]@{
@@ -59,6 +60,7 @@ $Expected2      = [ordered]@{
 # Without Sections
 $Properties1  = ParseProperties -File properties.ini -Directory $Repository\test\res
 $Check1       = CompareHashtables -Reference $Expected1 -Difference $Properties1
+
 # With Sections
 $Properties2  = ParseProperties -File properties.ini -Directory $Repository\test\res -Section
 $Check2       = CompareHashtables -Reference $Expected2 -Difference $Properties2
