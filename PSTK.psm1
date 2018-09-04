@@ -1,3 +1,5 @@
+#Requires -Version 3.0
+
 <#
   .SYNOPSIS
   PowerShell Toolbox
@@ -9,19 +11,19 @@
   File name:      PSTK.psm1
   Author:         Florian Carrier
   Creation date:  23/08/2018
-  Last modified:  31/08/2018
+  Last modified:  04/09/2018
 #>
 
 # ------------------------------------------------------------------------------
 # Logging function
 # ------------------------------------------------------------------------------
-function LogMessage {
+function Out-Log {
   <#
     .SYNOPSIS
     Formats output message as a log
 
     .DESCRIPTION
-    The LogMessage function outputs the time and type of a message in a formatt-
+    The Out-Log function outputs the time and type of a message in a formatt-
     ed manner with respective colour code.
 
     .PARAMETER Type
@@ -69,7 +71,7 @@ function LogMessage {
 # ------------------------------------------------------------------------------
 # Database connection testing function
 # ------------------------------------------------------------------------------
-function CheckSQLConnection {
+function Test-SQLConnection {
   <#
     .SYNOPSIS
     Check a SQL Server database connection
@@ -84,7 +86,7 @@ function CheckSQLConnection {
     The Database parameter corresponds to the database to be tested
 
     .EXAMPLE
-    CheckSQLConnection -Server localhost -Database OneSumX_fsdb
+    Test-SQLConnection -Server localhost -Database OneSumX_fsdb
   #>
   [CmdletBinding ()]
   param (
@@ -134,7 +136,7 @@ function CheckSQLConnection {
     if ($Username) {
       $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=False; User ID=$Username; Password=$Password; Connect Timeout=3;"
     } else {
-      LogMessage -Type "ERROR" -Message "Please provide a valid username"
+      Out-Log -Type "ERROR" -Message "Please provide a valid username"
       exit
     }
   } else {
@@ -156,7 +158,7 @@ function CheckSQLConnection {
 # ------------------------------------------------------------------------------
 # Properties parsing function
 # ------------------------------------------------------------------------------
-function ParseProperties {
+function Read-Properties {
   <#
     .SYNOPSIS
     Parse properties file
@@ -174,10 +176,10 @@ function ParseProperties {
     The Section parameter indicates if properties should be grouped depending on existing sections in the file
 
     .EXAMPLE
-    ParseProperties -File "default.ini" -Directory ".\conf"
+    Read-Properties -File "default.ini" -Directory ".\conf"
 
     .EXAMPLE
-    ParseProperties -File "default.ini" -Directory ".\conf" -Section
+    Read-Properties -File "default.ini" -Directory ".\conf" -Section
   #>
   [CmdletBinding ()]
   param (
@@ -221,47 +223,47 @@ function ParseProperties {
         # If end of file and section is open
         if ($LineNumber -eq $FileContent.Count -And $Header) {
           if ($Content[0] -ne "#" -And $Content[0] -ne ";" -And $Content -ne "") {
-            $Property = ParseProperty -Content $Content
+            $Property = Read-Property -Content $Content
             if ($Property.Count -gt 0) {
               $Sections.Add($Property.Key, $Property.Value)
             } else {
-              LogMessage -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
+              Out-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
             }
           }
-          $Clone = CloneOrderedHashtable -Hashtable $Sections -Deep
+          $Clone = Copy-OrderedHashtable -Hashtable $Sections -Deep
           $Properties.Add($Header, $Clone)
         } elseif ($Content[0] -eq "[") {
           # If previous section exists add it to the property list
           if ($Header) {
-            $Clone = CloneOrderedHashtable -Hashtable $Sections -Deep
+            $Clone = Copy-OrderedHashtable -Hashtable $Sections -Deep
             $Properties.Add($Header, $Clone)
           }
           # Create new property group
           $Header = $Content.Substring(1, $Content.Length - 2)
           $Sections.Clear()
         } elseif ($Header -And $Content[0] -ne "#" -And $Content[0] -ne ";" -And $Content -ne "") {
-          $Property = ParseProperty -Content $Content
+          $Property = Read-Property -Content $Content
           if ($Property.Count -gt 0) {
             $Sections.Add($Property.Key, $Property.Value)
           } else {
-            LogMessage -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
+            Out-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
           }
         }
       } else {
         # Ignore comments, sections, and blank lines
         if ($Content[0] -ne "#" -And $Content[0] -ne ";" -And $Content[0] -ne "[" -And $Content -ne "") {
-          $Property = ParseProperty -Content $Content
+          $Property = Read-Property -Content $Content
           if ($Property.Count -gt 0) {
             $Properties.Add($Property.Key, $Property.Value)
           } else {
-            LogMessage -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
+            Out-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
           }
         }
       }
     }
   } else {
     # Alert that configuration file does not exists at specified location
-    LogMessage -Type "ERROR" -Message "The $File file cannot be found under $(Resolve-Path $Directory)"
+    Out-Log -Type "ERROR" -Message "The $File file cannot be found under $(Resolve-Path $Directory)"
   }
   return $Properties
 }
@@ -269,7 +271,7 @@ function ParseProperties {
 # ------------------------------------------------------------------------------
 # Properties parsing function
 # ------------------------------------------------------------------------------
-function ParseProperty {
+function Read-Property {
   <#
     .SYNOPSIS
     Parse property content
@@ -281,7 +283,7 @@ function ParseProperty {
     The Content parameter should be the content of the property
 
     .EXAMPLE
-    ParseProperty -Content "Key = Value"
+    Read-Property -Content "Key = Value"
   #>
   [CmdletBinding ()]
   param (
@@ -310,7 +312,7 @@ function ParseProperty {
 # ------------------------------------------------------------------------------
 # Properties parsing function
 # ------------------------------------------------------------------------------
-function SetProperties {
+function Set-Properties {
   <#
     .SYNOPSIS
     Set properties from configuration files
@@ -331,16 +333,16 @@ function SetProperties {
     The CustomDirectory parameter should be the path to the directory containing the custom property file.
 
     .EXAMPLE
-    SetProperties -File "default.ini" -Directory ".\conf"
+    Set-Properties -File "default.ini" -Directory ".\conf"
 
     .EXAMPLE
-    SetProperties -File "default.ini" -Directory ".\conf" -Custom "custom.properties"
+    Set-Properties -File "default.ini" -Directory ".\conf" -Custom "custom.properties"
 
     .EXAMPLE
-    SetProperties -File "default.ini" -Directory ".\conf" -Custom "custom.properties" -CustomDirectory ".\shared"
+    Set-Properties -File "default.ini" -Directory ".\conf" -Custom "custom.properties" -CustomDirectory ".\shared"
 
     .NOTES
-    SetProperties does not currently allow the use of sections to group properties in custom files
+    Set-Properties does not currently allow the use of sections to group properties in custom files
   #>
   [CmdletBinding ()]
   param (
@@ -387,18 +389,18 @@ function SetProperties {
   )
   # Parse properties
   if ($Section) {
-    $Properties = ParseProperties -File $File -Directory $Directory -Section
+    $Properties = Read-Properties -File $File -Directory $Directory -Section
   } else {
-    $Properties = ParseProperties -File $File -Directory $Directory
+    $Properties = Read-Properties -File $File -Directory $Directory
   }
   if ($Custom) {
-    $Customs = ParseProperties -File $Custom -Directory $CustomDirectory
+    $Customs = Read-Properties -File $Custom -Directory $CustomDirectory
     foreach ($Property in $Customs.Keys) {
       # Override default with custom
       if ($Properties.$Property) {
         $Properties.$Property = $Customs.$Property
       } else {
-        LogMessage -Type "WARN" -Message "The ""$Property"" property defined in $Custom is unknown"
+        Out-Log -Type "WARN" -Message "The ""$Property"" property defined in $Custom is unknown"
       }
     }
   }
@@ -408,7 +410,7 @@ function SetProperties {
 # ------------------------------------------------------------------------------
 # Function to compare hashtables content
 # ------------------------------------------------------------------------------
-function CompareHashtables {
+function Compare-Hashtables {
   <#
     .SYNOPSIS
     Compares hashtables content
@@ -423,7 +425,7 @@ function CompareHashtables {
     The Difference parameter should be the hashtable to check the first one against
 
     .EXAMPLE
-    CompareHashtables -Reference $Hashtable1 -Difference $Hashtable2
+    Compare-Hashtables -Reference $Hashtable1 -Difference $Hashtable2
   #>
   [CmdletBinding ()]
   param (
@@ -468,7 +470,7 @@ function CompareHashtables {
 # ------------------------------------------------------------------------------
 # Function to compare hashtables content
 # ------------------------------------------------------------------------------
-function CloneOrderedHashtable {
+function Copy-OrderedHashtable {
   <#
     .SYNOPSIS
     Clone an ordered hashtable
@@ -480,7 +482,7 @@ function CloneOrderedHashtable {
     The Hashtable parameter should be the hashtable to clone
 
     .EXAMPLE
-    CloneOrderedHashtable -Hashtable $Hashtable
+    Copy-OrderedHashtable -Hashtable $Hashtable
   #>
   [CmdletBinding ()]
   param (
@@ -503,11 +505,11 @@ function CloneOrderedHashtable {
   $Clone = [ordered]@{}
   # If deep copy
   if ($Deep) {
-    $MemoryStream           = New-Object System.IO.MemoryStream
-    $BinaryFormatter        = New-Object System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+    $MemoryStream     = New-Object System.IO.MemoryStream
+    $BinaryFormatter  = New-Object System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
     $BinaryFormatter.Serialize($MemoryStream, $Hashtable)
-    $MemoryStream.Position  = 0
-    $Clone                  = $BinaryFormatter.Deserialize($MemoryStream)
+    $MemoryStream.Position = 0
+    $Clone = $BinaryFormatter.Deserialize($MemoryStream)
     $MemoryStream.Close()
   } else {
     # Shallow copy

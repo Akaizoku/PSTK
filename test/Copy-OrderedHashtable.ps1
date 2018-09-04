@@ -1,15 +1,15 @@
 <#
   .SYNOPSIS
-  ParseProperties Unit Testing
+  Copy-OrderedHashtable Unit Testing
 
   .DESCRIPTION
-  Unit Test for ParseProperties function from PSTK module
+  Unit Test for Copy-OrderedHashtable function from PSTK module
 
   .NOTES
-  File name:      ParseProperties.ps1
+  File name:      Copy-OrderedHashtable.ps1
   Author:         Florian Carrier
   Creation date:  31/08/2018
-  Last modified:  31/08/2018
+  Last modified:  04/09/2018
 #>
 
 # ------------------------------------------------------------------------------
@@ -19,59 +19,50 @@ $Path       = Split-Path $MyInvocation.MyCommand.Definition
 $Repository = Split-Path $Path -Parent
 # Import toolbox
 Import-Module "$Repository\PSTK.psm1" -Force
+
 # ------------------------------------------------------------------------------
-# Expected results
+# Test objects
 # ------------------------------------------------------------------------------
-# Without Sections
-$Expected1    = [ordered]@{
+# Simple
+$Simple       = [ordered]@{
   Property1   = 1
   Property2   = 2
   Property3   = 3
   Property4   = 4
   Property5   = 5
-  Property6   = 6
-  Property7   = 7
-  Property8   = 8
-  Property9   = 9
-  Property10  = 10
 }
-
-# With Sections
-$Expected2      = [ordered]@{
-  Section1      = [ordered]@{
-    Property1   = 1
-    Property2   = 2
-    Property3   = 3
-    Property4   = 4
-    Property5   = 5
+# Complex
+$Complex      = [ordered]@{
+  Section1    = [ordered]@{
+    Property1 = 1
+    Property2 = 2
   }
-  Section2      = [ordered]@{
-    Property6   = 6
-    Property7   = 7
-    Property8   = 8
-    Property9   = 9
-    Property10  = 10
+  Property3   = 3
+  Section2    = [ordered]@{
+    Property4 = 4
+    Property5 = 5
   }
 }
+# Empty hashtable
+$Empty        = [ordered]@{}
 
 # ------------------------------------------------------------------------------
 # Test
 # ------------------------------------------------------------------------------
-# Without Sections
-$Properties1  = ParseProperties -File properties.ini -Directory $Repository\test\res
-$Check1       = CompareHashtables -Reference $Expected1 -Difference $Properties1
+$CloneSimple  = Copy-OrderedHashtable -Hashtable $Simple
+$CheckSimple  = Compare-Hashtables -Reference $CloneSimple -Difference $Simple
 
-# With Sections
-$Properties2  = ParseProperties -File properties.ini -Directory $Repository\test\res -Section
-$Check2       = CompareHashtables -Reference $Expected2 -Difference $Properties2
+$CloneComplex = Copy-OrderedHashtable -Hashtable $Complex
+$CheckComplex = Compare-Hashtables -Reference $CloneComplex -Difference $Complex
+
+$CloneEmpty   = Copy-OrderedHashtable -Hashtable $Empty
+$CheckEmpty   = Compare-Hashtables -Reference $CloneEmpty -Difference $Empty
 
 # ------------------------------------------------------------------------------
 # Check outcome
 # ------------------------------------------------------------------------------
-if ($Check1 -And $Check2) {
+if ($CloneSimple -And $CheckComplex -And $CheckEmpty) {
   return $true
 } else {
   return $false
 }
-
-# Y U NO WORK

@@ -1,15 +1,15 @@
 <#
   .SYNOPSIS
-  ParseProperty Unit Testing
+  Read-Property Unit Testing
 
   .DESCRIPTION
-  Unit Test for ParseProperty function from PSTK module
+  Unit Test for Read-Property function from PSTK module
 
   .NOTES
-  File name:      ParseProperty.ps1
+  File name:      Read-Property.ps1
   Author:         Florian Carrier
   Creation date:  31/08/2018
-  Last modified:  31/08/2018
+  Last modified:  04/09/2018
 #>
 
 # ------------------------------------------------------------------------------
@@ -19,6 +19,7 @@ $Path       = Split-Path $MyInvocation.MyCommand.Definition
 $Repository = Split-Path $Path -Parent
 # Import toolbox
 Import-Module "$Repository\PSTK.psm1" -Force
+
 # ------------------------------------------------------------------------------
 # Expected results
 # ------------------------------------------------------------------------------
@@ -30,19 +31,19 @@ $Expected = [ordered]@{
 # ------------------------------------------------------------------------------
 # Test
 # ------------------------------------------------------------------------------
-$Property1  = ParseProperty -Content "Property Name = Property Value"
-$Property2  = ParseProperty -Content "Property Name   Property Value"
-$Property3  = ParseProperty -Content "Property Name = Property=Value"
-$Property4  = ParseProperty -Content "Property Name =Property Value"
-$Property5  = ParseProperty -Content "Property Name=Property Value"
-$Property6  = ParseProperty -Content "Property Name= Property Value"
+$Property1  = Read-Property -Content "Property Name = Property Value"
+$Property2  = Read-Property -Content "Property Name   Property Value"
+$Property3  = Read-Property -Content "Property Name = Property=Value"
+$Property4  = Read-Property -Content "Property Name =Property Value"
+$Property5  = Read-Property -Content "Property Name=Property Value"
+$Property6  = Read-Property -Content "Property Name= Property Value"
 
-$Check1     = CompareHashtables -Reference $Expected -Difference $Property1
-$Check2     = CompareHashtables -Reference $Expected -Difference $Property2
-$Check3     = CompareHashtables -Reference $Expected -Difference $Property3
-$Check4     = CompareHashtables -Reference $Expected -Difference $Property4
-$Check5     = CompareHashtables -Reference $Expected -Difference $Property5
-$Check6     = CompareHashtables -Reference $Expected -Difference $Property6
+$Check1     = Compare-Hashtables -Reference $Expected -Difference $Property1
+$Check2     = Compare-Hashtables -Reference $Expected -Difference $Property2
+$Check3     = Compare-Hashtables -Reference $Expected -Difference $Property3
+$Check4     = Compare-Hashtables -Reference $Expected -Difference $Property4
+$Check5     = Compare-Hashtables -Reference $Expected -Difference $Property5
+$Check6     = Compare-Hashtables -Reference $Expected -Difference $Property6
 
 # ------------------------------------------------------------------------------
 # Check outcome

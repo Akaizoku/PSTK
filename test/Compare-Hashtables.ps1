@@ -1,15 +1,15 @@
 <#
   .SYNOPSIS
-  CloneOrderedHashtable Unit Testing
+  Compare-Hashtables Unit Testing
 
   .DESCRIPTION
-  Unit Test for CloneOrderedHashtable function from PSTK module
+  Unit Test for Compare-Hashtables function from PSTK module
 
   .NOTES
-  File name:      CloneOrderedHashtable.ps1
+  File name:      Compare-Hashtables.ps1
   Author:         Florian Carrier
   Creation date:  31/08/2018
-  Last modified:  31/08/2018
+  Last modified:  04/09/2018
 #>
 
 # ------------------------------------------------------------------------------
@@ -23,25 +23,29 @@ Import-Module "$Repository\PSTK.psm1" -Force
 # ------------------------------------------------------------------------------
 # Test objects
 # ------------------------------------------------------------------------------
-# Simple
-$Simple    = [ordered]@{
+# Reference
+$Reference    = [ordered]@{
   Property1   = 1
   Property2   = 2
   Property3   = 3
   Property4   = 4
   Property5   = 5
 }
-# Complex
-$Complex        = [ordered]@{
-  Section1    = [ordered]@{
-    Property1 = 1
-    Property2 = 2
-  }
+# Exact match
+$Exact        = [ordered]@{
+  Property1   = 1
+  Property2   = 2
   Property3   = 3
-  Section2    = [ordered]@{
-    Property4 = 4
-    Property5 = 5
-  }
+  Property4   = 4
+  Property5   = 5
+}
+# No match
+$Inexact      = [ordered]@{
+  Property1   = 5
+  Property2   = 4
+  Property3   = 3
+  Property4   = 2
+  Property5   = 1
 }
 # Empty hashtable
 $Empty        = [ordered]@{}
@@ -49,19 +53,14 @@ $Empty        = [ordered]@{}
 # ------------------------------------------------------------------------------
 # Test
 # ------------------------------------------------------------------------------
-$CloneSimple  = CloneOrderedHashtable -Hashtable $Simple
-$CheckSimple  = CompareHashtables -Reference $CloneSimple -Difference $Simple
-
-$CloneComplex = CloneOrderedHashtable -Hashtable $Complex
-$CheckComplex = CompareHashtables -Reference $CloneComplex -Difference $Complex
-
-$CloneEmpty   = CloneOrderedHashtable -Hashtable $Empty
-$CheckEmpty   = CompareHashtables -Reference $CloneEmpty -Difference $Empty
+$CheckExact   = Compare-Hashtables -Reference $Reference -Difference $Exact
+$CheckInexact = Compare-Hashtables -Reference $Reference -Difference $Inexact
+$CheckEmpty   = Compare-Hashtables -Reference $Reference -Difference $Empty
 
 # ------------------------------------------------------------------------------
 # Check outcome
 # ------------------------------------------------------------------------------
-if ($CloneSimple -And $CheckComplex -And $CheckEmpty) {
+if ($CheckExact -And !$CheckInexact -And !$CheckEmpty) {
   return $true
 } else {
   return $false
