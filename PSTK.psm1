@@ -17,13 +17,13 @@
 # ------------------------------------------------------------------------------
 # Logging function
 # ------------------------------------------------------------------------------
-function Out-Log {
+function Write-Log {
   <#
     .SYNOPSIS
     Formats output message as a log
 
     .DESCRIPTION
-    The Out-Log function outputs the time and type of a message in a formatt-
+    The Write-Log function outputs the time and type of a message in a formatt-
     ed manner with respective colour code.
 
     .PARAMETER Type
@@ -136,7 +136,7 @@ function Test-SQLConnection {
     if ($Username) {
       $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=False; User ID=$Username; Password=$Password; Connect Timeout=3;"
     } else {
-      Out-Log -Type "ERROR" -Message "Please provide a valid username"
+      Write-Log -Type "ERROR" -Message "Please provide a valid username"
       exit
     }
   } else {
@@ -227,7 +227,7 @@ function Read-Properties {
             if ($Property.Count -gt 0) {
               $Sections.Add($Property.Key, $Property.Value)
             } else {
-              Out-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
+              Write-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
             }
           }
           $Clone = Copy-OrderedHashtable -Hashtable $Sections -Deep
@@ -246,7 +246,7 @@ function Read-Properties {
           if ($Property.Count -gt 0) {
             $Sections.Add($Property.Key, $Property.Value)
           } else {
-            Out-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
+            Write-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
           }
         }
       } else {
@@ -256,14 +256,14 @@ function Read-Properties {
           if ($Property.Count -gt 0) {
             $Properties.Add($Property.Key, $Property.Value)
           } else {
-            Out-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
+            Write-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
           }
         }
       }
     }
   } else {
     # Alert that configuration file does not exists at specified location
-    Out-Log -Type "ERROR" -Message "The $File file cannot be found under $(Resolve-Path $Directory)"
+    Write-Log -Type "ERROR" -Message "The $File file cannot be found under $(Resolve-Path $Directory)"
   }
   return $Properties
 }
@@ -336,10 +336,10 @@ function Set-Properties {
     Set-Properties -File "default.ini" -Directory ".\conf"
 
     .EXAMPLE
-    Set-Properties -File "default.ini" -Directory ".\conf" -Custom "custom.properties"
+    Set-Properties -File "default.ini" -Directory ".\conf" -Custom "custom.ini"
 
     .EXAMPLE
-    Set-Properties -File "default.ini" -Directory ".\conf" -Custom "custom.properties" -CustomDirectory ".\shared"
+    Set-Properties -File "default.ini" -Directory ".\conf" -Custom "custom.ini" -CustomDirectory ".\shared"
 
     .NOTES
     Set-Properties does not currently allow the use of sections to group properties in custom files
@@ -375,7 +375,7 @@ function Set-Properties {
       Mandatory   = $false,
       HelpMessage = "Path to the directory containing the custom property file"
     )]
-    [Alias ("CD")]
+    [Alias ("CD", "CustomDir")]
     [String]
     $CustomDirectory = $Directory,
     [Parameter (
@@ -387,24 +387,38 @@ function Set-Properties {
     [Switch]
     $Section
   )
-  # Parse properties
-  if ($Section) {
-    $Properties = Read-Properties -File $File -Directory $Directory -Section
-  } else {
-    $Properties = Read-Properties -File $File -Directory $Directory
-  }
-  if ($Custom) {
-    $Customs = Read-Properties -File $Custom -Directory $CustomDirectory
-    foreach ($Property in $Customs.Keys) {
-      # Override default with custom
-      if ($Properties.$Property) {
-        $Properties.$Property = $Customs.$Property
+  # Check that specified file exists
+  if (Test-Path -Path "$Directory\$File") {
+    # Parse properties with or without section split
+    if ($Section) {
+      $Properties = Read-Properties -File $File -Directory $Directory -Section
+    } else {
+      $Properties = Read-Properties -File $File -Directory $Directory
+    }
+    # Check if a custom file is provided
+    if ($Custom) {
+      # Make sure said file does exists
+      if (Test-Path -Path "$CustomDirectory\$Custom") {
+        # Override default properties with custom ones
+        $Customs = Read-Properties -File $Custom -Directory $CustomDirectory
+        foreach ($Property in $Customs.Keys) {
+          # Override default with custom
+          if ($Properties.$Property) {
+            $Properties.$Property = $Customs.$Property
+          } else {
+            Write-Log -Type "WARN" -Message "The ""$Property"" property defined in $Custom is unknown"
+          }
+        }
       } else {
-        Out-Log -Type "WARN" -Message "The ""$Property"" property defined in $Custom is unknown"
+        Write-Log -Type "WARN" -Message "$Custom not found in directory $CustomDirectory"
       }
     }
+    return $Properties
+  } else {
+    Write-Log -Type "ERROR" -Message "$File not found in directory $Directory"
+    exit 1
   }
-  return $Properties
+
 }
 
 # ------------------------------------------------------------------------------
