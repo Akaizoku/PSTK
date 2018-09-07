@@ -533,3 +533,96 @@ function Copy-OrderedHashtable {
   }
   return $Clone
 }
+
+# ------------------------------------------------------------------------------
+# Advanced exit function
+# ------------------------------------------------------------------------------
+function Stop-Script {
+  <#
+    .SYNOPSIS
+    Stop script
+
+    .DESCRIPTION
+    Exit script and stop transcript if any
+
+    .PARAMETER ErrorCode
+    The error code parameter corresponds to the error code thrown after exiting the script. Default is 0 (i.e. no errors).
+
+    .EXAMPLE
+    Stop-Script -ErrorCode 1
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $false,
+      HelpMessage = "Error code"
+    )]
+    [Alias ("E", "Err", "Error", "C", "Code")]
+    $ErrorCode = 0
+  )
+  begin {
+    try {
+      Stop-Transcript
+    } catch {
+      Write-Log -Type "WARN" -Message "No transcript is being produced"
+    }
+  }
+  process {
+    exit $ErrorCode
+  }
+}
+
+# ------------------------------------------------------------------------------
+# Compare two properties list
+# ------------------------------------------------------------------------------
+function Compare-Properties {
+  <#
+    .SYNOPSIS
+    Checks that all required property are defined
+
+    .DESCRIPTION
+    Checks that all required property are defined by returning a list of missing properties
+
+    .PARAMETER Properties
+    The properties parameter corresponds to the list of properties defined
+
+    .PARAMETER Required
+    The required parameter corresponds to the list of properties that are required
+
+    .EXAMPLE
+    Assert-Properties -Properties $Properties -Required $Required
+
+    .NOTES
+    Check if returned list is empty to verify that all is well
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "List of properties"
+    )]
+    [ValidateNotNullOrEmpty ()]
+    [Alias ("P")]
+    $Properties,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $true,
+      HelpMessage = "List of properties to check"
+    )]
+    [ValidateNotNullOrEmpty ()]
+    [Alias ("C")]
+    [String[]]
+    $Required
+  )
+  $Missing = @()
+  $Parameters = $Required.Split(",")
+  foreach ($Parameter in $Parameters) {
+    $Property = $Parameter.Trim()
+    if (!$Properties.$Property) {
+      $Missing += $Property
+    }
+  }
+  return $Missing
+}
