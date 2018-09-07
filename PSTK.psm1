@@ -176,10 +176,10 @@ function Read-Properties {
     The Section parameter indicates if properties should be grouped depending on existing sections in the file
 
     .EXAMPLE
-    Read-Properties -File "default.ini" -Directory ".\conf"
+    Read-Properties -File "default.ini" -Directory "\conf"
 
     .EXAMPLE
-    Read-Properties -File "default.ini" -Directory ".\conf" -Section
+    Read-Properties -File "default.ini" -Directory "\conf" -Section
   #>
   [CmdletBinding ()]
   param (
@@ -333,13 +333,13 @@ function Set-Properties {
     The CustomDirectory parameter should be the path to the directory containing the custom property file.
 
     .EXAMPLE
-    Set-Properties -File "default.ini" -Directory ".\conf"
+    Set-Properties -File "default.ini" -Directory "\conf"
 
     .EXAMPLE
-    Set-Properties -File "default.ini" -Directory ".\conf" -Custom "custom.ini"
+    Set-Properties -File "default.ini" -Directory "\conf" -Custom "custom.ini"
 
     .EXAMPLE
-    Set-Properties -File "default.ini" -Directory ".\conf" -Custom "custom.ini" -CustomDirectory ".\shared"
+    Set-Properties -File "default.ini" -Directory "\conf" -Custom "custom.ini" -CustomDirectory "\shared"
 
     .NOTES
     Set-Properties does not currently allow the use of sections to group properties in custom files
