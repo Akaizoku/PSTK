@@ -11,7 +11,7 @@
   File name:      PSTK.psm1
   Author:         Florian Carrier
   Creation date:  23/08/2018
-  Last modified:  04/09/2018
+  Last modified:  18/09/2018
 #>
 
 # ------------------------------------------------------------------------------
@@ -32,6 +32,24 @@ function Write-Log {
 
     .PARAMETER Message
     The Message parameter corresponds to the desired output to be logged.
+
+    .INPUTS
+    None. You cannot pipe objects to Write-Log.
+
+    .OUTPUTS
+    None. Simply writes a message to the host.
+
+    .EXAMPLE
+    Write-Log -Type "INFO" -Message "This is an informational message."
+
+    .EXAMPLE
+    Write-Log -Type "WARN" -Message "This is a warning message."
+
+    .EXAMPLE
+    Write-Log -Type "ERROR" -Message "This is an error message."
+
+    .EXAMPLE
+    Write-Log -Type "CHECK" -Message "This is a checkpoint message."
   #>
   [CmdletBinding ()]
   # Inputs
@@ -85,8 +103,18 @@ function Test-SQLConnection {
     .PARAMETER Database
     The Database parameter corresponds to the database to be tested
 
+    .INPUTS
+    None. You cannot pipe objects to Test-SQLConnection.
+
+    .OUTPUTS
+    Boolean. Test-SQLConnection returns a boolean depending on the result of the
+    connection attempt.
+
     .EXAMPLE
-    Test-SQLConnection -Server localhost -Database OneSumX_fsdb
+    Test-SQLConnection -Server localhost -Database database
+
+    .NOTES
+    TODO Add secured password handling
   #>
   [CmdletBinding ()]
   param (
@@ -137,7 +165,7 @@ function Test-SQLConnection {
       $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=False; User ID=$Username; Password=$Password; Connect Timeout=3;"
     } else {
       Write-Log -Type "ERROR" -Message "Please provide a valid username"
-      exit
+      Stop-Script 1
     }
   } else {
     $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=True; Connect Timeout=3;"
@@ -150,7 +178,6 @@ function Test-SQLConnection {
     $Connection.Close()
     return $true
   } catch {
-    # If it fails, return false
     return $false
   }
 }
@@ -174,6 +201,10 @@ function Read-Properties {
 
     .PARAMETER Section
     The Section parameter indicates if properties should be grouped depending on existing sections in the file
+
+    .OUTPUTS
+    System.Collections.Specialized.OrderedDictionary. Read-Properties returns an
+    ordered hash table containing the content of the property file.
 
     .EXAMPLE
     Read-Properties -File "default.ini" -Directory "\conf"
@@ -200,7 +231,7 @@ function Read-Properties {
     [Parameter (
       Position    = 3,
       Mandatory   = $false,
-      HelpMessage = "Define if section headers should be used to group properties or be   ignored"
+      HelpMessage = "Define if section headers should be used to group properties or be ignored"
       )]
     [Alias ("S")]
     [Switch]
@@ -269,7 +300,7 @@ function Read-Properties {
 }
 
 # ------------------------------------------------------------------------------
-# Properties parsing function
+# Property parsing function
 # ------------------------------------------------------------------------------
 function Read-Property {
   <#
@@ -282,15 +313,23 @@ function Read-Property {
     .PARAMETER Content
     The Content parameter should be the content of the property
 
+    .INPUTS
+    System.String.
+
+    .OUTPUTS
+    System.Collections.Specialized.OrderedDictionary. Read-Property returns an
+    ordered hash table containing the name and value of a given property.
+
     .EXAMPLE
     Read-Property -Content "Key = Value"
   #>
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
-      Mandatory   = $true,
-      HelpMessage = "Property content"
+      Position          = 1,
+      Mandatory         = $true,
+      ValueFromPipeline = $true,
+      HelpMessage       = "Property content"
     )]
     [ValidateNotNullOrEmpty ()]
     [Alias ("C")]
@@ -310,7 +349,7 @@ function Read-Property {
 }
 
 # ------------------------------------------------------------------------------
-# Properties parsing function
+# Properties setting function
 # ------------------------------------------------------------------------------
 function Set-Properties {
   <#
@@ -331,6 +370,11 @@ function Set-Properties {
 
     .PARAMETER CustomDirectory
     The CustomDirectory parameter should be the path to the directory containing the custom property file.
+
+    .OUTPUTS
+    System.Collections.Specialized.OrderedDictionary. Set-Properties returns an
+    ordered hash table containing the names and values of the properties listed
+    in the property files.
 
     .EXAMPLE
     Set-Properties -File "default.ini" -Directory "\conf"
@@ -430,13 +474,18 @@ function Compare-Hashtables {
     Compares hashtables content
 
     .DESCRIPTION
-    Check that two given hashtables are identic
+    Check that two given hashtables are identic.
 
     .PARAMETER Reference
-    The Reference parameter should be the hashtable to check
+    The Reference parameter should be the hashtable to check.
 
     .PARAMETER Difference
-    The Difference parameter should be the hashtable to check the first one against
+    The Difference parameter should be the hashtable against which to check the
+    first one.
+
+    .OUTPUTS
+    Boolean. Compare-Hashtables returns a boolean depnding on the result of the
+    comparison between the two hashtables.
 
     .EXAMPLE
     Compare-Hashtables -Reference $Hashtable1 -Difference $Hashtable2
@@ -482,7 +531,7 @@ function Compare-Hashtables {
 }
 
 # ------------------------------------------------------------------------------
-# Function to compare hashtables content
+# Function to clone an existing hashtable
 # ------------------------------------------------------------------------------
 function Copy-OrderedHashtable {
   <#
@@ -494,6 +543,10 @@ function Copy-OrderedHashtable {
 
     .PARAMETER Hashtable
     The Hashtable parameter should be the hashtable to clone
+
+    .OUTPUTS
+    System.Collections.Specialized.OrderedDictionary. Copy-OrderedHashtable returns an
+    exact copy of the ordered hash table specified.
 
     .EXAMPLE
     Copy-OrderedHashtable -Hashtable $Hashtable
@@ -543,7 +596,7 @@ function Stop-Script {
     Stop script
 
     .DESCRIPTION
-    Exit script and stop transcript if any
+    Exit script, set error code, and stop transcript if any.
 
     .PARAMETER ErrorCode
     The error code parameter corresponds to the error code thrown after exiting the script. Default is 0 (i.e. no errors).
@@ -590,6 +643,10 @@ function Compare-Properties {
     .PARAMETER Required
     The required parameter corresponds to the list of properties that are required
 
+    .OUTPUTS
+    System.Array.Object[]. Compare-Properties returns an array containing the
+    missing properties from the list.
+
     .EXAMPLE
     Assert-Properties -Properties $Properties -Required $Required
 
@@ -620,7 +677,7 @@ function Compare-Properties {
   $Parameters = $Required.Split(",")
   foreach ($Parameter in $Parameters) {
     $Property = $Parameter.Trim()
-    if (!$Properties.$Property) {
+    if ($Property -ne "" -And !$Properties.$Property) {
       $Missing += $Property
     }
   }
