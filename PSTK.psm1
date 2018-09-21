@@ -5,13 +5,14 @@
   PowerShell Toolbox
 
   .DESCRIPTION
-  Collection of useful functions and procedures
+  Collection of useful functions and procedures.
 
   .NOTES
   File name:      PSTK.psm1
   Author:         Florian Carrier
   Creation date:  23/08/2018
-  Last modified:  18/09/2018
+  Last modified:  21/09/2018
+  Repository:     https://github.com/Akaizoku/PSTK
 #>
 
 # ------------------------------------------------------------------------------
@@ -462,7 +463,6 @@ function Set-Properties {
     Write-Log -Type "ERROR" -Message "$File not found in directory $Directory"
     exit 1
   }
-
 }
 
 # ------------------------------------------------------------------------------
@@ -572,8 +572,8 @@ function Copy-OrderedHashtable {
   $Clone = [ordered]@{}
   # If deep copy
   if ($Deep) {
-    $MemoryStream     = New-Object System.IO.MemoryStream
-    $BinaryFormatter  = New-Object System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+    $MemoryStream     = New-Object -TypeName System.IO.MemoryStream
+    $BinaryFormatter  = New-Object -TypeName System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
     $BinaryFormatter.Serialize($MemoryStream, $Hashtable)
     $MemoryStream.Position = 0
     $Clone = $BinaryFormatter.Deserialize($MemoryStream)
@@ -588,6 +588,42 @@ function Copy-OrderedHashtable {
 }
 
 # ------------------------------------------------------------------------------
+# Advanced start function
+# ------------------------------------------------------------------------------
+function Start-Script {
+  <#
+    .SYNOPSIS
+    Start script
+
+    .DESCRIPTION
+    Start transcript and set strict mode
+
+    .PARAMETER Transcript
+    The transcript parameter corresponds to the file to be generated to log the
+    session.
+
+    .EXAMPLE
+    Start-Script -Transcript ".\log\transcript.log"
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Transcript file path"
+    )]
+    [Alias ("T", "L", "Log", "LogFile")]
+    $Transcript
+  )
+  begin {
+    Set-StrictMode -Version Latest
+  }
+  process {
+    Start-Transcript -Path $Transcript -Append -Force
+  }
+}
+
+# ------------------------------------------------------------------------------
 # Advanced exit function
 # ------------------------------------------------------------------------------
 function Stop-Script {
@@ -596,7 +632,7 @@ function Stop-Script {
     Stop script
 
     .DESCRIPTION
-    Exit script, set error code, and stop transcript if any.
+    Exit script, set error code, disable stric-mode, and stop transcript if any.
 
     .PARAMETER ErrorCode
     The error code parameter corresponds to the error code thrown after exiting the script. Default is 0 (i.e. no errors).
@@ -615,6 +651,7 @@ function Stop-Script {
     $ErrorCode = 0
   )
   begin {
+    Set-StrictMode -Off
     try {
       Stop-Transcript
     } catch {
@@ -644,7 +681,7 @@ function Compare-Properties {
     The required parameter corresponds to the list of properties that are required
 
     .OUTPUTS
-    System.Array.Object[]. Compare-Properties returns an array containing the
+    System.Collections.ArrayList. Compare-Properties returns an array containing the
     missing properties from the list.
 
     .EXAMPLE
@@ -673,13 +710,467 @@ function Compare-Properties {
     [String[]]
     $Required
   )
-  $Missing = @()
+  $Missing = New-Object -TypeName System.Collections.ArrayList
   $Parameters = $Required.Split(",")
   foreach ($Parameter in $Parameters) {
     $Property = $Parameter.Trim()
     if ($Property -ne "" -And !$Properties.$Property) {
-      $Missing += $Property
+      $Missing.Add($Property)
     }
   }
   return $Missing
+}
+
+# ------------------------------------------------------------------------------
+# Sort function
+# ------------------------------------------------------------------------------
+function ConvertTo-NaturalSort {
+  <#
+    .SYNOPSIS
+    Sort a list in the natural order
+
+    .DESCRIPTION
+    Sort a list of files by their name in the natural order. Sort can be ascend-
+    ing (default) or descending.
+
+    .PARAMETER Files
+    The files parameters corresponds to the list of files to be sorted.
+
+    .PARAMETER Order
+    The order parameter corresponds to the order of the sort. Two values are
+    possible:
+    - Ascending (default)
+    - Descending
+
+    .INPUTS
+    System.Array.Object[]
+
+    .OUTPUTS
+    System.Array.Object[]. ConvertTo-NaturalSort returns a sorted array.
+
+    .EXAMPLE
+    ConvertTo-NaturalSort -Array @("a10", "b1", "a1")
+
+    .EXAMPLE
+    ConvertTo-NaturalSort -Array @("a10", "b1", "a1") -Order "Descending"
+
+    .NOTES
+    TODO Make generic to allow sorting simple string arrays
+  #>
+  [CmdletBinding ()]
+  param(
+    [Parameter (
+      Position          = 1,
+      Mandatory         = $true,
+      ValueFromPipeline = $true,
+      HelpMessage       = "List of files to sort"
+    )]
+    [Alias ("F", "L", "List")]
+    $Files,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $false,
+      HelpMessage = "Specifies the order of the sort"
+    )]
+    [ValidateSet ("A", "Asc", "Ascending", "D", "Dsc", "Desc", "Descending")]
+    [Alias ("O")]
+    [String]
+    $Order = "Ascending"
+  )
+  $Ascending  = @("A", "Asc", "Ascending")
+  $Descending = @("D", "Dsc", "Desc", "Descending")
+  $MaximumLength = 0
+  foreach ($File in $Files) {
+    [Int]$Length = $File.BaseName | Measure-Object -Character | Select -Expand Characters
+    if ($Length -gt $MaximumLength) {
+      $MaximumLength = $Length
+    }
+  }
+  $RegEx = { [RegEx]::Replace($_.BaseName, '\d+', { $args[0].Value.PadLeft($MaximumLength) }) }
+  if ($Descending.Contains($Order)) {
+    $SortedFiles = $Files | Sort-Object $RegEx -Descending
+  } elseif ($Ascending.Contains($Order)) {
+    $SortedFiles = $Files | Sort-Object $RegEx
+  }
+  return $SortedFiles
+}
+
+# ------------------------------------------------------------------------------
+# Increment/decrement alphanumeric string
+# ------------------------------------------------------------------------------
+function Add-Offset {
+  <#
+    .SYNOPSIS
+    Adds an offset to an alphanumeric chain of characters
+
+    .DESCRIPTION
+    Adds an offset to the integer part of an alphanumeric chain of characters.
+
+    .PARAMETER Alphanumeric
+    The alphanumeric parameter corresponds to the chain of characters to offset.
+
+    .PARAMETER Offset
+    The offset parameter corresponds to the integer by which the alphanumeric
+    chain of characters should be offset.
+
+    .INPUTS
+    System.String
+    System.Integer
+
+    .OUTPUTS
+    System.String. Add-Offset returns an alphanumeric chain of character.
+
+    .EXAMPLE
+    Add-Offset -Alphanumeric "a1" -Offset 2
+
+    .NOTES
+    The alphanumeric chain of characters has to match the following regular ex-
+    pressions:
+    - ^\d+$
+    - ^\d+\D+$
+    - ^\D+\d+$
+  #>
+  [CmdletBinding ()]
+  param(
+    [Parameter (
+      Position          = 1,
+      Mandatory         = $true,
+      ValueFromPipeline = $true,
+      HelpMessage       = "Alphanumeric chain of character"
+    )]
+    [Alias ("A", "Alpha", "Alphanum", "N", "Num", "Numeric")]
+    $Alphanumeric,
+    [Parameter (
+      Position          = 2,
+      Mandatory         = $true,
+      ValueFromPipeline = $true,
+      HelpMessage       = "Offset"
+    )]
+    [Alias ("O", "Off")]
+    [Int]
+    $Offset
+  )
+  # Declare valid formats
+  $Number = [RegEx]::New('^\d+$')
+  $NumStr = [RegEx]::New('^\d+\D+$')
+  $StrNum = [RegEx]::New('^\D+\d+$')
+  try {
+    $Format = Test-Alphanumeric -Alphanumeric $Alphanumeric
+    if ($Format -ne 0) {
+      if ($Format -eq 1) {
+        $NewAlphanumeric = [Long]$Alphanumeric + $Offset
+      } else {
+        $Integer  = $Alphanumeric -replace ('\D+', "")
+        $String   = $Alphanumeric -replace ('\d+', "")
+        [Long]$Integer += $Offset
+        if ($Format -eq 2) {
+          $NewAlphanumeric = "$Integer$String"
+        } elseif ($Format -eq 3) {
+          $NewAlphanumeric = "$String$Integer"
+        }
+      }
+    } else {
+      Write-Log -Type "WARN" -Message "The alphanumeric chain of character (""$Alphanumeric"") does not have a correct format."
+      return $Alphanumeric
+    }
+  } catch [System.Management.Automation.RuntimeException] {
+    Write-Log -Type "ERROR" -Message "The numeric value is too large (greater than $([Long]::MaxValue))."
+  }
+  return $NewAlphanumeric
+}
+
+# ------------------------------------------------------------------------------
+# Increment/decrement numbered files
+# ------------------------------------------------------------------------------
+function Rename-NumberedFile {
+  <#
+    .SYNOPSIS
+    Renames numbered files by a given offset
+
+    .DESCRIPTION
+    Rename numbered files by offsetting their numbers by a specified integer.
+
+    .PARAMETER Path
+    The path parameter corresponds to the path to the directory containing the
+    files to be renamed.
+
+    .PARAMETER Offset
+    The offset parameter corresponds to the integer to add to the file names.
+
+    .PARAMETER Filter
+    The filter parameter corresponds to the pattern to apply as a filter to
+    select files to rename in the specified directory.
+    Default value is "*" (all).
+
+    .PARAMETER Exclude
+    The exclude parameter corresponds to the pattern of files to exclude from
+    the scope of the procedure.
+    Default value is null (none).
+
+    .INPUTS
+    - [System.String]   Path to the folder containing the files to rename.
+    - [System.Integer]  Offset to add to the file names.
+    - [System.String]   Filter to apply
+
+    .OUTPUTS
+    [Boolean] Rename-NumberedFile returns a boolean depending on the success of
+    the operation.
+
+    .EXAMPLE
+    Rename-NumberedFile -Path "\folder" -Offset 1
+
+    .EXAMPLE
+    Rename-NumberedFile -Path "\folder" -Offset 1 -Filter "*.txt"
+
+    .EXAMPLE
+    Rename-NumberedFile -Path "\folder" -Offset 1 -Filter "*.txt" -Exclude "test.txt"
+
+    .NOTES
+    Rename-NumberedFile only works with positive numbers to avoid conflicts with
+    dashes in filenames.
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position          = 1,
+      Mandatory         = $true,
+      ValueFromPipeline = $true,
+      HelpMessage       = "Path to the files"
+    )]
+    [ValidateScript ({Test-Path -Path $_})]
+    [Alias ("P")]
+    [String]
+    $Path,
+    [Parameter (
+      Position          = 2,
+      Mandatory         = $true,
+      ValueFromPipeline = $true,
+      HelpMessage       = "Offset"
+    )]
+    [ValidateScript ({if ($_ -eq 0) {Throw "The offset cannot be 0."} else {$true}})]
+    [Alias ("O", "Off")]
+    [Int]
+    $Offset,
+    [Parameter (
+      Position          = 3,
+      Mandatory         = $false,
+      ValueFromPipeline = $true,
+      HelpMessage       = "Filter to apply"
+    )]
+    [Alias ("F", "Filters")]
+    [String]
+    $Filter = "*",
+    [Parameter (
+      Position          = 4,
+      Mandatory         = $false,
+      ValueFromPipeline = $true,
+      HelpMessage       = "Pattern to exclude"
+    )]
+    [Alias ("E")]
+    [String]
+    $Exclude = $null
+  )
+  $Output   = $false
+  $Count    = 0
+  $Numeric  = [RegEx]::New('\d+')
+  # Get files
+  $Files  = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude
+  $Files  = $Files | Where-Object {$_.BaseName -match $Numeric}
+  if ($Files.Count -eq 0) {
+    if ($Filter -ne "*") {
+      Write-Log -Type "ERROR" -Message "No numbered files were found in $Path matching the filter ""$Filter""."
+    } elseif ($Exclude) {
+      Write-Log -Type "ERROR" -Message "No numbered files corresponding to the criterias were found in $Path."
+    } else {
+      Write-Log -Type "ERROR" -Message "No numbered files were found in $Path."
+    }
+    Stop-Script 1
+  } else {
+    # Check offset sign
+    if ($Offset -lt 0) {
+      # If negative, check that it will not generate negative values
+      $Minimum = Measure-FileProperty -Files $Files -Property "MinimumValue"
+      if ($Minimum -eq 0) {
+        Write-Log -Type "ERROR" -Message "The minimum value is already 0."
+        Stop-Script 1
+      } elseif ($Minimum -lt [System.Math]::Abs($Offset)) {
+        Write-Log -Type "ERROR" -Message "The offset is greater than the minimum value ($Minimum)."
+        Stop-Script 1
+      }
+    } elseif ($Offset -gt 0) {
+      # If positive, sort in descending order
+      $Files = ConvertTo-NaturalSort -Files $Files -Order "Descending"
+    }
+    # Rename files
+    foreach ($File in $Files) {
+      $Filename     = $File.BaseName
+      $Extension    = $File.Extension
+      $NewFilename  = Add-Offset -Alphanumeric $Filename -Offset $Offset
+      # Check if file name has changed
+      if ($NewFilename -eq $Filename) {
+        Write-Log -Type "ERROR" -Message "The ""$File"" file could not be renamed."
+      } else {
+        try {
+          Write-Log -Type "INFO" -Message "Renaming ""$($File.Name)"" in ""$NewFilename$Extension""."
+          Rename-Item -Path $File -NewName "$NewFilename$Extension"
+          $Count += 1
+        } catch [System.Management.Automation.PSInvalidOperationException] {
+          Write-Log -Type "ERROR" -Message "The ""$File"" file could not be renamed."
+        }
+      }
+    }
+    if ($Count -gt 0) {
+      Write-Log -Type "CHECK" -Message "$Count files were successfully renamed."
+      $Output = $true
+    }
+  }
+  return $Output
+}
+
+# ------------------------------------------------------------------------------
+# Test alphanumeric chain
+# ------------------------------------------------------------------------------
+function Test-Alphanumeric {
+  <#
+    .SYNOPSIS
+    Check the format of an alphanumeric chain of characters
+
+    .DESCRIPTION
+    Test the format of an alphanumeric chain of characters to see if it can be
+    incremented or decremented easily.
+
+    .PARAMETER Alphanumeric
+    The alphanumeric parameter corresponds to the chain of characters to offset.t.
+
+    .INPUTS
+    [System.String] Alphanumeric chain of characters
+
+    .OUTPUTS
+    [System.Integer] Test-Alphanumeric returns the type of format that the alpha
+    numeric chain of characters if using.
+
+    .EXAMPLE
+    Test-Alphanumeric -Alphanumeric "a1"
+
+    .NOTES
+    Types of format allowed and corresponding regular expressions (0 is invalid):
+    1. ^\d+$
+    2. ^\d+\D+$
+    3. ^\D+\d+$
+  #>
+  [CmdletBinding ()]
+  param(
+    [Parameter (
+      Position          = 1,
+      Mandatory         = $true,
+      ValueFromPipeline = $true,
+      HelpMessage       = "Alphanumeric chain of character"
+    )]
+    [Alias ("A", "Alpha", "Alphanum", "N", "Num", "Numeric")]
+    $Alphanumeric
+  )
+  begin {
+    # Declare valid formats
+    $Number = [RegEx]::New('^\d+$')
+    $NumStr = [RegEx]::New('^\d+\D+$')
+    $StrNum = [RegEx]::New('^\D+\d+$')
+  }
+  process {
+    # Test and return format
+    if ($Alphanumeric -match $Number) {
+      return 1
+    } elseif ($Alphanumeric -match $NumStr) {
+      return 2
+    } elseif ($Alphanumeric -match $StrNum) {
+      return 3
+    } else {
+      return 0
+    }
+  }
+}
+
+# ------------------------------------------------------------------------------
+# Measure properties in file list
+# ------------------------------------------------------------------------------
+function Measure-FileProperty {
+  <#
+    .SYNOPSIS
+    Measure specified property of a list of files
+
+    .DESCRIPTION
+    Measure a specified property from a list of files.
+
+    .PARAMETER Files
+    The files parameter coresponds to the list of files to analyse.
+
+    .PARAMETER Property
+    The property parameter corresponds to the property to measure.
+    The available properties are:
+    - MaximumLength
+    - MinimumValue
+
+    .EXAMPLE
+    Measure-FileProperty -Files $Files -Property "MinimumValue"
+  #>
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "List of Files to parse"
+    )]
+    [Alias ("F", "File", "L", "List")]
+    $Files,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $true,
+      HelpMessage = "Property to measure"
+    )]
+    [Alias ("P", "Prop")]
+    $Property
+  )
+  process {
+    foreach ($File in $Files) {
+      switch ($Property) {
+        # Maximum length of file names
+        "MaximumLength" {
+          $MaximumLength = 0
+          [Int]$Length = $File.BaseName | Measure-Object -Character | Select -Expand Characters
+          if ($Length -gt $MaximumLength) {
+            $MaximumLength = $Length
+          }
+          return $MaximumLength
+          continue
+        }
+        # Minimum value of numbered file names
+        "MinimumValue" {
+          $MinimumValue = $null
+          try {
+            $Filename = $File.BaseName
+            $Format = Test-Alphanumeric -Alphanumeric $Filename
+            if ($Format -ne 0) {
+              if ($Format -eq 1) {
+                [Long]$Integer = $Filename
+              } else {
+                [Long]$Integer = $Filename -replace ('\D+', "")
+              }
+              if ($MinimumValue -eq $null -Or $Integer -lt $MinimumValue) {
+                $MinimumValue = $Integer
+              }
+            } else {
+              Write-Log -Type "ERROR" -Message "The file ""$Filename"" does not have a correct format."
+              Stop-Script 1
+            }
+          } catch [System.Management.Automation.RuntimeException] {
+            Write-Log -Type "ERROR" -Message "The numeric value is too large (greater than $([Long]::MaxValue))."
+          }
+          return $MinimumValue
+          continue
+        }
+        default {
+          Write-Log -Type "ERROR" -Message "Measure-FileProperty: $Property property is not unknown."
+          Stop-Script 1
+        }
+      }
+    }
+  }
 }
