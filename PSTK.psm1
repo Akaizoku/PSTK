@@ -61,7 +61,6 @@ function Write-Log {
       HelpMessage = "Type of message to output"
     )]
     [ValidateSet ("CHECK","ERROR","INFO","WARN")]
-    [Alias ("T")]
     [String]
     $Type,
     [Parameter (
@@ -69,7 +68,7 @@ function Write-Log {
       Mandatory   = $true,
       HelpMessage = "Message to output"
     )]
-    [Alias ("M", "Msg", "O", "Out", "Output", "L", "Log")]
+    [Alias ("Output", "Log")]
     [String]
     $Message
   )
@@ -124,7 +123,7 @@ function Test-SQLConnection {
       Mandatory   = $true,
       HelpMessage = "Database server to connect to"
     )]
-    [Alias ("S", "Svr")]
+    [Alias ("Svr")]
     [String]
     $Server,
     [Parameter (
@@ -132,7 +131,7 @@ function Test-SQLConnection {
       Mandatory   = $true,
       HelpMessage = "Database to connect to"
     )]
-    [Alias ("D", "Data", "Base")]
+    [Alias ("DB")]
     [String]
     $Database,
     [Parameter (
@@ -140,7 +139,6 @@ function Test-SQLConnection {
       Mandatory   = $false,
       HelpMessage = "Use of specific credentials instead of integrated security"
     )]
-    [Alias ("Sec")]
     [Switch]
     $Security = $false,
     [Parameter (
@@ -148,7 +146,7 @@ function Test-SQLConnection {
       Mandatory   = $false,
       HelpMessage = "User name"
     )]
-    [Alias ("U", "User", "Name")]
+    [Alias ("Name")]
     [String]
     $Username,
     [Parameter (
@@ -156,7 +154,7 @@ function Test-SQLConnection {
       Mandatory   = $false,
       HelpMessage = "Password"
     )]
-    [Alias ("P", "Pw", "Pass")]
+    [Alias ("Pw")]
     [String]
     $Password
   )
@@ -172,7 +170,7 @@ function Test-SQLConnection {
     $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=True; Connect Timeout=3;"
   }
   # Create connection object
-  $Connection = New-Object System.Data.SqlClient.SqlConnection $ConnectionString
+  $Connection = New-Object -TypeName System.Data.SqlClient.SqlConnection $ConnectionString
   # Try to open the connection
   try {
     $Connection.Open()
@@ -220,32 +218,29 @@ function Read-Properties {
       Mandatory   = $true,
       HelpMessage = "Property file name"
     )]
-    [Alias ("F")]
     $File,
     [Parameter (
       Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Path to the directory containing the property file"
       )]
-    [Alias ("D", "Dir")]
     $Directory,
     [Parameter (
       Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Define if section headers should be used to group properties or be ignored"
       )]
-    [Alias ("S")]
     [Switch]
     $Section
   )
   # Properties path
-  $PropertyFile = Join-Path $Directory $File
+  $PropertyFile = Join-Path -Path $Directory -ChildPath $File
   $Properties   = [ordered]@{}
   $Sections     = [ordered]@{}
   $Header       = $null
   # Check that the file exists
-  if (Test-Path $PropertyFile) {
-    $FileContent  = Get-Content $PropertyFile
+  if (Test-Path -Path $PropertyFile) {
+    $FileContent  = Get-Content -Path $PropertyFile
     $LineNumber   = 0
     # Read the property file line by line
     foreach ($Content in $FileContent) {
@@ -315,7 +310,7 @@ function Read-Property {
     The Content parameter should be the content of the property
 
     .INPUTS
-    System.String.
+    None.
 
     .OUTPUTS
     System.Collections.Specialized.OrderedDictionary. Read-Property returns an
@@ -327,13 +322,11 @@ function Read-Property {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position          = 1,
-      Mandatory         = $true,
-      ValueFromPipeline = $true,
-      HelpMessage       = "Property content"
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Property content"
     )]
     [ValidateNotNullOrEmpty ()]
-    [Alias ("C")]
     [String]
     $Content
   )
@@ -396,7 +389,6 @@ function Set-Properties {
       Mandatory   = $true,
       HelpMessage = "Property file name"
     )]
-    [Alias ("F")]
     [String]
     $File,
     [Parameter (
@@ -404,7 +396,6 @@ function Set-Properties {
       Mandatory   = $true,
       HelpMessage = "Path to the directory containing the property files"
     )]
-    [Alias ("D", "Dir")]
     [String]
     $Directory,
     [Parameter (
@@ -412,7 +403,6 @@ function Set-Properties {
       Mandatory   = $false,
       HelpMessage = "Custom property file name"
     )]
-    [Alias ("C")]
     [String]
     $Custom,
     [Parameter (
@@ -420,7 +410,6 @@ function Set-Properties {
       Mandatory   = $false,
       HelpMessage = "Path to the directory containing the custom property file"
     )]
-    [Alias ("CD", "CustomDir")]
     [String]
     $CustomDirectory = $Directory,
     [Parameter (
@@ -428,7 +417,6 @@ function Set-Properties {
       Mandatory   = $false,
       HelpMessage = "Define if section headers should be used to group properties or be ignored"
       )]
-    [Alias ("S")]
     [Switch]
     $Section
   )
@@ -497,14 +485,12 @@ function Compare-Hashtables {
       Mandatory   = $true,
       HelpMessage = "Reference hashtable"
     )]
-    [Alias ("R", "Ref")]
     $Reference,
     [Parameter (
       Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Difference hashtable"
       )]
-    [Alias ("D", "Dif")]
     $Difference
   )
   $Check = $true
@@ -558,14 +544,13 @@ function Copy-OrderedHashtable {
       Mandatory   = $true,
       HelpMessage = "Hashtable to clone"
     )]
-    [Alias ("H", "Hash", "T", "Table")]
     $Hashtable,
     [Parameter (
       Position    = 2,
       Mandatory   = $false,
       HelpMessage = "Define if the copy should be shallow or deep"
     )]
-    [Alias ("D", "DeepCopy")]
+    [Alias ("DeepCopy")]
     [Switch]
     $Deep = $false
   )
@@ -612,7 +597,7 @@ function Start-Script {
       Mandatory   = $true,
       HelpMessage = "Transcript file path"
     )]
-    [Alias ("T", "L", "Log", "LogFile")]
+    [Alias ("LogFile")]
     $Transcript
   )
   begin {
@@ -647,7 +632,7 @@ function Stop-Script {
       Mandatory   = $false,
       HelpMessage = "Error code"
     )]
-    [Alias ("E", "Err", "Error", "C", "Code")]
+    [Alias ("Code")]
     $ErrorCode = 0
   )
   begin {
@@ -698,7 +683,6 @@ function Compare-Properties {
       HelpMessage = "List of properties"
     )]
     [ValidateNotNullOrEmpty ()]
-    [Alias ("P")]
     $Properties,
     [Parameter (
       Position    = 2,
@@ -706,7 +690,6 @@ function Compare-Properties {
       HelpMessage = "List of properties to check"
     )]
     [ValidateNotNullOrEmpty ()]
-    [Alias ("C")]
     [String[]]
     $Required
   )
@@ -743,10 +726,10 @@ function ConvertTo-NaturalSort {
     - Descending
 
     .INPUTS
-    System.Array.Object[]
+    None.
 
     .OUTPUTS
-    System.Array.Object[]. ConvertTo-NaturalSort returns a sorted array.
+    [System.Array] ConvertTo-NaturalSort returns a sorted array.
 
     .EXAMPLE
     ConvertTo-NaturalSort -Array @("a10", "b1", "a1")
@@ -760,12 +743,11 @@ function ConvertTo-NaturalSort {
   [CmdletBinding ()]
   param(
     [Parameter (
-      Position          = 1,
-      Mandatory         = $true,
-      ValueFromPipeline = $true,
-      HelpMessage       = "List of files to sort"
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "List of files to sort"
     )]
-    [Alias ("F", "L", "List")]
+    [Alias ("List")]
     $Files,
     [Parameter (
       Position    = 2,
@@ -773,19 +755,12 @@ function ConvertTo-NaturalSort {
       HelpMessage = "Specifies the order of the sort"
     )]
     [ValidateSet ("A", "Asc", "Ascending", "D", "Dsc", "Desc", "Descending")]
-    [Alias ("O")]
     [String]
     $Order = "Ascending"
   )
-  $Ascending  = @("A", "Asc", "Ascending")
-  $Descending = @("D", "Dsc", "Desc", "Descending")
-  $MaximumLength = 0
-  foreach ($File in $Files) {
-    [Int]$Length = $File.BaseName | Measure-Object -Character | Select -Expand Characters
-    if ($Length -gt $MaximumLength) {
-      $MaximumLength = $Length
-    }
-  }
+  $Ascending      = @("A", "Asc", "Ascending")
+  $Descending     = @("D", "Dsc", "Desc", "Descending")
+  $MaximumLength  = Measure-FileProperty -Files $Files -Property "MaximumLength"
   $RegEx = { [RegEx]::Replace($_.BaseName, '\d+', { $args[0].Value.PadLeft($MaximumLength) }) }
   if ($Descending.Contains($Order)) {
     $SortedFiles = $Files | Sort-Object $RegEx -Descending
@@ -814,8 +789,7 @@ function Add-Offset {
     chain of characters should be offset.
 
     .INPUTS
-    System.String
-    System.Integer
+    None.
 
     .OUTPUTS
     System.String. Add-Offset returns an alphanumeric chain of character.
@@ -833,30 +807,24 @@ function Add-Offset {
   [CmdletBinding ()]
   param(
     [Parameter (
-      Position          = 1,
-      Mandatory         = $true,
-      ValueFromPipeline = $true,
-      HelpMessage       = "Alphanumeric chain of character"
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Alphanumeric chain of character"
     )]
-    [Alias ("A", "Alpha", "Alphanum", "N", "Num", "Numeric")]
     $Alphanumeric,
     [Parameter (
-      Position          = 2,
-      Mandatory         = $true,
-      ValueFromPipeline = $true,
-      HelpMessage       = "Offset"
+      Position    = 2,
+      Mandatory   = $true,
+      HelpMessage = "Offset"
     )]
-    [Alias ("O", "Off")]
     [Int]
     $Offset
   )
-  # Declare valid formats
-  $Number = [RegEx]::New('^\d+$')
-  $NumStr = [RegEx]::New('^\d+\D+$')
-  $StrNum = [RegEx]::New('^\D+\d+$')
   try {
+    # Check character chain format
     $Format = Test-Alphanumeric -Alphanumeric $Alphanumeric
     if ($Format -ne 0) {
+      # Increment/decrement value
       if ($Format -eq 1) {
         $NewAlphanumeric = [Long]$Alphanumeric + $Offset
       } else {
@@ -908,9 +876,7 @@ function Rename-NumberedFile {
     Default value is null (none).
 
     .INPUTS
-    - [System.String]   Path to the folder containing the files to rename.
-    - [System.Integer]  Offset to add to the file names.
-    - [System.String]   Filter to apply
+    None.
 
     .OUTPUTS
     [Boolean] Rename-NumberedFile returns a boolean depending on the success of
@@ -932,41 +898,33 @@ function Rename-NumberedFile {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position          = 1,
-      Mandatory         = $true,
-      ValueFromPipeline = $true,
-      HelpMessage       = "Path to the files"
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Path to the files"
     )]
-    [ValidateScript ({Test-Path -Path $_})]
-    [Alias ("P")]
+    [ValidateScript ({if (Test-Path -Path $_) {$true} else {Throw "Path does not exist."}})]
     [String]
     $Path,
     [Parameter (
-      Position          = 2,
-      Mandatory         = $true,
-      ValueFromPipeline = $true,
-      HelpMessage       = "Offset"
+      Position    = 2,
+      Mandatory   = $true,
+      HelpMessage = "Offset"
     )]
     [ValidateScript ({if ($_ -eq 0) {Throw "The offset cannot be 0."} else {$true}})]
-    [Alias ("O", "Off")]
     [Int]
     $Offset,
     [Parameter (
-      Position          = 3,
-      Mandatory         = $false,
-      ValueFromPipeline = $true,
-      HelpMessage       = "Filter to apply"
+      Position    = 3,
+      Mandatory   = $false,
+      HelpMessage = "Filter to apply"
     )]
-    [Alias ("F", "Filters")]
     [String]
     $Filter = "*",
     [Parameter (
-      Position          = 4,
-      Mandatory         = $false,
-      ValueFromPipeline = $true,
-      HelpMessage       = "Pattern to exclude"
+      Position    = 4,
+      Mandatory   = $false,
+      HelpMessage = "Pattern to exclude"
     )]
-    [Alias ("E")]
     [String]
     $Exclude = $null
   )
@@ -974,8 +932,8 @@ function Rename-NumberedFile {
   $Count    = 0
   $Numeric  = [RegEx]::New('\d+')
   # Get files
-  $Files  = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude
-  $Files  = $Files | Where-Object {$_.BaseName -match $Numeric}
+  $Files = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude
+  $Files = $Files | Where-Object {$_.BaseName -match $Numeric}
   if ($Files.Count -eq 0) {
     if ($Filter -ne "*") {
       Write-Log -Type "ERROR" -Message "No numbered files were found in $Path matching the filter ""$Filter""."
@@ -1043,7 +1001,7 @@ function Test-Alphanumeric {
     The alphanumeric parameter corresponds to the chain of characters to offset.t.
 
     .INPUTS
-    [System.String] Alphanumeric chain of characters
+    None.
 
     .OUTPUTS
     [System.Integer] Test-Alphanumeric returns the type of format that the alpha
@@ -1061,12 +1019,10 @@ function Test-Alphanumeric {
   [CmdletBinding ()]
   param(
     [Parameter (
-      Position          = 1,
-      Mandatory         = $true,
-      ValueFromPipeline = $true,
-      HelpMessage       = "Alphanumeric chain of character"
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Alphanumeric chain of character"
     )]
-    [Alias ("A", "Alpha", "Alphanum", "N", "Num", "Numeric")]
     $Alphanumeric
   )
   begin {
@@ -1118,14 +1074,14 @@ function Measure-FileProperty {
       Mandatory   = $true,
       HelpMessage = "List of Files to parse"
     )]
-    [Alias ("F", "File", "L", "List")]
+    [Alias ("List")]
     $Files,
     [Parameter (
       Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Property to measure"
     )]
-    [Alias ("P", "Prop")]
+    [String]
     $Property
   )
   process {
@@ -1171,6 +1127,318 @@ function Measure-FileProperty {
           Stop-Script 1
         }
       }
+    }
+  }
+}
+
+# ------------------------------------------------------------------------------
+# Convert Word to PDF
+# ------------------------------------------------------------------------------
+function ConvertTo-PDF {
+  <#
+    .SYNOPSIS
+    Convert Word document to PDF
+
+    .DESCRIPTION
+    Convert documents in a Word format to a Portable Document Format (PDF) with-
+    out having to open Microsoft Word.
+
+    .PARAMETER Path
+    The path parameter corresponds to the path of the directory containing the
+    Microsoft Word documents to convert to PDF. It can point to a single file.
+
+    .EXAMPLE
+    ConvertTo-PDF -Path ".\doc"
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Directory containing the files to convert"
+    )]
+    [Alias ("Directory")]
+    [String]
+    $Path
+  )
+  begin {
+    $Output = $false
+    $Count  = 0
+  }
+  process {
+    if (Test-Path -Path $Path) {
+      # Initialise MS Word application and identify document
+      $MSWord = New-Object -ComObject Word.Application
+      $Files  = Get-ChildItem -Path $Path -Filter "*.doc?"
+      if ($Files.Count -gt 0) {
+        foreach ($File in $Files) {
+          try {
+            # Generate PDF
+            $Document = $MSWord.Documents.Open($File.FullName)
+            $PDFName  = "$($File.BaseName).pdf"
+            $PDF      = "$($File.DirectoryName)\$PDFName"
+            Write-Log -Type "INFO" -Message "Generating $PDFName"
+            $Document.SaveAs([Ref] $PDF, [Ref] 17)
+            $Document.Close()
+            $Count += 1
+          } catch [System.Management.Automation.RuntimeException] {
+            Write-Log -Type "WARN" -Message "An error occured while generating $PDFName"
+          }
+        }
+        if ($Count -gt 0) {
+          $Output = $true
+        }
+        Write-Log -Type "CHECK" -Message "$Count Word documents were converted to PDF"
+      } else {
+        Write-Log -Type "ERROR" -Message "No Microsoft Word documents were found in $Path."
+      }
+    } else {
+      Write-Log -Type "ERROR" -Message "$Path does not exists."
+      Stop-Script 1
+    }
+    return $Output
+  }
+  end {
+    $MSWord.Quit()
+  }
+}
+
+# ------------------------------------------------------------------------------
+# Complete relative paths
+# ------------------------------------------------------------------------------
+function Complete-RelativePath {
+  <#
+    .SYNOPSIS
+    Make relative path absolute
+
+    .DESCRIPTION
+    Auto-complete relative path with working directory to make them absolute
+
+    .OUTPUTS
+    [System.Collections.ArrayList] Complete-RelativePath returns
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Relative path to make absolute"
+    )]
+    [Alias ("Path")]
+    $RelativePaths,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $true,
+      HelpMessage = "Root directory to pre-prend to relative path"
+    )]
+    [Alias ("Directory")]
+    $WorkingDirectory
+  )
+  begin {
+    if (-Not (Test-Path -Path $WorkingDirectory)) {
+      Write-Log -Type "ERROR" -Message "$WorkingDirectory does not exists."
+      Stop-Script 1
+    }
+    $Paths = New-Object -TypeName System.Collections.ArrayList
+  }
+  process {
+    foreach ($RelativePath in $RelativePaths) {
+      # If path is correct, change value to absolute
+      $AbsolutePath = Join-Path -Path $WorkingDirectory -ChildPath $RelativePath
+      if (Test-Path -Path $Path) {
+        $Paths.Add($Path)
+      } else {
+        # If it is not found, keep relative path
+        Write-Log -Type "WARN" -Message "$Path does not exists."
+        $Paths.Add($RelativePath)
+      }
+    }
+    return $Path
+  }
+}
+
+# ------------------------------------------------------------------------------
+# Identify exception name
+# ------------------------------------------------------------------------------
+function Show-ExceptionFullName {
+  <#
+    .SYNOPSIS
+    Show full exception name
+
+    .DESCRIPTION
+    Show full exception name to facilitate error handling (try...catch)
+
+    .INPUTS
+    None.
+
+    .OUTPUTS
+    [System.String] Show-ExceptionFullName returns the full name of the except-
+    ion as a string.
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Errors to analyse"
+    )]
+    $Errors
+  )
+  return $Errors.Exception.GetType().FullName
+}
+
+# ------------------------------------------------------------------------------
+# Convert file encoding
+# ------------------------------------------------------------------------------
+function Convert-FileEncoding {
+  <#
+    .SYNOPSIS
+    Convert file to specified encoding
+
+    .DESCRIPTION
+    Create a copy of a given file and convert the encoding as specified.
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Path to the files to convert"
+    )]
+    [String]
+    $Path,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $true,
+      HelpMessage = "Encoding"
+    )]
+    [String]
+    $Encoding,
+    [Parameter (
+      Position    = 3,
+      Mandatory   = $false,
+      HelpMessage = "Filter to apply"
+    )]
+    [String]
+    $Filter = "*",
+    [Parameter (
+      Position    = 4,
+      Mandatory   = $false,
+      HelpMessage = "Pattern to exclude"
+    )]
+    [String]
+    $Exclude = $null
+  )
+  begin {
+    # Check parameters and instantiate variables
+    $Path     = Resolve-Path -Path $Path
+    $Files    = Get-Object -Path $Path -Type "File" -Filter $Filter -Exclude $Exclude
+    $Encoding = $Encoding.ToUpper()
+    $Output   = $false
+    $Count    = 0
+  }
+  process {
+    try {
+      foreach ($File in $Files) {
+        # if ($File.GetType().Name -eq "FileInfo") {
+          Write-Log -Type "INFO" -Message "Converting ""$($File.Name)"" to $Encoding"
+          $Filename = "$($File.BaseName)_$Encoding$($File.Extension)"
+          # $FilePath = Join-Path -Path $Path -ChildPath $File
+          $NewFile  = Join-Path -Path $Path -ChildPath "..\$Filename"
+          Get-Content -Path $File | Out-File -Encoding $Encoding $NewFile
+          $Count += 1
+        # }
+      }
+      if ($Count -gt 0) {
+        $Output = $true
+      }
+      Write-Log -Type "CHECK" -Message "$Count files were converted to $Encoding"
+    } catch {
+      Write-Log -Type "ERROR" -Message "$_"
+    }
+    return $Output
+  }
+}
+
+# ------------------------------------------------------------------------------
+# Generic Get-ChildItem with checks
+# ------------------------------------------------------------------------------
+function Get-Object {
+  <#
+    .SYNOPSIS
+    Convert file to specified encoding
+
+    .DESCRIPTION
+    Create a copy of a given file and convert the encoding as specified.
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Path to the items"
+    )]
+    [String]
+    $Path,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $false,
+      HelpMessage = "Type of item"
+    )]
+    [ValidateSet ("All", "File", "Folder")]
+    [String]
+    $Type = "All",
+    [Parameter (
+      Position    = 3,
+      Mandatory   = $false,
+      HelpMessage = "Filter to apply"
+    )]
+    [String]
+    $Filter = "*",
+    [Parameter (
+      Position    = 4,
+      Mandatory   = $false,
+      HelpMessage = "Pattern to exclude"
+    )]
+    [String]
+    $Exclude = $null
+  )
+  begin {
+    if (-Not (Test-Path -Path $Path)) {
+      Write-Log -Type "ERROR" -Message "$Path does not exists."
+      Stop-Script 1
+    }
+    $ObjectType = [ordered]@{
+      "All"     = "items"
+      "File"    = "files"
+      "Folder"  = "folders"
+    }
+  }
+  process {
+    # Get files
+    switch ($Type) {
+      "File"    {
+        $Files = Get-ChildItem -Path $Path -File -Filter $Filter -Exclude $Exclude
+      }
+      "Folder"  {
+        $Files = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -Directory
+      }
+      default   {
+        $Files = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude
+      }
+    }
+    # If no files are found, print hints
+    if ($Files.Count -eq 0) {
+      if ($Filter -ne "*") {
+        Write-Log -Type "ERROR" -Message "No $($ObjectType[$Type]) were found in $Path matching the filter ""$Filter""."
+      } elseif ($Exclude) {
+        Write-Log -Type "ERROR" -Message "No $($ObjectType[$Type]) corresponding to the criterias were found in $Path."
+      } else {
+        Write-Log -Type "ERROR" -Message "No $($ObjectType[$Type]) were found in $Path."
+      }
+      Stop-Script 1
+    } else {
+      return $Files
     }
   }
 }
