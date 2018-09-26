@@ -196,10 +196,12 @@ function Read-Properties {
     The File parameter should be the name of the property file.
 
     .PARAMETER Directory
-    The Directory parameter should be the path to the directory containing the property file.
+    The Directory parameter should be the path to the directory containing the
+    property file.
 
     .PARAMETER Section
-    The Section parameter indicates if properties should be grouped depending on existing sections in the file
+    The Section parameter indicates if properties should be grouped depending on
+     existing sections in the file
 
     .OUTPUTS
     System.Collections.Specialized.OrderedDictionary. Read-Properties returns an
@@ -357,13 +359,15 @@ function Set-Properties {
     The File parameter should be the name of the property file.
 
     .PARAMETER Directory
-    The Directory parameter should be the path to the directory containing the property file.
+    The Directory parameter should be the path to the directory containing the
+    property file.
 
     .PARAMETER Custom
     The Custom parameter should be the name of the custom property file.
 
     .PARAMETER CustomDirectory
-    The CustomDirectory parameter should be the path to the directory containing the custom property file.
+    The CustomDirectory parameter should be the path to the directory containing
+     the custom property file.
 
     .OUTPUTS
     System.Collections.Specialized.OrderedDictionary. Set-Properties returns an
@@ -380,7 +384,8 @@ function Set-Properties {
     Set-Properties -File "default.ini" -Directory "\conf" -Custom "custom.ini" -CustomDirectory "\shared"
 
     .NOTES
-    Set-Properties does not currently allow the use of sections to group properties in custom files
+    Set-Properties does not currently allow the use of sections to group proper-
+    ties in custom files
   #>
   [CmdletBinding ()]
   param (
@@ -531,8 +536,8 @@ function Copy-OrderedHashtable {
     The Hashtable parameter should be the hashtable to clone
 
     .OUTPUTS
-    System.Collections.Specialized.OrderedDictionary. Copy-OrderedHashtable returns an
-    exact copy of the ordered hash table specified.
+    System.Collections.Specialized.OrderedDictionary. Copy-OrderedHashtable re-
+    turns an exact copy of the ordered hash table specified.
 
     .EXAMPLE
     Copy-OrderedHashtable -Hashtable $Hashtable
@@ -620,7 +625,8 @@ function Stop-Script {
     Exit script, set error code, disable stric-mode, and stop transcript if any.
 
     .PARAMETER ErrorCode
-    The error code parameter corresponds to the error code thrown after exiting the script. Default is 0 (i.e. no errors).
+    The error code parameter corresponds to the error code thrown after exiting
+    the script. Default is 0 (i.e. no errors).
 
     .EXAMPLE
     Stop-Script -ErrorCode 1
@@ -657,17 +663,19 @@ function Compare-Properties {
     Checks that all required property are defined
 
     .DESCRIPTION
-    Checks that all required property are defined by returning a list of missing properties
+    Checks that all required property are defined by returning a list of missing
+     properties
 
     .PARAMETER Properties
     The properties parameter corresponds to the list of properties defined
 
     .PARAMETER Required
-    The required parameter corresponds to the list of properties that are required
+    The required parameter corresponds to the list of properties that are requi-
+    red
 
     .OUTPUTS
-    System.Collections.ArrayList. Compare-Properties returns an array containing the
-    missing properties from the list.
+    System.Collections.ArrayList. Compare-Properties returns an array containing
+     the missing properties from the list.
 
     .EXAMPLE
     Assert-Properties -Properties $Properties -Required $Required
@@ -998,7 +1006,7 @@ function Test-Alphanumeric {
     incremented or decremented easily.
 
     .PARAMETER Alphanumeric
-    The alphanumeric parameter corresponds to the chain of characters to offset.t.
+    The alphanumeric parameter corresponds to the chain of characters to offset.
 
     .INPUTS
     None.
@@ -1445,4 +1453,67 @@ function Get-Object {
       return $Object
     }
   }
+}
+
+# ------------------------------------------------------------------------------
+# Replace tags in string
+# ------------------------------------------------------------------------------
+function Set-Tags {
+  <#
+    .SYNOPSIS
+    Set tags in string
+
+    .DESCRIPTION
+    Replace generic tags in string by their corresponding values
+
+    .PARAMETER String
+    The string parameter corresponds to the string containing the tags.
+
+    .PARAMETER Tags
+    [System.Collections.Specialized.OrderedDictionary] The tags parameter cor-
+    responds to the list of tokens to be replaced with their corresponding va-
+    lues.
+
+    It has to be in the following format:
+
+    $Tags     = [Ordered]@{
+      Tag1    = [Ordered]@{
+        Token = "Token"
+        Value = "Value"
+      }
+      Tag2    = [Ordered]@{
+        Token = "Token"
+        Value = "Value"
+      }
+    }
+
+    .OUTPUTS
+    [System.String] Set-Tags returns a string.
+
+    .EXAMPLE
+    Set-Tags -String $String -Tags $Tags
+
+    .NOTES
+  #>
+  [CmdletBinding ()]
+  param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "String"
+    )]
+    [String]
+    $String,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $true,
+      HelpMessage = "Tags"
+    )]
+    [System.Collections.Specialized.OrderedDictionary]
+    $Tags
+  )
+  foreach ($Tag in $Tags.Values) {
+    $TaggedString = $String.Replace($Tag.Token, $Tag.Value)
+  }
+  return $TaggedString
 }
