@@ -11,7 +11,7 @@
   File name:      PSTK.psm1
   Author:         Florian Carrier
   Creation date:  23/08/2018
-  Last modified:  21/09/2018
+  Last modified:  26/09/2018
   Repository:     https://github.com/Akaizoku/PSTK
 #>
 
@@ -83,7 +83,7 @@ function Write-Log {
   # Format log
   $Log = "$Time`t$Type`t$Message"
   # Output
-  Write-Host $Log -ForegroundColor $Colour[$Type]
+  Write-Host $Log -ForegroundColor $Colour.$Type
 }
 
 # ------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ function Test-SQLConnection {
       Mandatory   = $true,
       HelpMessage = "Database to connect to"
     )]
-    [Alias ("DB")]
+    # [Alias ("DB")]
     [String]
     $Database,
     [Parameter (
@@ -154,7 +154,7 @@ function Test-SQLConnection {
       Mandatory   = $false,
       HelpMessage = "Password"
     )]
-    [Alias ("Pw")]
+    [Alias ("PW")]
     [String]
     $Password
   )
@@ -235,8 +235,8 @@ function Read-Properties {
   )
   # Properties path
   $PropertyFile = Join-Path -Path $Directory -ChildPath $File
-  $Properties   = [ordered]@{}
-  $Sections     = [ordered]@{}
+  $Properties   = [Ordered]@{}
+  $Sections     = [Ordered]@{}
   $Header       = $null
   # Check that the file exists
   if (Test-Path -Path $PropertyFile) {
@@ -330,7 +330,7 @@ function Read-Property {
     [String]
     $Content
   )
-  $Property = [ordered]@{}
+  $Property = [Ordered]@{}
   $Index    = $Content.IndexOf("=")
   if ($Index -gt 0) {
     $Offset = 1
@@ -554,7 +554,7 @@ function Copy-OrderedHashtable {
     [Switch]
     $Deep = $false
   )
-  $Clone = [ordered]@{}
+  $Clone = [Ordered]@{}
   # If deep copy
   if ($Deep) {
     $MemoryStream     = New-Object -TypeName System.IO.MemoryStream
@@ -566,7 +566,7 @@ function Copy-OrderedHashtable {
   } else {
     # Shallow copy
     foreach ($Item in $Hashtable.GetEnumerator()) {
-      $Clone[$Item.Key] = $Item.Value
+      $Clone.$Item.Key = $Item.Value
     }
   }
   return $Clone
@@ -698,7 +698,7 @@ function Compare-Properties {
   foreach ($Parameter in $Parameters) {
     $Property = $Parameter.Trim()
     if ($Property -ne "" -And !$Properties.$Property) {
-      $Missing.Add($Property)
+      [Void]$Missing.Add($Property)
     }
   }
   return $Missing
@@ -1169,7 +1169,7 @@ function ConvertTo-PDF {
     if (Test-Path -Path $Path) {
       # Initialise MS Word application and identify document
       $MSWord = New-Object -ComObject Word.Application
-      $Files  = Get-ChildItem -Path $Path -Filter "*.doc?"
+      $Files  = Get-Object -Path $Path -Filter "*.doc?"
       if ($Files.Count -gt 0) {
         foreach ($File in $Files) {
           try {
@@ -1177,13 +1177,14 @@ function ConvertTo-PDF {
             $Document = $MSWord.Documents.Open($File.FullName)
             $PDFName  = "$($File.BaseName).pdf"
             $PDF      = "$($File.DirectoryName)\$PDFName"
-            Write-Log -Type "INFO" -Message "Generating $PDFName"
+            Write-Log -Type "INFO" -Message "Converting ""$($File.Name)"" to PDF"
             $Document.SaveAs([Ref] $PDF, [Ref] 17)
             $Document.Close()
             $Count += 1
           } catch [System.Management.Automation.RuntimeException] {
             Write-Log -Type "WARN" -Message "An error occured while generating $PDFName"
           }
+          Write-Log -Type "CHECK" -Message """$PDFName"" successfully generated"
         }
         if ($Count -gt 0) {
           $Output = $true
@@ -1224,7 +1225,8 @@ function Complete-RelativePath {
       Mandatory   = $true,
       HelpMessage = "Relative path to make absolute"
     )]
-    [Alias ("Path")]
+    [Alias ("Paths")]
+    [String[]]
     $RelativePaths,
     [Parameter (
       Position    = 2,
@@ -1232,6 +1234,7 @@ function Complete-RelativePath {
       HelpMessage = "Root directory to pre-prend to relative path"
     )]
     [Alias ("Directory")]
+    [String]
     $WorkingDirectory
   )
   begin {
@@ -1245,15 +1248,15 @@ function Complete-RelativePath {
     foreach ($RelativePath in $RelativePaths) {
       # If path is correct, change value to absolute
       $AbsolutePath = Join-Path -Path $WorkingDirectory -ChildPath $RelativePath
-      if (Test-Path -Path $Path) {
-        $Paths.Add($Path)
+      if (Test-Path -Path $AbsolutePath) {
+        [Void]$Paths.Add($AbsolutePath)
       } else {
         # If it is not found, keep relative path
-        Write-Log -Type "WARN" -Message "$Path does not exists."
-        $Paths.Add($RelativePath)
+        Write-Log -Type "WARN" -Message "$AbsolutePath does not exists."
+        [Void]$Paths.Add($RelativePath)
       }
     }
-    return $Path
+    return $Paths
   }
 }
 
@@ -1297,6 +1300,10 @@ function Convert-FileEncoding {
 
     .DESCRIPTION
     Create a copy of a given file and convert the encoding as specified.
+
+    .NOTES
+    /!\ Exclude is currently not supported
+    See Get-Object
   #>
   [CmdletBinding ()]
   param (
@@ -1331,7 +1338,7 @@ function Convert-FileEncoding {
   )
   begin {
     # Check parameters and instantiate variables
-    $Path     = Resolve-Path -Path $Path
+    # $Path     = Resolve-Path -Path $Path
     $Files    = Get-Object -Path $Path -Type "File" -Filter $Filter -Exclude $Exclude
     $Encoding = $Encoding.ToUpper()
     $Output   = $false
@@ -1340,14 +1347,12 @@ function Convert-FileEncoding {
   process {
     try {
       foreach ($File in $Files) {
-        # if ($File.GetType().Name -eq "FileInfo") {
-          Write-Log -Type "INFO" -Message "Converting ""$($File.Name)"" to $Encoding"
-          $Filename = "$($File.BaseName)_$Encoding$($File.Extension)"
-          # $FilePath = Join-Path -Path $Path -ChildPath $File
-          $NewFile  = Join-Path -Path $Path -ChildPath "..\$Filename"
-          Get-Content -Path $File | Out-File -Encoding $Encoding $NewFile
-          $Count += 1
-        # }
+        Write-Log -Type "INFO" -Message "Converting ""$($File.Name)"" to $Encoding"
+        $Filename = "$($File.BaseName)_$Encoding$($File.Extension)"
+        $FilePath = Join-Path -Path $Path -ChildPath $File
+        $NewFile  = Join-Path -Path $Path -ChildPath $Filename
+        Get-Content -Path $FilePath | Out-File -Encoding $Encoding $NewFile
+        $Count += 1
       }
       if ($Count -gt 0) {
         $Output = $true
@@ -1370,6 +1375,10 @@ function Get-Object {
 
     .DESCRIPTION
     Create a copy of a given file and convert the encoding as specified.
+
+    .NOTES
+    /!\ Exclude is currently not supported
+    See https://github.com/PowerShell/PowerShell/issues/6865
   #>
   [CmdletBinding ()]
   param (
@@ -1404,11 +1413,12 @@ function Get-Object {
     $Exclude = $null
   )
   begin {
+    $Path = Resolve-Path -Path $Path
     if (-Not (Test-Path -Path $Path)) {
       Write-Log -Type "ERROR" -Message "$Path does not exists."
       Stop-Script 1
     }
-    $ObjectType = [ordered]@{
+    $ObjectType = [Ordered]@{
       "All"     = "items"
       "File"    = "files"
       "Folder"  = "folders"
@@ -1417,28 +1427,22 @@ function Get-Object {
   process {
     # Get files
     switch ($Type) {
-      "File"    {
-        $Files = Get-ChildItem -Path $Path -File -Filter $Filter -Exclude $Exclude
-      }
-      "Folder"  {
-        $Files = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -Directory
-      }
-      default   {
-        $Files = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude
-      }
+      "File"    { $Object = Get-ChildItem -Path $Path -Filter $Filter -File       }
+      "Folder"  { $Object = Get-ChildItem -Path $Path -Filter $Filter -Directory  }
+      default   { $Object = Get-ChildItem -Path $Path -Filter $Filter             }
     }
     # If no files are found, print hints
-    if ($Files.Count -eq 0) {
+    if ($Object.Count -eq 0) {
       if ($Filter -ne "*") {
-        Write-Log -Type "ERROR" -Message "No $($ObjectType[$Type]) were found in $Path matching the filter ""$Filter""."
+        Write-Log -Type "ERROR" -Message "No $($ObjectType.$Type) were found in $Path matching the filter ""$Filter""."
       } elseif ($Exclude) {
-        Write-Log -Type "ERROR" -Message "No $($ObjectType[$Type]) corresponding to the criterias were found in $Path."
+        Write-Log -Type "ERROR" -Message "No $($ObjectType.$Type) corresponding to the criterias were found in $Path."
       } else {
-        Write-Log -Type "ERROR" -Message "No $($ObjectType[$Type]) were found in $Path."
+        Write-Log -Type "ERROR" -Message "No $($ObjectType.$Type) were found in $Path."
       }
       Stop-Script 1
     } else {
-      return $Files
+      return $Object
     }
   }
 }

@@ -9,7 +9,7 @@
   File name:      Read-Properties.ps1
   Author:         Florian Carrier
   Creation date:  31/08/2018
-  Last modified:  04/09/2018
+  Last modified:  26/09/2018
 #>
 
 # ------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ $Path         = Split-Path $MyInvocation.MyCommand.Definition
 $Repository   = Split-Path $Path -Parent
 $PropertyFile = "properties.ini"
 # Import toolbox
-Import-Module "$Repository\PSTK.psm1" -Force
+Import-Module "$Repository\PSTK" -Force
 # ------------------------------------------------------------------------------
 # Expected results
 # ------------------------------------------------------------------------------
