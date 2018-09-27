@@ -86,13 +86,14 @@ function Write-Log {
       Mandatory   = $true,
       HelpMessage = "Message to output"
     )]
+    [ValidateNotNullOrEmpty ()]
     [Alias ("Output", "Log")]
     [String]
     $Message
   )
   # Variables
-  $Time   = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-  $Colour = @{
+  $Time     = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+  $Colour   = [Ordered]@{
     "CHECK" = "Green"
     "ERROR" = "Red"
     "INFO"  = "White"
@@ -164,6 +165,7 @@ function Test-SQLConnection {
       Mandatory   = $true,
       HelpMessage = "Database server to connect to"
     )]
+    [ValidateNotNullOrEmpty ()]
     [Alias ("Svr")]
     [String]
     $Server,
@@ -172,7 +174,8 @@ function Test-SQLConnection {
       Mandatory   = $true,
       HelpMessage = "Database to connect to"
     )]
-    # [Alias ("DB")]
+    [ValidateNotNullOrEmpty ()]
+    [Alias ("DB")]
     [String]
     $Database,
     [Parameter (
@@ -262,6 +265,7 @@ function Read-Properties {
       Mandatory   = $true,
       HelpMessage = "Property file name"
     )]
+    [ValidateNotNullOrEmpty ()]
     [String]
     $File,
     [Parameter (
@@ -269,6 +273,7 @@ function Read-Properties {
       Mandatory   = $true,
       HelpMessage = "Path to the directory containing the property file"
     )]
+    [ValidateNotNullOrEmpty ()]
     [String]
     $Directory,
     [Parameter (
@@ -279,10 +284,10 @@ function Read-Properties {
     [Switch]
     $Section
   )
-  # Properties path
+  # Properties variables
   $PropertyFile = Join-Path -Path $Directory -ChildPath $File
-  $Properties   = [Ordered]@{}
-  $Sections     = [Ordered]@{}
+  $Properties   = New-Object -TypeName System.Collections.Specialized.OrderedDictionary
+  $Sections     = New-Object -TypeName System.Collections.Specialized.OrderedDictionary
   $Header       = $null
   # Check that the file exists
   if (Test-Path -Path $PropertyFile) {
@@ -379,7 +384,7 @@ function Read-Property {
     [String]
     $Content
   )
-  $Property = [Ordered]@{}
+  $Property = New-Object -TypeName System.Collections.Specialized.OrderedDictionary
   $Index    = $Content.IndexOf("=")
   if ($Index -gt 0) {
     $Offset = 1
@@ -440,6 +445,7 @@ function Get-Properties {
       Mandatory   = $true,
       HelpMessage = "Property file name"
     )]
+    [ValidateNotNullOrEmpty ()]
     [String]
     $File,
     [Parameter (
@@ -447,6 +453,7 @@ function Get-Properties {
       Mandatory   = $true,
       HelpMessage = "Path to the directory containing the property files"
     )]
+    [ValidateNotNullOrEmpty ()]
     [String]
     $Directory,
     [Parameter (
@@ -500,7 +507,7 @@ function Get-Properties {
     return $Properties
   } else {
     Write-Log -Type "ERROR" -Message "$File not found in directory $Directory"
-    exit 1
+    Stop-Script 1
   }
 }
 
@@ -536,12 +543,16 @@ function Compare-Hashtables {
       Mandatory   = $true,
       HelpMessage = "Reference hashtable"
     )]
+    [ValidateNotNullOrEmpty ()]
+    # [System.Collections.Specialized.OrderedDictionary]
     $Reference,
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Difference hashtable"
       )]
+    [ValidateNotNullOrEmpty ()]
+    # [System.Collections.Specialized.OrderedDictionary]
     $Difference
   )
   $Check = $true
@@ -582,7 +593,7 @@ function Copy-OrderedHashtable {
     The Hashtable parameter should be the hashtable to clone
 
     .OUTPUTS
-    System.Collections.Specialized.OrderedDictionary. Copy-OrderedHashtable re-
+    [System.Collections.Specialized.OrderedDictionary] Copy-OrderedHashtable re-
     turns an exact copy of the ordered hash table specified.
 
     .EXAMPLE
@@ -595,6 +606,8 @@ function Copy-OrderedHashtable {
       Mandatory   = $true,
       HelpMessage = "Hashtable to clone"
     )]
+    [ValidateNotNullOrEmpty ()]
+    [System.Collections.Specialized.OrderedDictionary]
     $Hashtable,
     [Parameter (
       Position    = 1,
@@ -605,7 +618,7 @@ function Copy-OrderedHashtable {
     [Switch]
     $Deep = $false
   )
-  $Clone = [Ordered]@{}
+  $Clone = New-Object -TypeName System.Collections.Specialized.OrderedDictionary
   # If deep copy
   if ($Deep) {
     $MemoryStream     = New-Object -TypeName System.IO.MemoryStream
@@ -651,6 +664,7 @@ function Start-Script {
       Mandatory   = $true,
       HelpMessage = "Transcript file path"
     )]
+    [ValidateNotNullOrEmpty ()]
     [Alias ("LogFile")]
     [String]
     $Transcript
@@ -698,6 +712,7 @@ function Stop-Script {
       HelpMessage = "Error code"
     )]
     [Alias ("Code")]
+    [Int]
     $ErrorCode = 0
   )
   begin {
@@ -733,7 +748,7 @@ function Compare-Properties {
     red
 
     .OUTPUTS
-    System.Collections.ArrayList. Compare-Properties returns an array containing
+    [System.Collections.ArrayList] Compare-Properties returns an array containing
      the missing properties from the list.
 
     .EXAMPLE
@@ -750,6 +765,7 @@ function Compare-Properties {
       HelpMessage = "List of properties"
     )]
     [ValidateNotNullOrEmpty ()]
+    [System.Collections.Specialized.OrderedDictionary] # Ordered hashtable
     $Properties,
     [Parameter (
       Position    = 1,
@@ -814,6 +830,7 @@ function ConvertTo-NaturalSort {
       Mandatory   = $true,
       HelpMessage = "List of files to sort"
     )]
+    [ValidateNotNullOrEmpty ()]
     [Alias ("List")]
     $Files,
     [Parameter (
@@ -878,12 +895,15 @@ function Add-Offset {
       Mandatory   = $true,
       HelpMessage = "Alphanumeric chain of character"
     )]
+    [ValidateNotNullOrEmpty ()]
+    [String]
     $Alphanumeric,
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Offset"
     )]
+    [ValidateNotNullOrEmpty ()]
     [Int]
     $Offset
   )
@@ -1090,6 +1110,8 @@ function Test-Alphanumeric {
       Mandatory   = $true,
       HelpMessage = "Alphanumeric chain of character"
     )]
+    [ValidateNotNullOrEmpty ()]
+    [String]
     $Alphanumeric
   )
   begin {
@@ -1141,6 +1163,7 @@ function Measure-FileProperty {
       Mandatory   = $true,
       HelpMessage = "List of Files to parse"
     )]
+    [ValidateNotNullOrEmpty ()]
     [Alias ("List")]
     $Files,
     [Parameter (
@@ -1148,6 +1171,7 @@ function Measure-FileProperty {
       Mandatory   = $true,
       HelpMessage = "Property to measure"
     )]
+    [ValidateNotNullOrEmpty ()]
     [String]
     $Property
   )
@@ -1224,6 +1248,7 @@ function ConvertTo-PDF {
       Mandatory   = $true,
       HelpMessage = "Directory containing the files to convert"
     )]
+    [ValidateNotNullOrEmpty ()]
     [Alias ("Directory")]
     [String]
     $Path
@@ -1293,6 +1318,7 @@ function Complete-RelativePath {
       Mandatory   = $true,
       HelpMessage = "Relative path to make absolute"
     )]
+    [ValidateNotNullOrEmpty ()]
     [Alias ("Paths")]
     [String[]]
     $RelativePaths,
@@ -1301,6 +1327,7 @@ function Complete-RelativePath {
       Mandatory   = $true,
       HelpMessage = "Root directory to pre-prend to relative path"
     )]
+    [ValidateNotNullOrEmpty ()]
     [Alias ("Directory")]
     [String]
     $WorkingDirectory
@@ -1356,6 +1383,8 @@ function Show-ExceptionFullName {
       Mandatory   = $true,
       HelpMessage = "Errors to analyse"
     )]
+    [ValidateNotNullOrEmpty ()]
+    [System.Collections.ArrayList]
     $Errors
   )
   return $Errors.Exception.GetType().FullName
@@ -1402,6 +1431,7 @@ function Convert-FileEncoding {
       Mandatory   = $true,
       HelpMessage = "Path to the files to convert"
     )]
+    [ValidateNotNullOrEmpty ()]
     [String]
     $Path,
     [Parameter (
@@ -1449,7 +1479,7 @@ function Convert-FileEncoding {
       }
       Write-Log -Type "CHECK" -Message "$Count files were converted to $Encoding"
     } catch {
-      Write-Log -Type "ERROR" -Message "$_"
+      Write-Log -Type "ERROR" -Message "$($Error[0].Exception)"
     }
     return $Output
   }
@@ -1528,6 +1558,7 @@ function Get-Object {
       Mandatory   = $true,
       HelpMessage = "Path to the items"
     )]
+    [ValidateNotNullOrEmpty ()]
     [String]
     $Path,
     [Parameter (
@@ -1647,6 +1678,7 @@ function Set-Tags {
       Mandatory   = $true,
       HelpMessage = "String"
     )]
+    [ValidateNotNullOrEmpty ()]
     [String]
     $String,
     [Parameter (
@@ -1654,6 +1686,7 @@ function Set-Tags {
       Mandatory   = $true,
       HelpMessage = "Tags"
     )]
+    [ValidateNotNullOrEmpty ()]
     [System.Collections.Specialized.OrderedDictionary] # Ordered hastable
     $Tags
   )
