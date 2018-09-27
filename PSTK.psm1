@@ -11,8 +11,11 @@
   File name:      PSTK.psm1
   Author:         Florian Carrier
   Creation date:  23/08/2018
-  Last modified:  26/09/2018
+  Last modified:  27/09/2018
   Repository:     https://github.com/Akaizoku/PSTK
+
+  .LINK
+  https://github.com/Akaizoku/PSTK
 #>
 
 # ------------------------------------------------------------------------------
@@ -43,20 +46,35 @@ function Write-Log {
     .EXAMPLE
     Write-Log -Type "INFO" -Message "This is an informational message."
 
+    This example outputs an informational message with the timestamp, the "INFO"
+     tag, and the specified message itself. It uses the defaut color scheme.
+
     .EXAMPLE
     Write-Log -Type "WARN" -Message "This is a warning message."
+
+    This example outputs a warning message with the timestamp, the "WARN" tag,
+    and the specified message itself. The message will be displayed in yellow in
+     the host.
 
     .EXAMPLE
     Write-Log -Type "ERROR" -Message "This is an error message."
 
+    This example outputs an error message with the timestamp, the "ERROR" tag,
+    and the specified message itself. The message will be displayed in red in
+     the host.
+
     .EXAMPLE
     Write-Log -Type "CHECK" -Message "This is a checkpoint message."
+
+    This example outputs a checkpoint message with the timestamp, the "CHECK"
+    tag, and the specified message itself. The message will be displayed in
+    green in the host.
   #>
   [CmdletBinding ()]
   # Inputs
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Type of message to output"
     )]
@@ -64,7 +82,7 @@ function Write-Log {
     [String]
     $Type,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Message to output"
     )]
@@ -98,20 +116,43 @@ function Test-SQLConnection {
     Check that a SQL Server database connection is working
 
     .PARAMETER Server
-    The Server parameter corresponds to the database server to connect to
+    [String] The server parameter corresponds to the database server to connect to
 
     .PARAMETER Database
-    The Database parameter corresponds to the database to be tested
+    [String] The database parameter corresponds to the database to be tested
+
+    .PARAMETER Security
+    [Switch] The security parameter defines if the connection should be made us-
+    ing the SQL Server Integrated Security (Windows Active Directory) or the
+    default SQL authentication with username and password.
+
+    .PARAMETER Username
+    [String] The username parameter corresponds to the username of the account
+    to use in case of SQL authentication.
+
+    .PARAMETER Password
+    [String] The password parameter corresponds to the password of the account
+    to use in case of SQL authentication.
 
     .INPUTS
     None. You cannot pipe objects to Test-SQLConnection.
 
     .OUTPUTS
-    Boolean. Test-SQLConnection returns a boolean depending on the result of the
+    [Boolean] Test-SQLConnection returns a boolean depending on the result of the
     connection attempt.
 
     .EXAMPLE
-    Test-SQLConnection -Server localhost -Database database
+    Test-SQLConnection -Server "localhost" -Database "MSSQLServer"
+
+    In this example, Test-SQLConnection will try to connect to the MSSQLServer
+    database on the local server using the current Windows user.
+
+    .EXAMPLE
+    Test-SQLConnection -Server "localhost" -Database "MSSQLServer" -Security -Username "user" -Password "password"
+
+    In this example, Test-SQLConnection will try to connect to the MSSQLServer
+    database on the local server using the credentials of the user "user" with
+    the "password" password.
 
     .NOTES
     TODO Add secured password handling
@@ -119,7 +160,7 @@ function Test-SQLConnection {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Database server to connect to"
     )]
@@ -127,7 +168,7 @@ function Test-SQLConnection {
     [String]
     $Server,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Database to connect to"
     )]
@@ -135,14 +176,14 @@ function Test-SQLConnection {
     [String]
     $Database,
     [Parameter (
-      Position    = 3,
+      Position    = 2,
       Mandatory   = $false,
       HelpMessage = "Use of specific credentials instead of integrated security"
     )]
     [Switch]
     $Security = $false,
     [Parameter (
-      Position    = 4,
+      Position    = 3,
       Mandatory   = $false,
       HelpMessage = "User name"
     )]
@@ -150,7 +191,7 @@ function Test-SQLConnection {
     [String]
     $Username,
     [Parameter (
-      Position    = 5,
+      Position    = 4,
       Mandatory   = $false,
       HelpMessage = "Password"
     )]
@@ -193,42 +234,45 @@ function Read-Properties {
     Parse properties file to generate configuration variables
 
     .PARAMETER File
-    The File parameter should be the name of the property file.
+    [String] The File parameter should be the name of the property file.
 
     .PARAMETER Directory
-    The Directory parameter should be the path to the directory containing the
+    [String] The Directory parameter should be the path to the directory containing the
     property file.
 
     .PARAMETER Section
-    The Section parameter indicates if properties should be grouped depending on
-     existing sections in the file
+    [Switch] The Section parameter indicates if properties should be grouped depending on
+     existing sections in the file.
 
     .OUTPUTS
-    System.Collections.Specialized.OrderedDictionary. Read-Properties returns an
+    [System.Collections.Specialized.OrderedDictionary] Read-Properties returns an
     ordered hash table containing the content of the property file.
 
     .EXAMPLE
-    Read-Properties -File "default.ini" -Directory "\conf"
+    Read-Properties -File "default.ini" -Directory ".\conf" -Section
 
-    .EXAMPLE
-    Read-Properties -File "default.ini" -Directory "\conf" -Section
+    In this example, Read-Properties will parse the default.ini file contained
+    in the .\conf directory and generate an ordered hashtable containing the
+    key-values pairs.
   #>
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Property file name"
     )]
+    [String]
     $File,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Path to the directory containing the property file"
-      )]
+    )]
+    [String]
     $Directory,
     [Parameter (
-      Position    = 3,
+      Position    = 2,
       Mandatory   = $false,
       HelpMessage = "Define if section headers should be used to group properties or be ignored"
       )]
@@ -309,22 +353,25 @@ function Read-Property {
     Parse property content
 
     .PARAMETER Content
-    The Content parameter should be the content of the property
+    [String] The Content parameter should be the content of the property.
 
     .INPUTS
     None.
 
     .OUTPUTS
-    System.Collections.Specialized.OrderedDictionary. Read-Property returns an
-    ordered hash table containing the name and value of a given property.
+    [System.Collections.Specialized.OrderedDictionary] Read-Property returns an
+    ordered hashtable containing the name and value of a given property.
 
     .EXAMPLE
     Read-Property -Content "Key = Value"
+
+    In this example, Read-Property will parse the content and assign the value
+    "Value" to the property "Key".
   #>
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Property content"
     )]
@@ -347,13 +394,13 @@ function Read-Property {
 # ------------------------------------------------------------------------------
 # Properties setting function
 # ------------------------------------------------------------------------------
-function Set-Properties {
+function Get-Properties {
   <#
     .SYNOPSIS
-    Set properties from configuration files
+    Get properties from configuration files
 
     .DESCRIPTION
-    Set properties from configuration files
+    Get properties from configuration files
 
     .PARAMETER File
     The File parameter should be the name of the property file.
@@ -370,55 +417,54 @@ function Set-Properties {
      the custom property file.
 
     .OUTPUTS
-    System.Collections.Specialized.OrderedDictionary. Set-Properties returns an
+    System.Collections.Specialized.OrderedDictionary. Get-Properties returns an
     ordered hash table containing the names and values of the properties listed
     in the property files.
 
     .EXAMPLE
-    Set-Properties -File "default.ini" -Directory "\conf"
+    Get-Properties -File "default.ini" -Directory ".\conf" -Custom "custom.ini" -CustomDirectory "\\shared"
 
-    .EXAMPLE
-    Set-Properties -File "default.ini" -Directory "\conf" -Custom "custom.ini"
-
-    .EXAMPLE
-    Set-Properties -File "default.ini" -Directory "\conf" -Custom "custom.ini" -CustomDirectory "\shared"
+    In this example, Get-Properties will read properties from the default.ini
+    file contained in the .\conf directory, then read the properties from
+    in the custom.ini file contained in the \\shared directory, and override the
+    default ones with the custom ones.
 
     .NOTES
-    Set-Properties does not currently allow the use of sections to group proper-
+    Get-Properties does not currently allow the use of sections to group proper-
     ties in custom files
   #>
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Property file name"
     )]
     [String]
     $File,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Path to the directory containing the property files"
     )]
     [String]
     $Directory,
     [Parameter (
-      Position    = 3,
+      Position    = 2,
       Mandatory   = $false,
       HelpMessage = "Custom property file name"
     )]
     [String]
     $Custom,
     [Parameter (
-      Position    = 4,
+      Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Path to the directory containing the custom property file"
     )]
     [String]
     $CustomDirectory = $Directory,
     [Parameter (
-      Position    = 5,
+      Position    = 4,
       Mandatory   = $false,
       HelpMessage = "Define if section headers should be used to group properties or be ignored"
       )]
@@ -486,13 +532,13 @@ function Compare-Hashtables {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Reference hashtable"
     )]
     $Reference,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Difference hashtable"
       )]
@@ -545,13 +591,13 @@ function Copy-OrderedHashtable {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Hashtable to clone"
     )]
     $Hashtable,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $false,
       HelpMessage = "Define if the copy should be shallow or deep"
     )]
@@ -589,20 +635,24 @@ function Start-Script {
     Start transcript and set strict mode
 
     .PARAMETER Transcript
-    The transcript parameter corresponds to the file to be generated to log the
-    session.
+    [String] The transcript parameter corresponds to the path to the file to be
+    generated to log the session.
 
     .EXAMPLE
     Start-Script -Transcript ".\log\transcript.log"
+
+    In this example, Start-Script will set stric mode on, and record all the
+    output in a file colled "transcript.log" under the ".\log" directory.
   #>
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Transcript file path"
     )]
     [Alias ("LogFile")]
+    [String]
     $Transcript
   )
   begin {
@@ -629,12 +679,21 @@ function Stop-Script {
     the script. Default is 0 (i.e. no errors).
 
     .EXAMPLE
+    Stop-Script
+
+    In this example, Stop-Script will set strict mode off, stop the transcript
+    if any is currently active, and exit the script with error code 0.
+
+    .EXAMPLE
     Stop-Script -ErrorCode 1
+
+    In this example, Stop-Script will set strict mode off, stop the transcript
+    if any is currently active, and exit the script with error code 1.
   #>
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $false,
       HelpMessage = "Error code"
     )]
@@ -686,14 +745,14 @@ function Compare-Properties {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "List of properties"
     )]
     [ValidateNotNullOrEmpty ()]
     $Properties,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "List of properties to check"
     )]
@@ -751,14 +810,14 @@ function ConvertTo-NaturalSort {
   [CmdletBinding ()]
   param(
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "List of files to sort"
     )]
     [Alias ("List")]
     $Files,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $false,
       HelpMessage = "Specifies the order of the sort"
     )]
@@ -815,13 +874,13 @@ function Add-Offset {
   [CmdletBinding ()]
   param(
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Alphanumeric chain of character"
     )]
     $Alphanumeric,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Offset"
     )]
@@ -906,7 +965,7 @@ function Rename-NumberedFile {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Path to the files"
     )]
@@ -914,7 +973,7 @@ function Rename-NumberedFile {
     [String]
     $Path,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Offset"
     )]
@@ -922,14 +981,14 @@ function Rename-NumberedFile {
     [Int]
     $Offset,
     [Parameter (
-      Position    = 3,
+      Position    = 2,
       Mandatory   = $false,
       HelpMessage = "Filter to apply"
     )]
     [String]
     $Filter = "*",
     [Parameter (
-      Position    = 4,
+      Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Pattern to exclude"
     )]
@@ -1027,7 +1086,7 @@ function Test-Alphanumeric {
   [CmdletBinding ()]
   param(
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Alphanumeric chain of character"
     )]
@@ -1078,14 +1137,14 @@ function Measure-FileProperty {
   #>
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "List of Files to parse"
     )]
     [Alias ("List")]
     $Files,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Property to measure"
     )]
@@ -1161,7 +1220,7 @@ function ConvertTo-PDF {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Directory containing the files to convert"
     )]
@@ -1224,12 +1283,13 @@ function Complete-RelativePath {
     Auto-complete relative path with working directory to make them absolute
 
     .OUTPUTS
-    [System.Collections.ArrayList] Complete-RelativePath returns
+    [System.Collections.ArrayList] Complete-RelativePath returns a list of abso-
+    lute paths.
   #>
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Relative path to make absolute"
     )]
@@ -1237,7 +1297,7 @@ function Complete-RelativePath {
     [String[]]
     $RelativePaths,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Root directory to pre-prend to relative path"
     )]
@@ -1279,6 +1339,9 @@ function Show-ExceptionFullName {
     .DESCRIPTION
     Show full exception name to facilitate error handling (try...catch)
 
+    .PARAMETER Errors
+    The errors parameters corresponds to the errors thrown.
+
     .INPUTS
     None.
 
@@ -1289,7 +1352,7 @@ function Show-ExceptionFullName {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Errors to analyse"
     )]
@@ -1309,35 +1372,54 @@ function Convert-FileEncoding {
     .DESCRIPTION
     Create a copy of a given file and convert the encoding as specified.
 
+    .PARAMETER Path
+    [String] The path parameter corresponds to the path to the directory or file
+     to encode.
+
+     .PARAMETER Encoding
+     [String] The encoding parameter corresponds to the encoding to converting
+     the file(s) to.
+
+    .PARAMETER Filter
+    [String] The filter parameters corresponds to the pattern to match to filter
+     objects from the result set.
+
+    .PARAMETER Exclude
+    [String] The exclude parameters corresponds to the pattern to match to ex-
+    clude objects from the result set.
+
     .NOTES
-    /!\ Exclude is currently not supported
+    /!\ Exclude is currently not supported in Windows PowerShell
     See Get-Object
+
+    .LINK
+    Get-Object
   #>
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Path to the files to convert"
     )]
     [String]
     $Path,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Encoding"
     )]
     [String]
     $Encoding,
     [Parameter (
-      Position    = 3,
+      Position    = 2,
       Mandatory   = $false,
       HelpMessage = "Filter to apply"
     )]
     [String]
     $Filter = "*",
     [Parameter (
-      Position    = 4,
+      Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Pattern to exclude"
     )]
@@ -1384,21 +1466,72 @@ function Get-Object {
     .DESCRIPTION
     Create a copy of a given file and convert the encoding as specified.
 
+    .PARAMETER Path
+    [String] The path parameter corresponds to the path to the directory or object to
+    retrieve.
+
+    .PARAMETER Type
+    [String] The type parameters corresponds to the type of object(s) to retrieve. Three
+    values are possible:
+    - ALL :   files and folders alike
+    - File:   only files
+    - Folder: only folders
+
+    .PARAMETER Filter
+    [String] The filter parameters corresponds to the pattern to match to filter objects
+    from the result set.
+
+    .PARAMETER Exclude
+    [String] The exclude parameters corresponds to the pattern to match to exclude ob-
+    jects from the result set.
+
+    .EXAMPLE
+    Get-Object -Path "\path\to\folder"
+
+    In this example, Get-Object will return all the objects (files and folders)
+    listed in the "\path\to\folder" directory.
+
+    .EXAMPLE
+    Get-Object -Path "\path\to\folder" -Type "File"
+
+    In this example, Get-Object will return all the files listed in the
+    "\path\to\folder" directory.
+
+    .EXAMPLE
+    Get-Object -Path "\path\to\folder" -Type "Folder"
+
+    In this example, Get-Object will return all the folders listed in the
+    "\path\to\folder" directory.
+
+    .EXAMPLE
+    Get-Object -Path "\path\to\folder" -Type "File" -Filter "*.txt"
+
+    In this example, Get-Object will return all the text files listed in the
+    "\path\to\folder" directory.
+
+    .EXAMPLE
+    Get-Object -Path "\path\to\folder" -Type "File" -Exclude "*.txt"
+
+    In this example, Get-Object will return all the non-text files listed in the
+     "\path\to\folder" directory.
+
+    /!\ The use of the exclude tag require PowerShell Core v6.1 or later.
+
     .NOTES
-    /!\ Exclude is currently not supported
+    /!\ Exclude is currently not supported in Windows PowerShell
     See https://github.com/PowerShell/PowerShell/issues/6865
   #>
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "Path to the items"
     )]
     [String]
     $Path,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $false,
       HelpMessage = "Type of item"
     )]
@@ -1406,14 +1539,14 @@ function Get-Object {
     [String]
     $Type = "All",
     [Parameter (
-      Position    = 3,
+      Position    = 2,
       Mandatory   = $false,
       HelpMessage = "Filter to apply"
     )]
     [String]
     $Filter = "*",
     [Parameter (
-      Position    = 4,
+      Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Pattern to exclude"
     )]
@@ -1433,11 +1566,20 @@ function Get-Object {
     }
   }
   process {
-    # Get files
-    switch ($Type) {
-      "File"    { $Object = Get-ChildItem -Path $Path -Filter $Filter -File       }
-      "Folder"  { $Object = Get-ChildItem -Path $Path -Filter $Filter -Directory  }
-      default   { $Object = Get-ChildItem -Path $Path -Filter $Filter             }
+    # Check PowerShell version to prevent issue
+    $PSVersion = $PSVersionTable.PSVersion | Select -Expand "Major"
+    if ($PSVersion -lt 6) {
+      switch ($Type) {
+        "File"    { $Object = Get-ChildItem -Path $Path -Filter $Filter -File       }
+        "Folder"  { $Object = Get-ChildItem -Path $Path -Filter $Filter -Directory  }
+        default   { $Object = Get-ChildItem -Path $Path -Filter $Filter             }
+      }
+    } else {
+      switch ($Type) {
+        "File"    { $Object = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -File       }
+        "Folder"  { $Object = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -Directory  }
+        default   { $Object = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude             }
+      }
     }
     # If no files are found, print hints
     if ($Object.Count -eq 0) {
@@ -1478,11 +1620,11 @@ function Set-Tags {
 
     $Tags     = [Ordered]@{
       Tag1    = [Ordered]@{
-        Token = "Token"
+        Token = "Token to replace"
         Value = "Value"
       }
       Tag2    = [Ordered]@{
-        Token = "Token"
+        Token = "Token to replace"
         Value = "Value"
       }
     }
@@ -1493,25 +1635,29 @@ function Set-Tags {
     .EXAMPLE
     Set-Tags -String $String -Tags $Tags
 
+    In this example, all the tokens defined in $Tags and contained in $String
+    will be replaced by the corresponding values defined in $Tags.
+
     .NOTES
   #>
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 1,
+      Position    = 0,
       Mandatory   = $true,
       HelpMessage = "String"
     )]
     [String]
     $String,
     [Parameter (
-      Position    = 2,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Tags"
     )]
-    [System.Collections.Specialized.OrderedDictionary]
+    [System.Collections.Specialized.OrderedDictionary] # Ordered hastable
     $Tags
   )
+  # Replace tag tokens by their respective values
   foreach ($Tag in $Tags.Values) {
     $TaggedString = $String.Replace($Tag.Token, $Tag.Value)
   }
