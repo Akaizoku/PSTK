@@ -74,7 +74,7 @@ function Write-Log {
   # Inputs
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Type of message to output"
     )]
@@ -82,7 +82,7 @@ function Write-Log {
     [String]
     $Type,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Message to output"
     )]
@@ -161,7 +161,7 @@ function Test-SQLConnection {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Database server to connect to"
     )]
@@ -170,23 +170,22 @@ function Test-SQLConnection {
     [String]
     $Server,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Database to connect to"
     )]
     [ValidateNotNullOrEmpty ()]
-    [Alias ("DB")]
     [String]
     $Database,
     [Parameter (
-      Position    = 2,
+      Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Use of specific credentials instead of integrated security"
     )]
     [Switch]
     $Security = $false,
     [Parameter (
-      Position    = 3,
+      Position    = 4,
       Mandatory   = $false,
       HelpMessage = "User name"
     )]
@@ -194,7 +193,7 @@ function Test-SQLConnection {
     [String]
     $Username,
     [Parameter (
-      Position    = 4,
+      Position    = 5,
       Mandatory   = $false,
       HelpMessage = "Password"
     )]
@@ -204,13 +203,16 @@ function Test-SQLConnection {
   )
   # Break-down connection info
   if ($Security) {
+    Write-Debug "SQL Server authentication"
     if ($Username) {
       $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=False; User ID=$Username; Password=$Password; Connect Timeout=3;"
     } else {
       Write-Log -Type "ERROR" -Message "Please provide a valid username"
+      Write-Debug "$Username"
       Stop-Script 1
     }
   } else {
+    Write-Debug "Integrated Secutiry"
     $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=True; Connect Timeout=3;"
   }
   # Create connection object
@@ -221,6 +223,7 @@ function Test-SQLConnection {
     $Connection.Close()
     return $true
   } catch {
+    Write-Debug "Unable to connect to $ConnectionString"
     return $false
   }
 }
@@ -261,7 +264,7 @@ function Read-Properties {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Property file name"
     )]
@@ -269,7 +272,7 @@ function Read-Properties {
     [String]
     $File,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Path to the directory containing the property file"
     )]
@@ -277,7 +280,7 @@ function Read-Properties {
     [String]
     $Directory,
     [Parameter (
-      Position    = 2,
+      Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Define if section headers should be used to group properties or be ignored"
       )]
@@ -376,7 +379,7 @@ function Read-Property {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Property content"
     )]
@@ -390,8 +393,8 @@ function Read-Property {
     $Offset = 1
     $Key    = $Content.Substring(0, $Index)
     $Value  = $Content.Substring($Index + $Offset, $Content.Length - $Index - $Offset)
-    $Property.Add("Key", $Key.Trim())
-    $Property.Add("Value", $Value.Trim())
+    $Property.Add("Key"   , $Key.Trim())
+    $Property.Add("Value" , $Value.Trim())
   }
   return $Property
 }
@@ -441,7 +444,7 @@ function Get-Properties {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Property file name"
     )]
@@ -449,7 +452,7 @@ function Get-Properties {
     [String]
     $File,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Path to the directory containing the property files"
     )]
@@ -457,21 +460,21 @@ function Get-Properties {
     [String]
     $Directory,
     [Parameter (
-      Position    = 2,
+      Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Custom property file name"
     )]
     [String]
     $Custom,
     [Parameter (
-      Position    = 3,
+      Position    = 4,
       Mandatory   = $false,
       HelpMessage = "Path to the directory containing the custom property file"
     )]
     [String]
     $CustomDirectory = $Directory,
     [Parameter (
-      Position    = 4,
+      Position    = 5,
       Mandatory   = $false,
       HelpMessage = "Define if section headers should be used to group properties or be ignored"
       )]
@@ -539,7 +542,7 @@ function Compare-Hashtables {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Reference hashtable"
     )]
@@ -547,7 +550,7 @@ function Compare-Hashtables {
     # [System.Collections.Specialized.OrderedDictionary]
     $Reference,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Difference hashtable"
       )]
@@ -567,10 +570,12 @@ function Compare-Hashtables {
         # Check that they contain the same values
         if ($Difference.$Key -ne $Reference.$Key) {
           $Check = $false
+          Write-Debug "$($Difference.$Key) does not exists in reference hashtable"
           break
         }
       } else {
         $Check = $false
+        Write-Debug "$Key does not exists in difference hashtable"
         break
       }
     }
@@ -602,7 +607,7 @@ function Copy-OrderedHashtable {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Hashtable to clone"
     )]
@@ -610,7 +615,7 @@ function Copy-OrderedHashtable {
     [System.Collections.Specialized.OrderedDictionary]
     $Hashtable,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $false,
       HelpMessage = "Define if the copy should be shallow or deep"
     )]
@@ -660,7 +665,7 @@ function Start-Script {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Transcript file path"
     )]
@@ -707,7 +712,7 @@ function Stop-Script {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $false,
       HelpMessage = "Error code"
     )]
@@ -760,7 +765,7 @@ function Compare-Properties {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "List of properties"
     )]
@@ -768,7 +773,7 @@ function Compare-Properties {
     [System.Collections.Specialized.OrderedDictionary] # Ordered hashtable
     $Properties,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "List of properties to check"
     )]
@@ -826,7 +831,7 @@ function ConvertTo-NaturalSort {
   [CmdletBinding ()]
   param(
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "List of files to sort"
     )]
@@ -834,7 +839,7 @@ function ConvertTo-NaturalSort {
     [Alias ("List")]
     $Files,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $false,
       HelpMessage = "Specifies the order of the sort"
     )]
@@ -891,7 +896,7 @@ function Add-Offset {
   [CmdletBinding ()]
   param(
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Alphanumeric chain of character"
     )]
@@ -899,7 +904,7 @@ function Add-Offset {
     [String]
     $Alphanumeric,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Offset"
     )]
@@ -985,7 +990,7 @@ function Rename-NumberedFile {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Path to the files"
     )]
@@ -993,7 +998,7 @@ function Rename-NumberedFile {
     [String]
     $Path,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Offset"
     )]
@@ -1001,14 +1006,14 @@ function Rename-NumberedFile {
     [Int]
     $Offset,
     [Parameter (
-      Position    = 2,
+      Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Filter to apply"
     )]
     [String]
     $Filter = "*",
     [Parameter (
-      Position    = 3,
+      Position    = 4,
       Mandatory   = $false,
       HelpMessage = "Pattern to exclude"
     )]
@@ -1106,7 +1111,7 @@ function Test-Alphanumeric {
   [CmdletBinding ()]
   param(
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Alphanumeric chain of character"
     )]
@@ -1155,11 +1160,20 @@ function Measure-FileProperty {
     - MinimumValue
 
     .EXAMPLE
+    Measure-FileProperty -Files $Files -Property "MaximumLength"
+
+    In this example, Measure-FileProperty returns the maximum length of file
+    names in a specified list of files.
+
+    .EXAMPLE
     Measure-FileProperty -Files $Files -Property "MinimumValue"
+
+    In this example, Measure-FileProperty returns the minimum numeric value in a
+     specified list of numbered files.
   #>
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "List of Files to parse"
     )]
@@ -1167,7 +1181,7 @@ function Measure-FileProperty {
     [Alias ("List")]
     $Files,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Property to measure"
     )]
@@ -1181,7 +1195,7 @@ function Measure-FileProperty {
         # Maximum length of file names
         "MaximumLength" {
           $MaximumLength = 0
-          [Int]$Length = $File.BaseName | Measure-Object -Character | Select -Expand Characters
+          [Int]$Length = $File.BaseName | Measure-Object -Character | Select-Object -ExpandProperty "Characters"
           if ($Length -gt $MaximumLength) {
             $MaximumLength = $Length
           }
@@ -1244,7 +1258,7 @@ function ConvertTo-PDF {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Directory containing the files to convert"
     )]
@@ -1314,7 +1328,7 @@ function Complete-RelativePath {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Relative path to make absolute"
     )]
@@ -1323,7 +1337,7 @@ function Complete-RelativePath {
     [String[]]
     $RelativePaths,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Root directory to pre-prend to relative path"
     )]
@@ -1379,7 +1393,7 @@ function Show-ExceptionFullName {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Errors to analyse"
     )]
@@ -1427,7 +1441,7 @@ function Convert-FileEncoding {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Path to the files to convert"
     )]
@@ -1435,21 +1449,21 @@ function Convert-FileEncoding {
     [String]
     $Path,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Encoding"
     )]
     [String]
     $Encoding,
     [Parameter (
-      Position    = 2,
+      Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Filter to apply"
     )]
     [String]
     $Filter = "*",
     [Parameter (
-      Position    = 3,
+      Position    = 4,
       Mandatory   = $false,
       HelpMessage = "Pattern to exclude"
     )]
@@ -1554,7 +1568,7 @@ function Get-Object {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "Path to the items"
     )]
@@ -1562,7 +1576,7 @@ function Get-Object {
     [String]
     $Path,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $false,
       HelpMessage = "Type of item"
     )]
@@ -1570,14 +1584,14 @@ function Get-Object {
     [String]
     $Type = "All",
     [Parameter (
-      Position    = 2,
+      Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Filter to apply"
     )]
     [String]
     $Filter = "*",
     [Parameter (
-      Position    = 3,
+      Position    = 4,
       Mandatory   = $false,
       HelpMessage = "Pattern to exclude"
     )]
@@ -1598,7 +1612,7 @@ function Get-Object {
   }
   process {
     # Check PowerShell version to prevent issue
-    $PSVersion = $PSVersionTable.PSVersion | Select -Expand "Major"
+    $PSVersion = $PSVersionTable.PSVersion | Select-Object -ExpandProperty "Major"
     if ($PSVersion -lt 6) {
       switch ($Type) {
         "File"    { $Object = Get-ChildItem -Path $Path -Filter $Filter -File       }
@@ -1674,7 +1688,7 @@ function Set-Tags {
   [CmdletBinding ()]
   param (
     [Parameter (
-      Position    = 0,
+      Position    = 1,
       Mandatory   = $true,
       HelpMessage = "String"
     )]
@@ -1682,7 +1696,7 @@ function Set-Tags {
     [String]
     $String,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Tags"
     )]
@@ -1692,7 +1706,7 @@ function Set-Tags {
   )
   # Replace tag tokens by their respective values
   foreach ($Tag in $Tags.Values) {
-    $TaggedString = $String.Replace($Tag.Token, $Tag.Value)
+    $String = $String.Replace($Tag.Token, $Tag.Value)
   }
-  return $TaggedString
+  return $String
 }
