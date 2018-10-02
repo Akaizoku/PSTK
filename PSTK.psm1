@@ -11,7 +11,7 @@
   File name:      PSTK.psm1
   Author:         Florian Carrier
   Creation date:  23/08/2018
-  Last modified:  27/09/2018
+  Last modified:  02/10/2018
   Repository:     https://github.com/Akaizoku/PSTK
 
   .LINK
@@ -69,10 +69,13 @@ function Write-Log {
     This example outputs a checkpoint message with the timestamp, the "CHECK"
     tag, and the specified message itself. The message will be displayed in
     green in the host.
+
+    .NOTES
+    TODO Add locale variable
   #>
   [CmdletBinding ()]
   # Inputs
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -159,7 +162,7 @@ function Test-SQLConnection {
     TODO Add secured password handling
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -216,7 +219,7 @@ function Test-SQLConnection {
     $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=True; Connect Timeout=3;"
   }
   # Create connection object
-  $Connection = New-Object -TypeName System.Data.SqlClient.SqlConnection $ConnectionString
+  $Connection = New-Object -TypeName System.Data.SqlClient.SqlConnection -ArgumentList $ConnectionString
   # Try to open the connection
   try {
     $Connection.Open()
@@ -262,7 +265,7 @@ function Read-Properties {
     key-values pairs.
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -377,7 +380,7 @@ function Read-Property {
     "Value" to the property "Key".
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -442,7 +445,7 @@ function Get-Properties {
     ties in custom files
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -540,7 +543,7 @@ function Compare-Hashtables {
     Compare-Hashtables -Reference $Hashtable1 -Difference $Hashtable2
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -605,7 +608,7 @@ function Copy-OrderedHashtable {
     Copy-OrderedHashtable -Hashtable $Hashtable
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -663,7 +666,7 @@ function Start-Script {
     output in a file colled "transcript.log" under the ".\log" directory.
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -674,10 +677,10 @@ function Start-Script {
     [String]
     $Transcript
   )
-  begin {
+  Begin {
     Set-StrictMode -Version Latest
   }
-  process {
+  Process {
     Start-Transcript -Path $Transcript -Append -Force
   }
 }
@@ -710,7 +713,7 @@ function Stop-Script {
     if any is currently active, and exit the script with error code 1.
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $false,
@@ -720,7 +723,7 @@ function Stop-Script {
     [Int]
     $ErrorCode = 0
   )
-  begin {
+  Begin {
     Set-StrictMode -Off
     try {
       Stop-Transcript
@@ -728,7 +731,7 @@ function Stop-Script {
       Write-Log -Type "WARN" -Message "No transcript is being produced"
     }
   }
-  process {
+  Process {
     exit $ErrorCode
   }
 }
@@ -763,7 +766,7 @@ function Compare-Properties {
     Check if returned list is empty to verify that all is well
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -789,7 +792,8 @@ function Compare-Properties {
       [Void]$Missing.Add($Property)
     }
   }
-  return $Missing
+  # Force array-list format
+  return @($Missing)
 }
 
 # ------------------------------------------------------------------------------
@@ -829,7 +833,7 @@ function ConvertTo-NaturalSort {
     TODO Make generic to allow sorting simple string arrays
   #>
   [CmdletBinding ()]
-  param(
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -894,7 +898,7 @@ function Add-Offset {
     - ^\D+\d+$
   #>
   [CmdletBinding ()]
-  param(
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -988,7 +992,7 @@ function Rename-NumberedFile {
     dashes in filenames.
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -1109,7 +1113,7 @@ function Test-Alphanumeric {
     3. ^\D+\d+$
   #>
   [CmdletBinding ()]
-  param(
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -1119,13 +1123,13 @@ function Test-Alphanumeric {
     [String]
     $Alphanumeric
   )
-  begin {
+  Begin {
     # Declare valid formats
     $Number = [RegEx]::New('^\d+$')
     $NumStr = [RegEx]::New('^\d+\D+$')
     $StrNum = [RegEx]::New('^\D+\d+$')
   }
-  process {
+  Process {
     # Test and return format
     if ($Alphanumeric -match $Number) {
       return 1
@@ -1171,7 +1175,7 @@ function Measure-FileProperty {
     In this example, Measure-FileProperty returns the minimum numeric value in a
      specified list of numbered files.
   #>
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -1189,7 +1193,7 @@ function Measure-FileProperty {
     [String]
     $Property
   )
-  process {
+  Process {
     foreach ($File in $Files) {
       switch ($Property) {
         # Maximum length of file names
@@ -1256,7 +1260,7 @@ function ConvertTo-PDF {
     ConvertTo-PDF -Path ".\doc"
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -1267,11 +1271,11 @@ function ConvertTo-PDF {
     [String]
     $Path
   )
-  begin {
+  Begin {
     $Output = $false
     $Count  = 0
   }
-  process {
+  Process {
     if (Test-Path -Path $Path) {
       # Initialise MS Word application and identify document
       $MSWord = New-Object -ComObject Word.Application
@@ -1305,7 +1309,7 @@ function ConvertTo-PDF {
     }
     return $Output
   }
-  end {
+  End {
     $MSWord.Quit()
   }
 }
@@ -1326,7 +1330,7 @@ function Complete-RelativePath {
     lute paths.
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -1346,14 +1350,14 @@ function Complete-RelativePath {
     [String]
     $WorkingDirectory
   )
-  begin {
+  Begin {
     if (-Not (Test-Path -Path $WorkingDirectory)) {
       Write-Log -Type "ERROR" -Message "$WorkingDirectory does not exists."
       Stop-Script 1
     }
     $Paths = New-Object -TypeName System.Collections.ArrayList
   }
-  process {
+  Process {
     foreach ($RelativePath in $RelativePaths) {
       # If path is correct, change value to absolute
       $AbsolutePath = Join-Path -Path $WorkingDirectory -ChildPath $RelativePath
@@ -1391,7 +1395,7 @@ function Show-ExceptionFullName {
     ion as a string.
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -1439,7 +1443,7 @@ function Convert-FileEncoding {
     Get-Object
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -1470,7 +1474,7 @@ function Convert-FileEncoding {
     [String]
     $Exclude = $null
   )
-  begin {
+  Begin {
     # Check parameters and instantiate variables
     # $Path     = Resolve-Path -Path $Path
     $Files    = Get-Object -Path $Path -Type "File" -Filter $Filter -Exclude $Exclude
@@ -1478,7 +1482,7 @@ function Convert-FileEncoding {
     $Output   = $false
     $Count    = 0
   }
-  process {
+  Process {
     try {
       foreach ($File in $Files) {
         Write-Log -Type "INFO" -Message "Converting ""$($File.Name)"" to $Encoding"
@@ -1529,6 +1533,10 @@ function Get-Object {
     [String] The exclude parameters corresponds to the pattern to match to exclude ob-
     jects from the result set.
 
+    .OUTPUTS
+    [System.Collections.ArrayList] Get-Object returns an array list containing
+    the list of objects.
+
     .EXAMPLE
     Get-Object -Path "\path\to\folder"
 
@@ -1566,7 +1574,7 @@ function Get-Object {
     See https://github.com/PowerShell/PowerShell/issues/6865
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -1598,7 +1606,7 @@ function Get-Object {
     [String]
     $Exclude = $null
   )
-  begin {
+  Begin {
     $Path = Resolve-Path -Path $Path
     if (-Not (Test-Path -Path $Path)) {
       Write-Log -Type "ERROR" -Message "$Path does not exists."
@@ -1610,24 +1618,25 @@ function Get-Object {
       "Folder"  = "folders"
     }
   }
-  process {
+  Process {
+    $Objects = New-Object -TypeName System.Collections.ArrayList
     # Check PowerShell version to prevent issue
     $PSVersion = $PSVersionTable.PSVersion | Select-Object -ExpandProperty "Major"
     if ($PSVersion -lt 6) {
       switch ($Type) {
-        "File"    { $Object = Get-ChildItem -Path $Path -Filter $Filter -File       }
-        "Folder"  { $Object = Get-ChildItem -Path $Path -Filter $Filter -Directory  }
-        default   { $Object = Get-ChildItem -Path $Path -Filter $Filter             }
+        "File"    { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -File)       }
+        "Folder"  { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Directory)  }
+        default   { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter)             }
       }
     } else {
       switch ($Type) {
-        "File"    { $Object = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -File       }
-        "Folder"  { $Object = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -Directory  }
-        default   { $Object = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude             }
+        "File"    { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -File)       }
+        "Folder"  { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -Directory)  }
+        default   { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude)             }
       }
     }
     # If no files are found, print hints
-    if ($Object.Count -eq 0) {
+    if ($Objects. Count -eq 0) {
       if ($Filter -ne "*") {
         Write-Log -Type "ERROR" -Message "No $($ObjectType.$Type) were found in $Path matching the filter ""$Filter""."
       } elseif ($Exclude) {
@@ -1637,7 +1646,7 @@ function Get-Object {
       }
       Stop-Script 1
     } else {
-      return $Object
+      return $Objects
     }
   }
 }
@@ -1686,7 +1695,7 @@ function Set-Tags {
     .NOTES
   #>
   [CmdletBinding ()]
-  param (
+  Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
@@ -1709,4 +1718,145 @@ function Set-Tags {
     $String = $String.Replace($Tag.Token, $Tag.Value)
   }
   return $String
+}
+
+# ------------------------------------------------------------------------------
+# Dynamic parameters
+# ------------------------------------------------------------------------------
+function New-DynamicParameter {
+  <#
+    .SYNOPSIS
+    Creates dynamic parameter
+
+    .DESCRIPTION
+    Wrapper function to easily create dynamic parameters.
+
+    .PARAMETER Name
+    The name parameter corresponds to the name of the dynamic parameter to defi-
+    ne.
+
+    .PARAMETER Type
+    The type parameter corresponds to the type of the dynamic parameter to defi-
+    ne. The default value is [System.String].
+
+    .PARAMETER Position
+    The position parameter corresponds to the position to give to the dynamic
+    parameter to define.
+
+    .PARAMETER HelpMessage
+    The help message parameter corresponds to the description to give to the dy-
+    namic parameter to define.
+
+    .PARAMETER ValidateSet
+    The validate set parameter corresponds to the set of values against which to
+    validate the dynamic parameter values.
+
+    .PARAMETER Alias
+    The alias parameter corresponds to the list of aliases to assig to the dyna-
+    mic parameter.
+
+    .OUTPUTS
+    [System.Management.Automation.RuntimeDefinedParameterDictionary]
+    New-DynamicParameter returns a parameter dictionnary containing the dynamic
+    parameter.
+
+    .EXAMPLE
+    New-DynamicParameter -Name "Source" -Type String -Position 2 -Mandatory -Alias "Origin"
+
+    In this example, New-DynamicParameter will create a parameter called
+    "Source", that has a type of [System.String], will be assigned to the second
+    position, be mandatory, and have an alias of "Origin".
+
+    .NOTES
+    TODO expand validation rules definition to allow broader cases.
+  #>
+  [CmdletBinding ()]
+  Param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "Name of the dynamic parameter"
+    )]
+    [ValidateNotNullOrEmpty ()]
+    [String]
+    $Name,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $false,
+      HelpMessage = "Type of the dynamic parameter"
+    )]
+    [ValidateNotNullOrEmpty ()]
+    [System.Type]
+    $Type = [String],
+    [Parameter (
+      Position    = 3,
+      Mandatory   = $false,
+      HelpMessage = "Position of the dynamic parameter"
+    )]
+    [Int]
+    $Position,
+    [Parameter (
+      Position    = 4,
+      Mandatory   = $false,
+      HelpMessage = "Description of the dynamic parameter"
+    )]
+    [String]
+    $HelpMessage,
+    [Parameter (
+      Position    = 5,
+      Mandatory   = $false,
+      HelpMessage = "Define if the dynamic parameter is required"
+    )]
+    [Switch]
+    $Mandatory,
+    [Parameter (
+      Position    = 6,
+      Mandatory   = $false,
+      HelpMessage = "Validation rules of the dynamic parameter"
+    )]
+    [ValidateNotNullOrEmpty ()]
+    [String[]]
+    $ValidateSet,
+    [Parameter (
+      Position    = 7,
+      Mandatory   = $false,
+      HelpMessage = "Alias(es) of the dynamic parameter"
+    )]
+    [ValidateNotNullOrEmpty ()]
+    [String[]]
+    $Alias = @()
+  )
+  Process {
+    # Define parameter attribute
+    $ParameterAttribute = New-Object -TypeName System.Management.Automation.ParameterAttribute
+    # Set parameter attribute values
+    if ($Position) {
+      $ParameterAttribute.Position    = $Position
+    }
+    if ($Mandatory) {
+      $ParameterAttribute.Mandatory   = $true
+    }
+    if ($HelpMessage) {
+      $ParameterAttribute.HelpMessage = $HelpMessage
+    }
+    # Define attribute collection to store attributes
+    $ParameterAttributeCollection = New-Object -TypeName System.Collections.ObjectModel.Collection[System.Attribute]
+    $ParameterAttributeCollection.Add($ParameterAttribute)
+    # Define validation rules
+    if ($ValidateSet) {
+      $ValidationAttribute = New-Object -TypeName System.Management.Automation.ValidateSetAttribute -ArgumentList $ValidateSet
+      $ParameterAttributeCollection.Add($ValidationAttribute)
+    }
+    # Define alias
+    if ($Alias) {
+      $AliasAttribute = New-Object -TypeName System.Management.Automation.AliasAttribute -ArgumentList $Alias
+      $ParameterAttributeCollection.Add($AliasAttribute)
+    }
+    # Define dynamic parameter
+    $RuntimeParameter = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter($Name, $Type, $ParameterAttributeCollection)
+    # Define parameter dictionnary
+    $ParameterDictionary = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameterDictionary
+    $ParameterDictionary.Add($Name, $RuntimeParameter)
+    return $ParameterDictionary
+  }
 }
