@@ -9,7 +9,7 @@
   File name:      Read-Property.ps1
   Author:         Florian Carrier
   Creation date:  31/08/2018
-  Last modified:  26/09/2018
+  Last modified:  04/10/2018
 #>
 
 # ------------------------------------------------------------------------------
@@ -38,12 +38,12 @@ $Property4  = Read-Property -Content "Property Name =Property Value"
 $Property5  = Read-Property -Content "Property Name=Property Value"
 $Property6  = Read-Property -Content "Property Name= Property Value"
 
-$Check1     = Compare-Hashtables -Reference $Expected -Difference $Property1
-$Check2     = Compare-Hashtables -Reference $Expected -Difference $Property2
-$Check3     = Compare-Hashtables -Reference $Expected -Difference $Property3
-$Check4     = Compare-Hashtables -Reference $Expected -Difference $Property4
-$Check5     = Compare-Hashtables -Reference $Expected -Difference $Property5
-$Check6     = Compare-Hashtables -Reference $Expected -Difference $Property6
+$Check1     = Compare-Hashtable -Reference $Expected -Difference $Property1
+$Check2     = Compare-Hashtable -Reference $Expected -Difference $Property2
+$Check3     = Compare-Hashtable -Reference $Expected -Difference $Property3
+$Check4     = Compare-Hashtable -Reference $Expected -Difference $Property4
+$Check5     = Compare-Hashtable -Reference $Expected -Difference $Property5
+$Check6     = Compare-Hashtable -Reference $Expected -Difference $Property6
 
 # ------------------------------------------------------------------------------
 # Check outcome

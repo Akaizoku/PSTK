@@ -11,11 +11,15 @@
   File name:      PSTK.psm1
   Author:         Florian Carrier
   Creation date:  23/08/2018
-  Last modified:  02/10/2018
+  Last modified:  04/10/2018
   Repository:     https://github.com/Akaizoku/PSTK
+  Depndencies:    Test-SQLConnection requires the SQLServer module
 
   .LINK
   https://github.com/Akaizoku/PSTK
+
+  .LINK
+  https://docs.microsoft.com/en-us/sql/powershell/download-sql-server-ps-module
 #>
 
 # ------------------------------------------------------------------------------
@@ -81,7 +85,12 @@ function Write-Log {
       Mandatory   = $true,
       HelpMessage = "Type of message to output"
     )]
-    [ValidateSet ("CHECK","ERROR","INFO","WARN")]
+    [ValidateSet (
+      "CHECK",
+      "ERROR",
+      "INFO",
+      "WARN"
+    )]
     [String]
     $Type,
     [Parameter (
@@ -520,7 +529,7 @@ function Get-Properties {
 # ------------------------------------------------------------------------------
 # Function to compare hashtables content
 # ------------------------------------------------------------------------------
-function Compare-Hashtables {
+function Compare-Hashtable {
   <#
     .SYNOPSIS
     Compares hashtables content
@@ -536,11 +545,11 @@ function Compare-Hashtables {
     first one.
 
     .OUTPUTS
-    Boolean. Compare-Hashtables returns a boolean depnding on the result of the
+    Boolean. Compare-Hashtable returns a boolean depnding on the result of the
     comparison between the two hashtables.
 
     .EXAMPLE
-    Compare-Hashtables -Reference $Hashtable1 -Difference $Hashtable2
+    Compare-Hashtable -Reference $Hashtable1 -Difference $Hashtable2
   #>
   [CmdletBinding ()]
   Param (
@@ -847,7 +856,10 @@ function ConvertTo-NaturalSort {
       Mandatory   = $false,
       HelpMessage = "Specifies the order of the sort"
     )]
-    [ValidateSet ("A", "Asc", "Ascending", "D", "Dsc", "Desc", "Descending")]
+    [ValidateSet (
+      "A", "Asc", "Ascending",
+      "D", "Dsc", "Desc", "Descending"
+    )]
     [String]
     $Order = "Ascending"
   )
@@ -1588,7 +1600,11 @@ function Get-Object {
       Mandatory   = $false,
       HelpMessage = "Type of item"
     )]
-    [ValidateSet ("All", "File", "Folder")]
+    [ValidateSet (
+      "All",
+      "File",
+      "Folder"
+    )]
     [String]
     $Type = "All",
     [Parameter (
@@ -1858,5 +1874,167 @@ function New-DynamicParameter {
     $ParameterDictionary = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameterDictionary
     $ParameterDictionary.Add($Name, $RuntimeParameter)
     return $ParameterDictionary
+  }
+}
+
+# ------------------------------------------------------------------------------
+# Capitalise string
+# ------------------------------------------------------------------------------
+function ConvertTo-TitleCase {
+  <#
+    .SYNOPSIS
+    Convert string to title case
+
+    .DESCRIPTION
+    Capitalise the first letter of each words in a string to form a title.
+
+    .PARAMETER String
+    The string parameter corresponds to the string to format. It can be a single
+    word or a complete sentence.
+
+    .PARAMETER Delimiter
+    The delimiter parameter corresponds to the character used to delimit dis-
+    tinct words in the string.
+    The default delimiter for words is the space character.
+  #>
+  [CmdletBinding ()]
+  Param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "String to format"
+    )]
+    [ValidateNotNullOrEmpty ()]
+    [String]
+    $String,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $false,
+      HelpMessage = "Word delimiter"
+    )]
+    [String]
+    $Delimiter = " "
+  )
+  Begin {
+    $Words          = $String.Split($Delimiter)
+    $FormattedWords = New-Object -TypeName System.Collections.ArrayList
+  }
+  Process {
+    foreach ($Word in $Words) {
+      [Void]$FormattedWords.Add((Get-Culture).TextInfo.ToTitleCase($Word.ToLower()))
+    }
+    $FormattedString = $FormattedWords -join " "
+    return $FormattedString
+  }
+}
+
+# ------------------------------------------------------------------------------
+# Format string
+# ------------------------------------------------------------------------------
+function Format-String {
+  <#
+    .SYNOPSIS
+    Format a string
+
+    .DESCRIPTION
+    Convert a string to a specified format
+
+    .PARAMETER String
+    The string parameter corresponds to the string to format. It can be a single
+    word or a complete sentence.
+
+    .PARAMETER Format
+    The format parameter corresponds to the case to convert the string to.
+
+    .PARAMETER Delimiter
+    The delimiter parameter corresponds to the character used to delimit dis-
+    tinct words in the string.
+    The default delimiter for words is the space character.
+
+    .NOTES
+    The delimiter for words is the space character.
+  #>
+  [CmdletBinding ()]
+  Param (
+    [Parameter (
+      Position    = 1,
+      Mandatory   = $true,
+      HelpMessage = "String to format"
+    )]
+    [ValidateNotNullOrEmpty ()]
+    [String]
+    $String,
+    [Parameter (
+      Position    = 2,
+      Mandatory   = $true,
+      HelpMessage = "Format"
+    )]
+    [ValidateSet (
+      "CamelCase",
+      "KebabCase",
+      "LowerCase",
+      "PaslcalCase",
+      "SentenceCase",
+      "SnakeCase",
+      "TitleCase",
+      "TrainCase",
+      "UpperCase"
+    )]
+    [String]
+    $Format,
+    [Parameter (
+      Position    = 3,
+      Mandatory   = $false,
+      HelpMessage = "Word delimiter"
+    )]
+    [String]
+    $Delimiter = " "
+  )
+  Begin {
+    # List cases that have to be capitalized
+    $Delimiters = [Ordered]@{
+      "CamelCase"     = ""
+      "KebabCase"     = "-"
+      "LowerCase"     = $Delimiter
+      "PaslcalCase"   = ""
+      "SentenceCase"  = " "
+      "SnakeCase"     = "_"
+      "TitleCase"     = " "
+      "TrainCase"     = "_"
+      "UpperCase"     = $Delimiter
+    }
+    $Capitalise = [Ordered]@{
+      First     = @("PaslcalCase","SentenceCase","TitleCase","TrainCase")
+      Others    = @("CamelCase","PaslcalCase","SentenceCase","TitleCase","TrainCase")
+    }
+    # Create array of words
+    $Words          = $String.Split($Delimiter)
+    $Counter        = 0
+    $FormattedWords = New-Object -TypeName System.Collections.ArrayList
+  }
+  Process {
+    foreach ($Word in $Words) {
+      if ($Format -ne "UpperCase") {
+        if ($Counter -gt 0) {
+          if ($Format -in $Capitalise.Others) {
+            [Void]$FormattedWords.Add((ConvertTo-TitleCase -String $Word))
+          } else {
+            [Void]$FormattedWords.Add($Word.ToLower())
+          }
+        } else {
+          if ($Format -in $Capitalise.First) {
+            [Void]$FormattedWords.Add((ConvertTo-TitleCase -String $Word))
+          } else {
+            [Void]$FormattedWords.Add($Word.ToLower())
+          }
+        }
+      } else {
+        [Void]$FormattedWords.Add($Word.ToUpper())
+      }
+      $Counter += 1
+    }
+    # Reconstruct string
+    $FormattedString = $FormattedWords -join $Delimiters.$Format
+    return $FormattedString
   }
 }

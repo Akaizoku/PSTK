@@ -9,7 +9,7 @@
   File name:      Copy-OrderedHashtable.ps1
   Author:         Florian Carrier
   Creation date:  31/08/2018
-  Last modified:  26/09/2018
+  Last modified:  04/10/2018
 #>
 
 # ------------------------------------------------------------------------------
@@ -50,13 +50,13 @@ $Empty        = [ordered]@{}
 # Test
 # ------------------------------------------------------------------------------
 $CloneSimple  = Copy-OrderedHashtable -Hashtable $Simple
-$CheckSimple  = Compare-Hashtables -Reference $CloneSimple -Difference $Simple
+$CheckSimple  = Compare-Hashtable -Reference $CloneSimple -Difference $Simple
 
 $CloneComplex = Copy-OrderedHashtable -Hashtable $Complex
-$CheckComplex = Compare-Hashtables -Reference $CloneComplex -Difference $Complex
+$CheckComplex = Compare-Hashtable -Reference $CloneComplex -Difference $Complex
 
 $CloneEmpty   = Copy-OrderedHashtable -Hashtable $Empty
-$CheckEmpty   = Compare-Hashtables -Reference $CloneEmpty -Difference $Empty
+$CheckEmpty   = Compare-Hashtable -Reference $CloneEmpty -Difference $Empty
 
 # ------------------------------------------------------------------------------
 # Check outcome

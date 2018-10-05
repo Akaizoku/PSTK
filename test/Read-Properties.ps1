@@ -9,7 +9,7 @@
   File name:      Read-Properties.ps1
   Author:         Florian Carrier
   Creation date:  31/08/2018
-  Last modified:  26/09/2018
+  Last modified:  04/10/2018
 #>
 
 # ------------------------------------------------------------------------------
@@ -60,11 +60,11 @@ $Expected2      = [ordered]@{
 # ------------------------------------------------------------------------------
 # Without Sections
 $Properties1  = Read-Properties -File $PropertyFile -Directory $Repository\test\res
-$Check1       = Compare-Hashtables -Reference $Expected1 -Difference $Properties1
+$Check1       = Compare-Hashtable -Reference $Expected1 -Difference $Properties1
 
 # With Sections
 $Properties2  = Read-Properties -File $PropertyFile -Directory $Repository\test\res -Section
-$Check2       = Compare-Hashtables -Reference $Expected2 -Difference $Properties2
+$Check2       = Compare-Hashtable -Reference $Expected2 -Difference $Properties2
 
 # ------------------------------------------------------------------------------
 # Check outcome
