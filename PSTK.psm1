@@ -1949,10 +1949,11 @@ function Format-String {
     .PARAMETER Delimiter
     The delimiter parameter corresponds to the character used to delimit dis-
     tinct words in the string.
-    The default delimiter for words is the space character.
+    The default delimiter for words is the space character
 
     .NOTES
-    The delimiter for words is the space character.
+    When the output word delimiter is not a space (i.e. the formatted string is
+    not a sentence), all punctuation is stripped from the string.
   #>
   [CmdletBinding ()]
   Param (
@@ -2008,6 +2009,9 @@ function Format-String {
       Others    = @("CamelCase","PaslcalCase","SentenceCase","TitleCase","TrainCase")
     }
     # Create array of words
+    if ($Delimiters.$Format -ne " ") {
+      $String = $String -replace ("[^A-Za-z0-9\s]", "")
+    }
     $Words          = $String.Split($Delimiter)
     $Counter        = 0
     $FormattedWords = New-Object -TypeName System.Collections.ArrayList
