@@ -69,16 +69,34 @@ PowerShellVersion = '3.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = '*'
+FunctionsToExport = @(
+  "Compare-Hashtable",
+  "Compare-Properties",
+  "Complete-RelativePath",
+  "Convert-FileEncoding",
+  "ConvertTo-NaturalSort",
+  "ConvertTo-PDF",
+  "Copy-OrderedHashtable",
+  "Format-String",
+  "Get-Object",
+  "Get-Properties",
+  "New-DynamicParameter",
+  "Rename-NumberedFile",
+  "Set-Tags",
+  "Start-Script",
+  "Stop-Script",
+  "Test-SQLConnection",
+  "Write-Log"
+)
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = '*'
+CmdletsToExport = @()
 
 # Variables to export from this module
-VariablesToExport = '*'
+VariablesToExport = @()
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = '*'
+AliasesToExport = @()
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
@@ -108,6 +126,11 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
+## 1.1.0
+Updated folder structure
+Added about_help
+Restricted use of internal functions
+
 ## 1.0.0
 First release of the PowerShell Tool Kit module.
 

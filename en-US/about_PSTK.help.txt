@@ -1,0 +1,8 @@
+TOPIC
+    about_PSTK
+
+SHORT DESCRIPTION
+    PowerShell Tool Kit (PSTK) is a library containing a useful collection of PowerShell functions and procedures.
+
+LONG DESCRIPTION
+    PowerShell Tool Kit (PSTK) is a small module that aims to provide useful functions and procedures to help reduce repeating or rebuilding generic processes and to propose a framework to standardize workflows and outputs.
