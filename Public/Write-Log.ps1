@@ -10,9 +10,19 @@ function Write-Log {
     The Write-Log function outputs the time and type of a message in a formatt-
     ed manner with respective colour code.
 
+    It takes two parameters:
+    - Type of output: informational, warning, error, or checkpoint.
+    - Message: output content.
+
     .PARAMETER Type
     The Type parameter defines the level of importance of the message and will
     influence the colour of the output.
+
+    There are four different available types:
+    - CHECK: checkpoint, used to confirm a status.
+    - ERROR: error message, used to provide detail on an issue.
+    - INFO: information, used to convey a message.
+    - WARN: warnign, used to detail a non-blocking issue.
 
     .PARAMETER Message
     The Message parameter corresponds to the desired output to be logged.
@@ -51,7 +61,14 @@ function Write-Log {
     green in the host.
 
     .NOTES
-    TODO Add locale variable
+    File name:      Write-Log.ps1
+    Author:         Florian Carrier
+    Creation date:  15/10/2018
+    Last modified:  16/10/2018
+    TODO            Add locale variable
+
+    .LINK
+    https://github.com/Akaizoku/PSTK
   #>
   [CmdletBinding ()]
   # Inputs

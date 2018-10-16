@@ -10,7 +10,7 @@ function Read-Property {
     Parse property content
 
     .PARAMETER Content
-    [String] The Content parameter should be the content of the property.
+    [System.String] The Content parameter should be the content of the property.
 
     .INPUTS
     None.
@@ -24,6 +24,12 @@ function Read-Property {
 
     In this example, Read-Property will parse the content and assign the value
     "Value" to the property "Key".
+
+    .NOTES
+    File name:      Read-Property.ps1
+    Author:         Florian Carrier
+    Creation date:  15/10/2018
+    Last modified:  16/10/2018
   #>
   [CmdletBinding ()]
   Param (

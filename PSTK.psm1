@@ -13,7 +13,7 @@
   Creation date:  23/08/2018
   Last modified:  15/10/2018
   Repository:     https://github.com/Akaizoku/PSTK
-  Depndencies:    Test-SQLConnection requires the SQLServer module
+  Dependencies:   Test-SQLConnection requires the SQLServer module
 
   .LINK
   https://github.com/Akaizoku/PSTK

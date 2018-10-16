@@ -49,7 +49,19 @@ function Test-SQLConnection {
     the "password" password.
 
     .NOTES
-    TODO Add secured password handling
+    File name:      Test-SQLConnection.ps1
+    Author:         Florian Carrier
+    Creation date:  15/10/2018
+    Last modified:  16/10/2018
+    Dependencies:   Test-SQLConnection requires the SQLServer module
+    TODO            Add secured password handling
+
+    .LINK
+    https://github.com/Akaizoku/PSTK
+
+    .LINK
+    https://docs.microsoft.com/en-us/sql/powershell/download-sql-server-ps-module
+
   #>
   [CmdletBinding ()]
   Param (
