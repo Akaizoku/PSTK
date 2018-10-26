@@ -64,7 +64,7 @@ function Write-Log {
     File name:      Write-Log.ps1
     Author:         Florian Carrier
     Creation date:  15/10/2018
-    Last modified:  16/10/2018
+    Last modified:  19/10/2018
     TODO            Add locale variable
 
     .LINK
@@ -107,5 +107,5 @@ function Write-Log {
   # Format log
   $Log = "$Time`t$Type`t$Message"
   # Output
-  Write-Host $Log -ForegroundColor $Colour.$Type
+  Write-Host -Object $Log -ForegroundColor $Colour.$Type
 }
