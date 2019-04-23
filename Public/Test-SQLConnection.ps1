@@ -106,29 +106,36 @@ function Test-SQLConnection {
     [String]
     $Password
   )
-  # Break-down connection info
-  if ($Security) {
-    Write-Debug "SQL Server authentication"
-    if ($Username) {
-      $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=False; User ID=$Username; Password=$Password; Connect Timeout=3;"
-    } else {
-      Write-Log -Type "ERROR" -Message "Please provide a valid username"
-      Write-Debug "$Username"
-      Stop-Script 1
-    }
-  } else {
-    Write-Debug "Integrated Secutiry"
-    $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=True; Connect Timeout=3;"
+  Begin {
+    # Get global preference vrariables
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
   }
-  # Create connection object
-  $Connection = New-Object -TypeName System.Data.SqlClient.SqlConnection -ArgumentList $ConnectionString
-  # Try to open the connection
-  try {
-    $Connection.Open()
-    $Connection.Close()
-    return $true
-  } catch {
-    Write-Debug "Unable to connect to $ConnectionString"
-    return $false
+  Process {
+    # Break-down connection info
+    if ($Security) {
+      Write-Log -Type "DEBUG" -Message "SQL Server authentication"
+      if ($Username) {
+        $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=False; User ID=$Username; Password=$Password; Connect Timeout=3;"
+      } else {
+        Write-Log -Type "ERROR" -Message "Please provide a valid username"
+        Write-Log -Type "DEBUG" -Message "$Username"
+        Stop-Script 1
+      }
+    } else {
+      # Else default to integrated security
+      Write-Log -Type "DEBUG" -Message "Integrated Security"
+      $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=True; Connect Timeout=3;"
+    }
+    # Create connection object
+    $Connection = New-Object -TypeName System.Data.SqlClient.SqlConnection -ArgumentList $ConnectionString
+    # Try to open the connection
+    try {
+      $Connection.Open()
+      $Connection.Close()
+      return $true
+    } catch {
+      Write-Log -Type "DEBUG" -Message "Unable to connect to $ConnectionString"
+      return $false
+    }
   }
 }

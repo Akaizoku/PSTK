@@ -29,15 +29,22 @@ Get-Command -Module PSTK
 | Function    | ConvertTo-NaturalSort | 1.0.0   | PSTK   |
 | Function    | ConvertTo-PDF         | 1.0.0   | PSTK   |
 | Function    | Copy-OrderedHashtable | 1.0.0   | PSTK   |
+| Function    | Expand-CompressedFile | 1.0.0   | PSTK   |
+| Function    | Find-Key              | 1.0.0   | PSTK   |
 | Function    | Format-String         | 1.0.0   | PSTK   |
+| Function    | Get-HTTPStatus        | 1.0.0   | PSTK   |
+| Function    | Get-KeyValue          | 1.0.0   | PSTK   |
 | Function    | Get-Object            | 1.0.0   | PSTK   |
+| Function    | Get-Path              | 1.0.0   | PSTK   |
 | Function    | Get-Properties        | 1.0.0   | PSTK   |
 | Function    | New-DynamicParameter  | 1.0.0   | PSTK   |
 | Function    | Rename-NumberedFile   | 1.0.0   | PSTK   |
+| Function    | Resolve-URI           | 1.0.0   | PSTK   |
 | Function    | Set-Tags              | 1.0.0   | PSTK   |
 | Function    | Start-Script          | 1.0.0   | PSTK   |
 | Function    | Stop-Script           | 1.0.0   | PSTK   |
 | Function    | Test-SQLConnection    | 1.0.0   | PSTK   |
+| Function    | Update-File           | 1.0.0   | PSTK   |
 | Function    | Write-Log             | 1.0.0   | PSTK   |
 
 ## Dependencies

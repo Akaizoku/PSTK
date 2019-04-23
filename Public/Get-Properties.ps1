@@ -75,40 +75,70 @@ function Get-Properties {
     [Parameter (
       Position    = 5,
       Mandatory   = $false,
+      HelpMessage = "List of properties to check"
+    )]
+    [String[]]
+    $ValidateSet,
+    [Parameter (
       HelpMessage = "Define if section headers should be used to group properties or be ignored"
       )]
     [Switch]
     $Section
   )
-  # Check that specified file exists
-  if (Test-Path -Path "$Directory\$File") {
-    # Parse properties with or without section split
-    if ($Section) {
-      $Properties = Read-Properties -File $File -Directory $Directory -Section
-    } else {
-      $Properties = Read-Properties -File $File -Directory $Directory
-    }
-    # Check if a custom file is provided
-    if ($Custom) {
-      # Make sure said file does exists
-      if (Test-Path -Path "$CustomDirectory\$Custom") {
-        # Override default properties with custom ones
-        $Customs = Read-Properties -File $Custom -Directory $CustomDirectory
-        foreach ($Property in $Customs.Keys) {
-          # Override default with custom
-          if ($Properties.$Property) {
-            $Properties.$Property = $Customs.$Property
-          } else {
-            Write-Log -Type "WARN" -Message "The ""$Property"" property defined in $Custom is unknown"
+  Begin {
+    # Get global preference vrariables
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+  }
+  Process {
+    # Check that specified file exists
+    $Path = Join-Path -Path $Directory -ChildPath $File
+    if (Test-Path -Path $Path) {
+      # Parse properties with or without section split
+      if ($Section) {
+        $Properties = Read-Properties -File $File -Directory $Directory -Section
+      } else {
+        $Properties = Read-Properties -File $File -Directory $Directory
+      }
+      # Check if a custom file is provided
+      if ($Custom) {
+        # Make sure said file does exists
+        $CustomPath = Join-Path -Path $CustomDirectory -ChildPath $Custom
+        if (Test-Path -Path $CustomPath) {
+          # Override default properties with custom ones
+          $Customs = Read-Properties -File $Custom -Directory $CustomDirectory
+          foreach ($Property in $Customs.Keys) {
+            # Override default with custom
+            if ($Properties.$Property) {
+              $Properties.$Property = $Customs.$Property
+            } else {
+              Write-Log -Type "WARN" -Message "The ""$Property"" property defined in $Custom is unknown"
+            }
+          }
+        } else {
+          Write-Log -Type "WARN" -Message "$Custom not found in directory $CustomDirectory"
+        }
+      }
+      # If some items are mandatory
+      if ($PSBoundParameters.ContainsKey("ValidateSet")) {
+        $MissingProperties = 0
+        foreach ($Item in $ValidateSet) {
+          # Check that the property has been defined
+          if (-Not $Properties.$Item) {
+            Write-Log -Type "WARN" -Message "$Item property is missing from $File"
+            $MissingProperties += 1
           }
         }
-      } else {
-        Write-Log -Type "WARN" -Message "$Custom not found in directory $CustomDirectory"
+        if ($MissingProperties -ge 1) {
+          if ($MissingProperties -eq 1) { $Grammar = "property is"    }
+          else                          { $Grammar = "properties are" }
+          Write-Log -Type "ERROR" -Message "$MissingProperties $Grammar not defined"
+          Stop-Script 1
+        }
       }
+      return $Properties
+    } else {
+      Write-Log -Type "ERROR" -Message "$File not found in directory $Directory"
+      Stop-Script 1
     }
-    return $Properties
-  } else {
-    Write-Log -Type "ERROR" -Message "$File not found in directory $Directory"
-    Stop-Script 1
   }
 }

@@ -11,18 +11,19 @@ function Write-Log {
     ed manner with respective colour code.
 
     It takes two parameters:
-    - Type of output: informational, warning, error, or checkpoint.
+    - Type of output: information, warning, error, debug, or checkpoint.
     - Message: output content.
 
     .PARAMETER Type
     The Type parameter defines the level of importance of the message and will
     influence the colour of the output.
 
-    There are four different available types:
-    - CHECK: checkpoint, used to confirm a status.
-    - ERROR: error message, used to provide detail on an issue.
-    - INFO: information, used to convey a message.
-    - WARN: warnign, used to detail a non-blocking issue.
+    There are five available types:
+    - CHECK:  checkpoint, used to confirm a status.
+    - DEBUG:  debug message, used to debug scripts.
+    - ERROR:  error message, used to provide detail on an issue.
+    - INFO:   information, used to convey a message.
+    - WARN:    warnign, used to detail a non-blocking issue.
 
     .PARAMETER Message
     The Message parameter corresponds to the desired output to be logged.
@@ -60,11 +61,17 @@ function Write-Log {
     tag, and the specified message itself. The message will be displayed in
     green in the host.
 
+    .EXAMPLE
+    Write-Log -Type "DEBUG" -Message "This is a debug message."
+
+    This example outputs a message through the default DEBUG PowerShell chanel,
+    if the -DEBUG flag is enabled.
+
     .NOTES
     File name:      Write-Log.ps1
     Author:         Florian Carrier
     Creation date:  15/10/2018
-    Last modified:  19/10/2018
+    Last modified:  22/04/2018
     TODO            Add locale variable
 
     .LINK
@@ -80,6 +87,7 @@ function Write-Log {
     )]
     [ValidateSet (
       "CHECK",
+      "DEBUG",
       "ERROR",
       "INFO",
       "WARN"
@@ -96,16 +104,26 @@ function Write-Log {
     [String]
     $Message
   )
-  # Variables
-  $Time     = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-  $Colour   = [Ordered]@{
-    "CHECK" = "Green"
-    "ERROR" = "Red"
-    "INFO"  = "White"
-    "WARN"  = "Yellow"
+  Begin {
+    # Get global preference vrariables
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+    # Variables
+    $Time     = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $Colour   = [Ordered]@{
+      "CHECK" = "Green"
+      "ERROR" = "Red"
+      "INFO"  = "White"
+      "WARN"  = "Yellow"
+    }
   }
-  # Format log
-  $Log = "$Time`t$Type`t$Message"
-  # Output
-  Write-Host -Object $Log -ForegroundColor $Colour.$Type
+  Process {
+    # Format log
+    $Log = "$Time`t$Type`t$Message"
+    # Output
+    if ($Type -eq "DEBUG") {
+      Write-Debug -Message $Log
+    } else {
+      Write-Host -Object $Log -ForegroundColor $Colour.$Type
+    }
+  }
 }

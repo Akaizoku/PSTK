@@ -11,8 +11,8 @@
 # Script module or binary module file associated with this manifest.
 RootModule = 'PSTK.psm1'
 
-# Version number of this module.
-ModuleVersion = '1.0.0'
+# Version number of this module.s
+ModuleVersion = '1.2.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@ Author = 'Florian Carrier'
 # CompanyName = 'Florian Carrier'
 
 # Copyright statement for this module
-Copyright = '(c) 2018 Florian Carrier. All rights reserved.'
+Copyright = '(c) 2019 Florian Carrier. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'Collection of useful functions and procedures for PowerShell scripting'
@@ -77,15 +77,30 @@ FunctionsToExport = @(
   "ConvertTo-NaturalSort",
   "ConvertTo-PDF",
   "Copy-OrderedHashtable",
+  "Expand-CompressedFile",
+  "Find-Key",
   "Format-String",
+  "Get-CallerPreference",
+  "Get-EnvironmentVariable",
+  "Get-HTTPStatus",
+  "Get-KeyValue",
   "Get-Object",
+  "Get-Path",
   "Get-Properties",
   "New-DynamicParameter",
+  "Remove-EnvironmentVariable",
   "Rename-NumberedFile",
+  "Resolve-URI",
+  "Select-XMLNode",
+  "Set-EnvironmentVariable",
   "Set-Tags",
   "Start-Script",
   "Stop-Script",
+  "Test-EnvironmentVariable",
+  "Test-Service",
   "Test-SQLConnection",
+  "Update-File",
+  "Write-ErrorLog",
   "Write-Log"
 )
 
@@ -126,6 +141,11 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
+## 1.2.0
+Added support for global preferences
+Expanded existing functions
+Added new features
+
 ## 1.1.0
 Updated folder structure
 Added about_help

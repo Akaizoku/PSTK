@@ -65,6 +65,8 @@ function Convert-FileEncoding {
     $Exclude = $null
   )
   Begin {
+    # Get global preference vrariables
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     # Check parameters and instantiate variables
     # $Path     = Resolve-Path -Path $Path
     $Files    = Get-Object -Path $Path -Type "File" -Filter $Filter -Exclude $Exclude
@@ -80,6 +82,7 @@ function Convert-FileEncoding {
         $FilePath = Join-Path -Path $Path -ChildPath $File
         $NewFile  = Join-Path -Path $Path -ChildPath $Filename
         Get-Content -Path $FilePath | Out-File -Encoding $Encoding $NewFile
+        Write-Log -Type "DEBUG" -Message "$NewFile"
         $Count += 1
       }
       if ($Count -gt 0) {
