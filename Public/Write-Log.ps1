@@ -117,12 +117,12 @@ function Write-Log {
     }
   }
   Process {
-    # Format log
-    $Log = "$Time`t$Type`t$Message"
-    # Output
     if ($Type -eq "DEBUG") {
-      Write-Debug -Message $Log
+      Write-Debug -Message $Message
     } else {
+      # Format log
+      $Log = "$Time`t$Type`t$Message"
+      # Output
       Write-Host -Object $Log -ForegroundColor $Colour.$Type
     }
   }
