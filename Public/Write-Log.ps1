@@ -28,6 +28,11 @@ function Write-Log {
     .PARAMETER Message
     The Message parameter corresponds to the desired output to be logged.
 
+    .PARAMETER ErrorCode
+    The error code parameter acts as a switch. If specified, the script exe-
+    cution is terminated and the value corresponds to the error code to throw
+    when terminating the script.
+
     .INPUTS
     None. You cannot pipe objects to Write-Log.
 
@@ -55,6 +60,13 @@ function Write-Log {
      the host.
 
     .EXAMPLE
+    Write-Log -Type "ERROR" -Message "This is an error message." -ErrorCode 1
+
+    This example outputs an error message with the timestamp, the "ERROR" tag,
+    and the specified message itself. The script will terminate with the exit
+    code 1.
+
+    .EXAMPLE
     Write-Log -Type "CHECK" -Message "This is a checkpoint message."
 
     This example outputs a checkpoint message with the timestamp, the "CHECK"
@@ -71,7 +83,7 @@ function Write-Log {
     File name:      Write-Log.ps1
     Author:         Florian Carrier
     Creation date:  15/10/2018
-    Last modified:  22/04/2018
+    Last modified:  29/04/2019
     TODO            Add locale variable
 
     .LINK
@@ -102,7 +114,14 @@ function Write-Log {
     [ValidateNotNullOrEmpty ()]
     [Alias ("Output", "Log")]
     [String]
-    $Message
+    $Message,
+    [Parameter (
+      Position    = 3,
+      Mandatory   = $false,
+      HelpMessage = "Error code"
+    )]
+    [Int]
+    $ErrorCode
   )
   Begin {
     # Get global preference vrariables
@@ -124,6 +143,9 @@ function Write-Log {
       $Log = "$Time`t$Type`t$Message"
       # Output
       Write-Host -Object $Log -ForegroundColor $Colour.$Type
+    }
+    if ($PSBoundParameters["ErrorCode"]) {
+      Stop-Script -ErrorCode $ErrorCode
     }
   }
 }
