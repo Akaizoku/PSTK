@@ -83,7 +83,7 @@ function Write-Log {
     File name:      Write-Log.ps1
     Author:         Florian Carrier
     Creation date:  15/10/2018
-    Last modified:  29/04/2019
+    Last modified:  06/06/2019
     TODO            Add locale variable
 
     .LINK
@@ -112,19 +112,27 @@ function Write-Log {
       HelpMessage = "Message to output"
     )]
     [ValidateNotNullOrEmpty ()]
-    [Alias ("Output", "Log")]
-    [String]
-    $Message,
+    [Alias ("Message", "Output", "Log")]
+    [Object]
+    $Object,
     [Parameter (
       Position    = 3,
       Mandatory   = $false,
       HelpMessage = "Error code"
     )]
     [Int]
-    $ErrorCode
+    $ErrorCode,
+    [Parameter (
+      Position    = 4,
+      Mandatory   = $false,
+      HelpMessage = "Path to an optional output file"
+    )]
+    [Alias ("Path")]
+    [String]
+    $File
   )
   Begin {
-    # Get global preference vrariables
+    # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     # Variables
     $Time     = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -133,6 +141,12 @@ function Write-Log {
       "ERROR" = "Red"
       "INFO"  = "White"
       "WARN"  = "Yellow"
+    }
+    # Ensure message is a string
+    if ($Object.GetType() -ne "String") {
+      $Message = ($Object | Out-String).Trim()
+    } else {
+      $Message = $Object.Trim()
     }
   }
   Process {
@@ -144,7 +158,11 @@ function Write-Log {
       # Output
       Write-Host -Object $Log -ForegroundColor $Colour.$Type
     }
-    if ($PSBoundParameters["ErrorCode"]) {
+    if ($PSBoundParameters.ContainsKey("File")) {
+      Write-Log -Type "DEBUG" -Message $Path
+      $Message | Out-File -FilePath $Path -Append -Force
+    }
+    if ($PSBoundParameters.ContainsKey("ErrorCode")) {
       Stop-Script -ErrorCode $ErrorCode
     }
   }
