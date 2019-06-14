@@ -35,7 +35,7 @@ function Complete-RelativePath {
     $WorkingDirectory
   )
   Begin {
-    # Get global preference vrariables
+    # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     # Test working directory path
     if (-Not (Test-Path -Path $WorkingDirectory)) {

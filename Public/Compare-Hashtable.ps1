@@ -43,7 +43,7 @@ function Compare-Hashtable {
     $Difference
   )
   Begin {
-    # Get global preference vrariables
+    # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     # Variables
     $Check = $true

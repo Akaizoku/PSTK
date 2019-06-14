@@ -7,8 +7,9 @@ function Test-EnvironmentVariable {
       HelpMessage = "Name of the environment variable"
     )]
     [ValidateNotNullOrEmpty()]
+    [Alias ("Variable")]
     [String]
-    $Variable,
+    $Name,
     [Parameter (
       Position    = 2,
       Mandatory   = $false,
@@ -19,12 +20,12 @@ function Test-EnvironmentVariable {
     $Scope = "Machine"
   )
   Begin {
-    # Get global preference vrariables
+    # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
   }
   Process {
     # Check if variable is defined
-    if (Get-EnvironmentVariable -Variable $Variable -Scope $Scope) {
+    if (Get-EnvironmentVariable -Name $Name -Scope $Scope) {
       return $true
     } else {
       return $false

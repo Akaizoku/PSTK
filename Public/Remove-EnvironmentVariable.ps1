@@ -7,8 +7,9 @@ function Remove-EnvironmentVariable {
       HelpMessage = "Name of the environment variable"
     )]
     [ValidateNotNullOrEmpty()]
+    [Alias ("Variable")]
     [String]
-    $Variable,
+    $Name,
     [Parameter (
       Position    = 2,
       Mandatory   = $false,
@@ -19,16 +20,16 @@ function Remove-EnvironmentVariable {
     $Scope = "Machine"
   )
   Begin {
-    # Get global preference vrariables
+    # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
   }
   Process {
     # Check if variable is defined
-    if (Test-EnvironmentVariable -Variable $Variable -Scope $Scope) {
-      Write-Log -Type "INFO" -Message "Removing $Variable environment variable in $Scope scope"
-      [Environment]::SetEnvironmentVariable($Variable, "", $Scope)
+    if (Test-EnvironmentVariable -Variable $Name -Scope $Scope) {
+      Write-Log -Type "INFO" -Message "Removing $Name environment variable in $Scope scope"
+      [Environment]::SetEnvironmentVariable($Name, "", $Scope)
     } else {
-      Write-Log -Type "WARN" -Message "$Variable environment variable is not defined in $Scope scope"
+      Write-Log -Type "WARN" -Message "$Name environment variable is not defined in $Scope scope"
     }
   }
 }

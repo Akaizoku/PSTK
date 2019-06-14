@@ -52,7 +52,7 @@ function Test-SQLConnection {
     File name:      Test-SQLConnection.ps1
     Author:         Florian Carrier
     Creation date:  15/10/2018
-    Last modified:  16/10/2018
+    Last modified:  12/06/2019
     Dependencies:   Test-SQLConnection requires the SQLServer module
     TODO            Add secured password handling
 
@@ -102,18 +102,17 @@ function Test-SQLConnection {
       Mandatory   = $false,
       HelpMessage = "Password"
     )]
-    [Alias ("PW")]
+    [Alias ("Pw")]
     [String]
     $Password
   )
   Begin {
-    # Get global preference vrariables
+    # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
   }
   Process {
     # Break-down connection info
     if ($Security) {
-      Write-Log -Type "DEBUG" -Message "SQL Server authentication"
       if ($Username) {
         $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=False; User ID=$Username; Password=$Password; Connect Timeout=3;"
       } else {
@@ -127,7 +126,8 @@ function Test-SQLConnection {
       $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=True; Connect Timeout=3;"
     }
     # Create connection object
-    $Connection = New-Object -TypeName System.Data.SqlClient.SqlConnection -ArgumentList $ConnectionString
+    Write-Log -Type "DEBUG" -Object $ConnectionString
+    $Connection = New-Object -TypeName "System.Data.SqlClient.SqlConnection" -ArgumentList $ConnectionString
     # Try to open the connection
     try {
       $Connection.Open()

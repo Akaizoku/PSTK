@@ -7,8 +7,9 @@ function Get-EnvironmentVariable {
       HelpMessage = "Name of the environment variable"
     )]
     [ValidateNotNullOrEmpty()]
+    [Alias ("Variable")]
     [String]
-    $Variable,
+    $Name,
     [Parameter (
       Position    = 2,
       Mandatory   = $false,
@@ -19,14 +20,14 @@ function Get-EnvironmentVariable {
     $Scope = "Machine"
   )
   Begin {
-    # Get global preference vrariables
+    # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
   }
   Process {
     # Check if variable is defined
-    $Value = [Environment]::GetEnvironmentVariable($Variable, $Scope)
+    $Value = [Environment]::GetEnvironmentVariable($Name, $Scope)
     if ($Value) {
-      Write-Log -Type "DEBUG" -Message "$Scope`t$Variable=$Value"
+      Write-Log -Type "DEBUG" -Message "$Scope`t$Name=$Value"
     }
     # If variable does not exists, the value will be null
     return $Value

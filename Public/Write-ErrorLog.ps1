@@ -13,8 +13,9 @@ function Write-ErrorLog {
       Mandatory   = $true,
       HelpMessage = "Message to log"
     )]
-    [String]
-    $Message,
+    [Alias ("Message")]
+    [Object]
+    $Object,
     [Parameter (
       Position    = 3,
       Mandatory   = $false,
@@ -24,13 +25,19 @@ function Write-ErrorLog {
     $ErrorCode
   )
   Begin {
-    # Get global preference vrariables
+    # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+    # Ensure message is a string
+    if ($Object.GetType() -ne "String") {
+      $Message = ($Object | Out-String).Trim()
+    } else {
+      $Message = $Object.Trim()
+    }
   }
   Process {
     Write-Log -Type "DEBUG" -Message $Path
     $Message | Out-File -FilePath $Path -Append -Force
-    if ($PSBoundParameters["ErrorCode"]) {
+    if ($PSBoundParameters.ContainsKey("ErrorCode")) {
       Stop-Script -ErrorCode $ErrorCode
     }
   }

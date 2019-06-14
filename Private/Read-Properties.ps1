@@ -59,8 +59,8 @@ function Read-Properties {
   )
   # Properties variables
   $PropertyFile = Join-Path -Path $Directory -ChildPath $File
-  $Properties   = New-Object -TypeName System.Collections.Specialized.OrderedDictionary
-  $Sections     = New-Object -TypeName System.Collections.Specialized.OrderedDictionary
+  $Properties   = New-Object -TypeName "System.Collections.Specialized.OrderedDictionary"
+  $Sections     = New-Object -TypeName "System.Collections.Specialized.OrderedDictionary"
   $Header       = $null
   # Check that the file exists
   if (Test-Path -Path $PropertyFile) {

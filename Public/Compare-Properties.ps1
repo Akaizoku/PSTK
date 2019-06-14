@@ -47,7 +47,7 @@ function Compare-Properties {
     $Required
   )
   Begin {
-    # Get global preference vrariables
+    # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     # Variables
     $Missing = New-Object -TypeName System.Collections.ArrayList
