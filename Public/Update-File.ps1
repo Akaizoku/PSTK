@@ -7,13 +7,13 @@ function Update-File {
     Replaces a specified string in a text file by a given value.
 
     .PARAMETER Path
-    The path parameter corresponds 
+    The path parameter corresponds
 
     .NOTES
     File name:      Update-File.ps1
     Author:         Florian Carrier
     Creation date:  08/12/2018
-    Last modified:  08/12/2018
+    Last modified:  14/06/2018
   #>
   [CmdletBinding ()]
   Param (
@@ -43,7 +43,7 @@ function Update-File {
     [Parameter (
       Position    = 4,
       Mandatory   = $false,
-      HelpMessage = "New string to replace old with"
+      HelpMessage = "Encoding"
     )]
     [String]
     $Encoding = "ASCII"
