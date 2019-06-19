@@ -16,15 +16,15 @@ function Import-Properties {
     The Custom parameter should be the name of the custom property file.
 
     .OUTPUTS
-    System.Collections.Specialized.OrderedDictionary. Import-Properties returns an
+    Import-Properties returns an
     ordered hash table containing the names and values of the properties listed
     in the property files.
 
     .EXAMPLE
-    Import-Properties -File "default.ini" -Directory ".\conf" -Custom "custom.ini" -CustomDirectory "\\shared"
+    Import-Properties -Path "\conf\default.ini" -Custom "\\shared\custom.ini"
 
     In this example, Import-Properties will read properties from the default.ini
-    file contained in the .\conf directory, then read the properties from
+    file contained in the \conf directory, then read the properties from
     in the custom.ini file contained in the \\shared directory, and override the
     default ones with the custom ones.
 
@@ -45,7 +45,7 @@ function Import-Properties {
     [Parameter (
       Position    = 2,
       Mandatory   = $false,
-      HelpMessage = "Path to the custom property file name"
+      HelpMessage = "Path to the custom property file"
     )]
     [String]
     $Custom,
@@ -58,7 +58,7 @@ function Import-Properties {
     $ValidateSet,
     [Parameter (
       HelpMessage = "Define if section headers should be used to group properties or be ignored"
-      )]
+    )]
     [Switch]
     $Section
   )
@@ -70,11 +70,7 @@ function Import-Properties {
     # Check that specified file exists
     if (Test-Path -Path $Path) {
       # Parse properties with or without section split
-      if ($Section) {
-        $Properties = Read-Properties -Path $Path -Section
-      } else {
-        $Properties = Read-Properties -Path $Path
-      }
+      $Properties = Read-Properties -Path $Path -Section:$Section
       # Check if a custom file is provided
       if ($PSBoundParameters.ContainsKey("Custom")) {
         # Make sure said file does exists
@@ -90,7 +86,8 @@ function Import-Properties {
             }
           }
         } else {
-          Write-Log -Type "WARN" -Object "Path not found $Custom"
+          Write-Log -Type "ERROR" -Object "Path not found $Custom"
+          Write-Log -Type "WARN"  -Object "No custom configuration could be retrieved"
         }
       }
       # If some items are mandatory
@@ -106,8 +103,7 @@ function Import-Properties {
         if ($MissingProperties -ge 1) {
           if ($MissingProperties -eq 1) { $Grammar = "property is"    }
           else                          { $Grammar = "properties are" }
-          Write-Log -Type "ERROR" -Object "$MissingProperties $Grammar not defined"
-          Stop-Script 1
+          Write-Log -Type "ERROR" -Object "$MissingProperties $Grammar not defined" -ErrorCode 1
         }
       }
       return $Properties

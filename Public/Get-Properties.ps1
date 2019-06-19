@@ -94,28 +94,24 @@ function Get-Properties {
     $Path = Join-Path -Path $Directory -ChildPath $File
     if (Test-Path -Path $Path) {
       # Parse properties with or without section split
-      if ($Section) {
-        $Properties = Read-Properties -File $File -Directory $Directory -Section
-      } else {
-        $Properties = Read-Properties -File $File -Directory $Directory
-      }
+      $Properties = Read-Properties -Path $Path -Section:$Section
       # Check if a custom file is provided
       if ($Custom) {
         # Make sure said file does exists
         $CustomPath = Join-Path -Path $CustomDirectory -ChildPath $Custom
         if (Test-Path -Path $CustomPath) {
           # Override default properties with custom ones
-          $Customs = Read-Properties -File $Custom -Directory $CustomDirectory
+          $Customs = Read-Properties -Path $CustomPath
           foreach ($Property in $Customs.Keys) {
             # Override default with custom
             if ($Properties.$Property) {
               $Properties.$Property = $Customs.$Property
             } else {
-              Write-Log -Type "WARN" -Message "The ""$Property"" property defined in $Custom is unknown"
+              Write-Log -Type "WARN" -Object "The ""$Property"" property defined in $Custom is unknown"
             }
           }
         } else {
-          Write-Log -Type "WARN" -Message "$Custom not found in directory $CustomDirectory"
+          Write-Log -Type "WARN" -Object "$Custom not found in directory $CustomDirectory"
         }
       }
       # If some items are mandatory
@@ -124,21 +120,19 @@ function Get-Properties {
         foreach ($Item in $ValidateSet) {
           # Check that the property has been defined
           if (-Not $Properties.$Item) {
-            Write-Log -Type "WARN" -Message "$Item property is missing from $File"
+            Write-Log -Type "WARN" -Object "$Item property is missing from $File"
             $MissingProperties += 1
           }
         }
         if ($MissingProperties -ge 1) {
           if ($MissingProperties -eq 1) { $Grammar = "property is"    }
           else                          { $Grammar = "properties are" }
-          Write-Log -Type "ERROR" -Message "$MissingProperties $Grammar not defined"
-          Stop-Script 1
+          Write-Log -Type "ERROR" -Object "$MissingProperties $Grammar not defined" -ErrorCode 1
         }
       }
       return $Properties
     } else {
-      Write-Log -Type "ERROR" -Message "$File not found in directory $Directory"
-      Stop-Script 1
+      Write-Log -Type "ERROR" -Object "$File not found in directory $Directory" -ErrorCode 1
     }
   }
 }
