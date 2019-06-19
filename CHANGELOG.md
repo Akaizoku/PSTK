@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 The following functions have been added:
+-   Confirm-Prompt
 -   Expand-CompressedFile
 -   Find-Key
 -   Get-CallerPreference
@@ -15,12 +16,20 @@ The following functions have been added:
 -   Get-HTTPStatus
 -   Get-KeyValue
 -   Get-Path
+-   Import-CSVProperties
+-   Import-Properties
+-   Out-Hashtable
 -   Remove-EnvironmentVariable
+-   Remove-Object
 -   Resolve-Array
+-   Resolve-Boolean
+-   Resolve-Tags
 -   Resolve-URI
 -   Select-XMLNode
 -   Set-EnvironmentVariable
+-   Set-RelativePath
 -   Test-EnvironmentVariable
+-   Test-Object
 -   Test-Service
 -   Update-File
 -   Write-ErrorLog
@@ -31,7 +40,8 @@ The following functions have been updated:
 -   Compare-Properties
 -   Complete-RelativePath
 -   Convert-FileEncoding
--   Get-Properties
+-   Get-Object
+-   Test-Object
 -   Test-SQLConnection
 -   Write-Log
 

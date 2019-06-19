@@ -37,7 +37,12 @@ function Test-Object {
     try {
       $Outcome = Test-Path -Path $Path -ErrorAction "Stop"
     } catch [System.UnauthorizedAccessException] {
-      Write-Log -Type "DEBUG" -Object $Error[0].Exception
+      if (-Not $Error[0].Exception) {
+        $ErrorMessage = "Access is denied ($Path)"
+      } else {
+        $ErrorMessage = $Error[0].Exception
+      }
+      Write-Log -Type "DEBUG" -Object $ErrorMessage
       $Outcome = $true
     }
     # Output test result

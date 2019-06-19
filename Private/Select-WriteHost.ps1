@@ -96,7 +96,7 @@ function Select-WriteHost {
     }
     function Edit-WriteHost ([String] $Scope, [Switch] $Quiet) {
       # Create a proxy for Write-Host
-      $MetaData = New-Object -TypeName System.Management.Automation.CommandMetaData (Get-Command -Name "Microsoft.PowerShell.Utility\Write-Host")
+      $MetaData = New-Object -TypeName "System.Management.Automation.CommandMetaData" (Get-Command -Name "Microsoft.PowerShell.Utility\Write-Host")
       $Proxy    = [System.Management.Automation.ProxyCommand]::Create($MetaData)
       # Amend its behaviour
       $Content = if ($Quiet) {
