@@ -40,8 +40,9 @@ function Test-Service {
       HelpMessage       = "Name of the service"
     )]
     [ValidateNotNullOrEmpty()]
+    [Alias ("Service")]
     [String]
-    $Service
+    $Name
   )
   Begin {
     # Get global preference variables
@@ -49,7 +50,7 @@ function Test-Service {
   }
   Process {
     try {
-      if (Get-Service -Name $Service -ErrorAction "Stop") {
+      if (Get-Service -Name $Name -ErrorAction "Stop") {
         return $true
       }
     } catch {

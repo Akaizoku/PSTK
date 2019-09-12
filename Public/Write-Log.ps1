@@ -111,7 +111,7 @@ function Write-Log {
       Mandatory   = $true,
       HelpMessage = "Message to output"
     )]
-    [ValidateNotNullOrEmpty ()]
+    [ValidateNotNull ()]
     [Alias ("Message", "Output", "Log")]
     [Object]
     $Object,

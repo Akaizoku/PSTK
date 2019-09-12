@@ -20,32 +20,50 @@ Import-Module -Name PSTK
 Get-Command -Module PSTK
 ```
 
-| CommandType | Name                  | Version | Source |
-| ----------- | --------------------- | ------- | ------ |
-| Function    | Compare-Hashtable     | 1.0.0   | PSTK   |
-| Function    | Compare-Properties    | 1.0.0   | PSTK   |
-| Function    | Complete-RelativePath | 1.0.0   | PSTK   |
-| Function    | Convert-FileEncoding  | 1.0.0   | PSTK   |
-| Function    | ConvertTo-NaturalSort | 1.0.0   | PSTK   |
-| Function    | ConvertTo-PDF         | 1.0.0   | PSTK   |
-| Function    | Copy-OrderedHashtable | 1.0.0   | PSTK   |
-| Function    | Expand-CompressedFile | 1.0.0   | PSTK   |
-| Function    | Find-Key              | 1.0.0   | PSTK   |
-| Function    | Format-String         | 1.0.0   | PSTK   |
-| Function    | Get-HTTPStatus        | 1.0.0   | PSTK   |
-| Function    | Get-KeyValue          | 1.0.0   | PSTK   |
-| Function    | Get-Object            | 1.0.0   | PSTK   |
-| Function    | Get-Path              | 1.0.0   | PSTK   |
-| Function    | Get-Properties        | 1.0.0   | PSTK   |
-| Function    | New-DynamicParameter  | 1.0.0   | PSTK   |
-| Function    | Rename-NumberedFile   | 1.0.0   | PSTK   |
-| Function    | Resolve-URI           | 1.0.0   | PSTK   |
-| Function    | Set-Tags              | 1.0.0   | PSTK   |
-| Function    | Start-Script          | 1.0.0   | PSTK   |
-| Function    | Stop-Script           | 1.0.0   | PSTK   |
-| Function    | Test-SQLConnection    | 1.0.0   | PSTK   |
-| Function    | Update-File           | 1.0.0   | PSTK   |
-| Function    | Write-Log             | 1.0.0   | PSTK   |
+| CommandType | Name                       | Version | Source |
+| ----------- | -------------------------- | ------- | ------ |
+| Function    | Compare-Hashtable          | 1.2.0   | PSTK   |
+| Function    | Compare-Properties         | 1.2.0   | PSTK   |
+| Function    | Complete-RelativePath      | 1.2.0   | PSTK   |
+| Function    | Confirm-Prompt             | 1.2.0   | PSTK   |
+| Function    | Convert-FileEncoding       | 1.2.0   | PSTK   |
+| Function    | ConvertTo-NaturalSort      | 1.2.0   | PSTK   |
+| Function    | ConvertTo-PDF              | 1.2.0   | PSTK   |
+| Function    | Copy-OrderedHashtable      | 1.2.0   | PSTK   |
+| Function    | Expand-CompressedFile      | 1.2.0   | PSTK   |
+| Function    | Find-Key                   | 1.2.0   | PSTK   |
+| Function    | Format-String              | 1.2.0   | PSTK   |
+| Function    | Get-CallerPreference       | 1.2.0   | PSTK   |
+| Function    | Get-EnvironmentVariable    | 1.2.0   | PSTK   |
+| Function    | Get-HTTPStatus             | 1.2.0   | PSTK   |
+| Function    | Get-KeyValue               | 1.2.0   | PSTK   |
+| Function    | Get-Object                 | 1.2.0   | PSTK   |
+| Function    | Get-Path                   | 1.2.0   | PSTK   |
+| Function    | Get-Properties             | 1.2.0   | PSTK   |
+| Function    | Import-CSVProperties       | 1.2.0   | PSTK   |
+| Function    | Import-Properties          | 1.2.0   | PSTK   |
+| Function    | New-DynamicParameter       | 1.2.0   | PSTK   |
+| Function    | Out-Hashtable              | 1.2.0   | PSTK   |
+| Function    | Remove-EnvironmentVariable | 1.2.0   | PSTK   |
+| Function    | Remove-Object              | 1.2.0   | PSTK   |
+| Function    | Rename-NumberedFile        | 1.2.0   | PSTK   |
+| Function    | Resolve-Array              | 1.2.0   | PSTK   |
+| Function    | Resolve-Boolean            | 1.2.0   | PSTK   |
+| Function    | Resolve-Tags               | 1.2.0   | PSTK   |
+| Function    | Resolve-URI                | 1.2.0   | PSTK   |
+| Function    | Select-XMLNode             | 1.2.0   | PSTK   |
+| Function    | Set-EnvironmentVariable    | 1.2.0   | PSTK   |
+| Function    | Set-RelativePath           | 1.2.0   | PSTK   |
+| Function    | Set-Tags                   | 1.2.0   | PSTK   |
+| Function    | Start-Script               | 1.2.0   | PSTK   |
+| Function    | Stop-Script                | 1.2.0   | PSTK   |
+| Function    | Test-EnvironmentVariable   | 1.2.0   | PSTK   |
+| Function    | Test-Object                | 1.2.0   | PSTK   |
+| Function    | Test-Service               | 1.2.0   | PSTK   |
+| Function    | Test-SQLConnection         | 1.2.0   | PSTK   |
+| Function    | Update-File                | 1.2.0   | PSTK   |
+| Function    | Write-ErrorLog             | 1.2.0   | PSTK   |
+| Function    | Write-Log                  | 1.2.0   | PSTK   |
 
 ## Dependencies
 

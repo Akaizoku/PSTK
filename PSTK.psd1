@@ -95,6 +95,7 @@ FunctionsToExport = @(
   "Remove-EnvironmentVariable",
   "Remove-Object",
   "Rename-NumberedFile",
+  "Resolve-Array",
   "Resolve-Boolean",
   "Resolve-Tags",
   "Resolve-URI",
