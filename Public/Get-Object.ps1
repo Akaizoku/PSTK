@@ -4,10 +4,10 @@
 function Get-Object {
   <#
     .SYNOPSIS
-    Convert file to specified encoding
+    Get objects
 
     .DESCRIPTION
-    Create a copy of a given file and convert the encoding as specified.
+    Get list of objects matching specifications
 
     .PARAMETER Path
     [String] The path parameter corresponds to the path to the directory or object to
@@ -103,7 +103,12 @@ function Get-Object {
       HelpMessage = "Pattern to exclude"
     )]
     [String]
-    $Exclude = $null
+    $Exclude = $null,
+    [Parameter (
+      HelpMessage = "Stop script if no results are found"
+    )]
+    [Switch]
+    $StopScript
   )
   Begin {
     $Path = Resolve-Path -Path $Path
@@ -143,7 +148,11 @@ function Get-Object {
       } else {
         Write-Log -Type "ERROR" -Message "No $($ObjectType.$Type) were found in $Path."
       }
-      Stop-Script 1
+      if ($PSBoundParameters.ContainsKey("StopScript")) {
+        Stop-Script 1
+      } else {
+        return $false
+      }
     } else {
       return $Objects
     }

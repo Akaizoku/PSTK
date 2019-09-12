@@ -47,6 +47,7 @@ function Convert-FileEncoding {
       Mandatory   = $true,
       HelpMessage = "Encoding"
     )]
+    [ValidateSet ("ASCII", "BigEndianUnicode", "OEM", "Unicode", "UTF7", "UTF8", "UTF8BOM", "UTF8NoBOM", "UTF32")]
     [String]
     $Encoding,
     [Parameter (
@@ -65,6 +66,8 @@ function Convert-FileEncoding {
     $Exclude = $null
   )
   Begin {
+    # Get global preference variables
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     # Check parameters and instantiate variables
     # $Path     = Resolve-Path -Path $Path
     $Files    = Get-Object -Path $Path -Type "File" -Filter $Filter -Exclude $Exclude
@@ -75,19 +78,24 @@ function Convert-FileEncoding {
   Process {
     try {
       foreach ($File in $Files) {
-        Write-Log -Type "INFO" -Message "Converting ""$($File.Name)"" to $Encoding"
+        Write-Log -Type "INFO" -Object "Converting ""$($File.Name)"" to $Encoding"
         $Filename = "$($File.BaseName)_$Encoding$($File.Extension)"
         $FilePath = Join-Path -Path $Path -ChildPath $File
         $NewFile  = Join-Path -Path $Path -ChildPath $Filename
         Get-Content -Path $FilePath | Out-File -Encoding $Encoding $NewFile
+        Write-Log -Type "DEBUG" -Object "$NewFile"
         $Count += 1
       }
       if ($Count -gt 0) {
         $Output = $true
       }
-      Write-Log -Type "CHECK" -Message "$Count files were converted to $Encoding"
+      Write-Log -Type "CHECK" -Object "$Count files were converted to $Encoding"
     } catch {
-      Write-Log -Type "ERROR" -Message "$($Error[0].Exception)"
+      if ($Error[0].Exception) {
+        Write-Log -Type "ERROR" -Object "$($Error[0].Exception)"
+      } else {
+        Write-Log -Type "ERROR" -Object "An unknown error occurred"
+      }
     }
     return $Output
   }

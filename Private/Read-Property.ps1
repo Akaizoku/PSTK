@@ -4,13 +4,13 @@
 function Read-Property {
   <#
     .SYNOPSIS
-    Parse property content
+    Parse property
 
     .DESCRIPTION
-    Parse property content
+    Parse property content to output key-value pair
 
-    .PARAMETER Content
-    [String] The Content parameter should be the content of the property.
+    .PARAMETER Property
+    The property parameter corresponds to the property to read.
 
     .INPUTS
     None.
@@ -20,30 +20,47 @@ function Read-Property {
     ordered hashtable containing the name and value of a given property.
 
     .EXAMPLE
-    Read-Property -Content "Key = Value"
+    Read-Property -Property "Key = Value"
 
     In this example, Read-Property will parse the content and assign the value
     "Value" to the property "Key".
+
+    .NOTES
+    File name:      Read-Property.ps1
+    Author:         Florian Carrier
+    Creation date:  15/10/2018
+    Last modified:  17/06/2019
   #>
   [CmdletBinding ()]
   Param (
     [Parameter (
-      Position    = 1,
-      Mandatory   = $true,
-      HelpMessage = "Property content"
+      Position          = 1,
+      Mandatory         = $true,
+      ValueFromPipeline = $true,
+      HelpMessage       = "Property content"
     )]
     [ValidateNotNullOrEmpty ()]
     [String]
-    $Content
+    $Property
   )
-  $Property = New-Object -TypeName System.Collections.Specialized.OrderedDictionary
-  $Index    = $Content.IndexOf("=")
-  if ($Index -gt 0) {
-    $Offset = 1
-    $Key    = $Content.Substring(0, $Index)
-    $Value  = $Content.Substring($Index + $Offset, $Content.Length - $Index - $Offset)
-    $Property.Add("Key"   , $Key.Trim())
-    $Property.Add("Value" , $Value.Trim())
+  Begin {
+    # Get global preference variables
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+    # Instantiate variables
+    $KeyValuePair = New-Object -TypeName "System.Collections.Specialized.OrderedDictionary"
+    $Index    = $Property.IndexOf("=")
   }
-  return $Property
+  Process {
+    # Check that format is valid
+    if ($Index -gt 0) {
+      $Offset = 1
+      $Key    = $Property.Substring(0, $Index)
+      $Value  = $Property.Substring($Index + $Offset, $Property.Length - $Index - $Offset)
+      # Generate key-value pair
+      $KeyValuePair.Add("Key"   , $Key.Trim())
+      $KeyValuePair.Add("Value" , $Value.Trim())
+    }
+    # Output key-value pair
+    return $KeyValuePair
+  }
 }

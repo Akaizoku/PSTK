@@ -42,27 +42,34 @@ function Compare-Hashtable {
     # [System.Collections.Specialized.OrderedDictionary]
     $Difference
   )
-  $Check = $true
-  # Check that hashtables are of the same size
-  if ($Reference.Count -ne $Difference.Count) {
-    $Check = $false
-  } else {
-    # Loop through tables
-    foreach ($Key in $Reference.Keys) {
-      # Check that they contain the same keys
-      if ($Difference.$Key) {
-        # Check that they contain the same values
-        if ($Difference.$Key -ne $Reference.$Key) {
+  Begin {
+    # Get global preference variables
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+    # Variables
+    $Check = $true
+  }
+  Process {
+    # Check that hashtables are of the same size
+    if ($Reference.Count -ne $Difference.Count) {
+      $Check = $false
+    } else {
+      # Loop through tables
+      foreach ($Key in $Reference.Keys) {
+        # Check that they contain the same keys
+        if ($Difference.$Key) {
+          # Check that they contain the same values
+          if ($Difference.$Key -ne $Reference.$Key) {
+            $Check = $false
+            Write-Log -Type "DEBUG" -Message "$($Difference.$Key) does not exists in reference hashtable"
+            break
+          }
+        } else {
           $Check = $false
-          Write-Debug "$($Difference.$Key) does not exists in reference hashtable"
+          Write-Log -Type "DEBUG" -Message "$Key does not exists in difference hashtable"
           break
         }
-      } else {
-        $Check = $false
-        Write-Debug "$Key does not exists in difference hashtable"
-        break
       }
     }
+    return $Check
   }
-  return $Check
 }

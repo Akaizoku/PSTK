@@ -49,7 +49,19 @@ function Test-SQLConnection {
     the "password" password.
 
     .NOTES
-    TODO Add secured password handling
+    File name:      Test-SQLConnection.ps1
+    Author:         Florian Carrier
+    Creation date:  15/10/2018
+    Last modified:  12/06/2019
+    Dependencies:   Test-SQLConnection requires the SQLServer module
+    TODO            Add secured password handling
+
+    .LINK
+    https://github.com/Akaizoku/PSTK
+
+    .LINK
+    https://docs.microsoft.com/en-us/sql/powershell/download-sql-server-ps-module
+
   #>
   [CmdletBinding ()]
   Param (
@@ -90,33 +102,40 @@ function Test-SQLConnection {
       Mandatory   = $false,
       HelpMessage = "Password"
     )]
-    [Alias ("PW")]
+    [Alias ("Pw")]
     [String]
     $Password
   )
-  # Break-down connection info
-  if ($Security) {
-    Write-Debug "SQL Server authentication"
-    if ($Username) {
-      $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=False; User ID=$Username; Password=$Password; Connect Timeout=3;"
-    } else {
-      Write-Log -Type "ERROR" -Message "Please provide a valid username"
-      Write-Debug "$Username"
-      Stop-Script 1
-    }
-  } else {
-    Write-Debug "Integrated Secutiry"
-    $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=True; Connect Timeout=3;"
+  Begin {
+    # Get global preference variables
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
   }
-  # Create connection object
-  $Connection = New-Object -TypeName System.Data.SqlClient.SqlConnection -ArgumentList $ConnectionString
-  # Try to open the connection
-  try {
-    $Connection.Open()
-    $Connection.Close()
-    return $true
-  } catch {
-    Write-Debug "Unable to connect to $ConnectionString"
-    return $false
+  Process {
+    # Break-down connection info
+    if ($Security) {
+      if ($Username) {
+        $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=False; User ID=$Username; Password=$Password; Connect Timeout=3;"
+      } else {
+        Write-Log -Type "ERROR" -Message "Please provide a valid username"
+        Write-Log -Type "DEBUG" -Message "$Username"
+        Stop-Script 1
+      }
+    } else {
+      # Else default to integrated security
+      Write-Log -Type "DEBUG" -Message "Integrated Security"
+      $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=True; Connect Timeout=3;"
+    }
+    # Create connection object
+    Write-Log -Type "DEBUG" -Object $ConnectionString
+    $Connection = New-Object -TypeName "System.Data.SqlClient.SqlConnection" -ArgumentList $ConnectionString
+    # Try to open the connection
+    try {
+      $Connection.Open()
+      $Connection.Close()
+      return $true
+    } catch {
+      Write-Log -Type "DEBUG" -Message "Unable to connect to $ConnectionString"
+      return $false
+    }
   }
 }

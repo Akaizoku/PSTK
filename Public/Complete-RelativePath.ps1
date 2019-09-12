@@ -30,11 +30,14 @@ function Complete-RelativePath {
       HelpMessage = "Root directory to pre-prend to relative path"
     )]
     [ValidateNotNullOrEmpty ()]
-    [Alias ("Directory")]
+    [Alias ("Directory", "Root")]
     [String]
     $WorkingDirectory
   )
   Begin {
+    # Get global preference variables
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+    # Test working directory path
     if (-Not (Test-Path -Path $WorkingDirectory)) {
       Write-Log -Type "ERROR" -Message "$WorkingDirectory does not exists."
       Stop-Script 1

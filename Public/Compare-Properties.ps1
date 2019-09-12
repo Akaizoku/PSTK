@@ -46,14 +46,24 @@ function Compare-Properties {
     [String[]]
     $Required
   )
-  $Missing = New-Object -TypeName System.Collections.ArrayList
-  $Parameters = $Required.Split(",")
-  foreach ($Parameter in $Parameters) {
-    $Property = $Parameter.Trim()
-    if ($Property -ne "" -And !$Properties.$Property) {
-      [Void]$Missing.Add($Property)
-    }
+  Begin {
+    # Get global preference variables
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+    # Variables
+    $Missing = New-Object -TypeName System.Collections.ArrayList
+    $Parameters = $Required.Split(",")
   }
-  # Force array-list format
-  return @($Missing)
+  Process {
+    # Loop through parameters
+    foreach ($Parameter in $Parameters) {
+      $Property = $Parameter.Trim()
+      # Check if property exists
+      if ($Property -ne "" -And !$Properties.$Property) {
+        Write-Log -Type "DEBUG" -Message "$Property is missing"
+        [Void]$Missing.Add($Property)
+      }
+    }
+    # Force array-list format
+    return @($Missing)
+  }
 }

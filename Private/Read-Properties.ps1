@@ -9,12 +9,8 @@ function Read-Properties {
     .DESCRIPTION
     Parse properties file to generate configuration variables
 
-    .PARAMETER File
-    [String] The File parameter should be the name of the property file.
-
-    .PARAMETER Directory
-    [String] The Directory parameter should be the path to the directory containing the
-    property file.
+    .PARAMETER Path
+    The patch parameter corresponds to the path to the property file to read.
 
     .PARAMETER Section
     [Switch] The Section parameter indicates if properties should be grouped depending on
@@ -25,7 +21,7 @@ function Read-Properties {
     ordered hash table containing the content of the property file.
 
     .EXAMPLE
-    Read-Properties -File "default.ini" -Directory ".\conf" -Section
+    Read-Properties -Path ".\conf\default.ini" -Section
 
     In this example, Read-Properties will parse the default.ini file contained
     in the .\conf directory and generate an ordered hashtable containing the
@@ -36,19 +32,11 @@ function Read-Properties {
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
-      HelpMessage = "Property file name"
+      HelpMessage = "Path to the property file"
     )]
     [ValidateNotNullOrEmpty ()]
     [String]
-    $File,
-    [Parameter (
-      Position    = 2,
-      Mandatory   = $true,
-      HelpMessage = "Path to the directory containing the property file"
-    )]
-    [ValidateNotNullOrEmpty ()]
-    [String]
-    $Directory,
+    $Path,
     [Parameter (
       Position    = 3,
       Mandatory   = $false,
@@ -57,64 +45,78 @@ function Read-Properties {
     [Switch]
     $Section
   )
-  # Properties variables
-  $PropertyFile = Join-Path -Path $Directory -ChildPath $File
-  $Properties   = New-Object -TypeName System.Collections.Specialized.OrderedDictionary
-  $Sections     = New-Object -TypeName System.Collections.Specialized.OrderedDictionary
-  $Header       = $null
-  # Check that the file exists
-  if (Test-Path -Path $PropertyFile) {
-    $FileContent  = Get-Content -Path $PropertyFile
-    $LineNumber   = 0
-    # Read the property file line by line
-    foreach ($Content in $FileContent) {
-      $LineNumber += 1
-      # If properties have to be grouped by section
-      if ($Section) {
-        # If end of file and section is open
-        if ($LineNumber -eq $FileContent.Count -And $Header) {
-          if ($Content[0] -ne "#" -And $Content[0] -ne ";" -And $Content -ne "") {
-            $Property = Read-Property -Content $Content
+  Begin {
+    # Get global preference variables
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+    # Instantiate variables
+    $Properties = New-Object -TypeName "System.Collections.Specialized.OrderedDictionary"
+    $Sections   = New-Object -TypeName "System.Collections.Specialized.OrderedDictionary"
+    $Header     = $null
+    $errors     = 0
+  }
+  Process {
+    # Check that the file exists
+    if (Test-Path -Path $Path) {
+      $ListOfProperties = Get-Content -Path $Path
+      $LineNumber = 0
+      # Read the property file line by line
+      foreach ($Property in $ListOfProperties) {
+        $LineNumber += 1
+        # If properties have to be grouped by section
+        if ($Section) {
+          # If end of file and section is open
+          if ($LineNumber -eq $ListOfProperties.Count -And $Header) {
+            if ($Property[0] -ne "#" -And $Property[0] -ne ";" -And $Property -ne "") {
+              $Property = Read-Property -Property $Property
+              if ($Property.Count -gt 0) {
+                $Sections.Add($Property.Key, $Property.Value)
+              } else {
+                Write-Log -Type "WARN" -Message "Unable to process line $LineNumber from $Path"
+              }
+            }
+            $Clone = Copy-OrderedHashtable -Hashtable $Sections -Deep
+            $Properties.Add($Header, $Clone)
+          } elseif ($Property[0] -eq "[") {
+            # If previous section exists add it to the property list
+            if ($Header) {
+              $Clone = Copy-OrderedHashtable -Hashtable $Sections -Deep
+              $Properties.Add($Header, $Clone)
+            }
+            # Create new property group
+            $Header = $Property.Substring(1, $Property.Length - 2)
+            $Sections.Clear()
+          } elseif ($Header -And $Property[0] -ne "#" -And $Property[0] -ne ";" -And $Property -ne "") {
+            $Property = Read-Property -Property $Property
             if ($Property.Count -gt 0) {
               $Sections.Add($Property.Key, $Property.Value)
             } else {
-              Write-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
+              Write-Log -Type "WARN" -Message "Unable to process line $LineNumber from $Path"
             }
           }
-          $Clone = Copy-OrderedHashtable -Hashtable $Sections -Deep
-          $Properties.Add($Header, $Clone)
-        } elseif ($Content[0] -eq "[") {
-          # If previous section exists add it to the property list
-          if ($Header) {
-            $Clone = Copy-OrderedHashtable -Hashtable $Sections -Deep
-            $Properties.Add($Header, $Clone)
-          }
-          # Create new property group
-          $Header = $Content.Substring(1, $Content.Length - 2)
-          $Sections.Clear()
-        } elseif ($Header -And $Content[0] -ne "#" -And $Content[0] -ne ";" -And $Content -ne "") {
-          $Property = Read-Property -Content $Content
-          if ($Property.Count -gt 0) {
-            $Sections.Add($Property.Key, $Property.Value)
-          } else {
-            Write-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
-          }
-        }
-      } else {
-        # Ignore comments, sections, and blank lines
-        if ($Content[0] -ne "#" -And $Content[0] -ne ";" -And $Content[0] -ne "[" -And $Content -ne "") {
-          $Property = Read-Property -Content $Content
-          if ($Property.Count -gt 0) {
-            $Properties.Add($Property.Key, $Property.Value)
-          } else {
-            Write-Log -Type "WARN" -Message "Unable to process line $LineNumber from $PropertyFile"
+        } else {
+          # Ignore comments, sections, and blank lines
+          if ($Property[0] -ne "#" -And $Property[0] -ne ";" -And $Property[0] -ne "[" -And $Property -ne "") {
+            $Property = Read-Property -Property $Property
+            if ($Property.Count -gt 0) {
+              try {
+                $Properties.Add($Property.Key, $Property.Value)
+              } catch {
+                Write-Log -Type "WARN" -Object "Two distinct definitions of the property $($Property.Key) have been found in the configuration file"
+                $Errors += 1
+              }
+            } else {
+              Write-Log -Type "WARN" -Message "Unable to process line $LineNumber from $Path"
+            }
           }
         }
       }
+    } else {
+      # Alert that configuration file does not exist at specified location
+      Write-Log -Type "ERROR" -Message "Path not found $Path" -ErrorCode 1
     }
-  } else {
-    # Alert that configuration file does not exists at specified location
-    Write-Log -Type "ERROR" -Message "The $File file cannot be found under $(Resolve-Path $Directory)"
+    if ($Errors -gt 0) {
+      Write-Log -Type "ERROR" -Object "Unable to proceed. Resolve the issues in $Path" -ErrorCode 1
+    }
+    return $Properties
   }
-  return $Properties
 }
