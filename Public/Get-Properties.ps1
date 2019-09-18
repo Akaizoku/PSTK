@@ -104,7 +104,7 @@ function Get-Properties {
           $Customs = Read-Properties -Path $CustomPath
           foreach ($Property in $Customs.Keys) {
             # Override default with custom
-            if ($Properties.$Property) {
+            if (Find-Key -Hashtable $Properties -Key $Property) {
               $Properties.$Property = $Customs.$Property
             } else {
               Write-Log -Type "WARN" -Object "The ""$Property"" property defined in $Custom is unknown"
