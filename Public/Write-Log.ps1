@@ -18,12 +18,12 @@ function Write-Log {
     The Type parameter defines the level of importance of the message and will
     influence the colour of the output.
 
-    There are five available types:
-    - CHECK:  checkpoint, used to confirm a status.
-    - DEBUG:  debug message, used to debug scripts.
-    - ERROR:  error message, used to provide detail on an issue.
-    - INFO:   information, used to convey a message.
-    - WARN:    warnign, used to detail a non-blocking issue.
+    There are five available message types:
+    - CHECK:  checkpoint, used to confirm a status;
+    - DEBUG:  debug message, used to debug scripts;
+    - ERROR:  error message, used to provide detail on an issue;
+    - INFO:   information, used to convey a message;
+    - WARN:   warning, used to highlight a non-blocking issue.
 
     .PARAMETER Message
     The Message parameter corresponds to the desired output to be logged.
