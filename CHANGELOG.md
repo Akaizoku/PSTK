@@ -4,7 +4,18 @@ All notable changes to the [PSTK](https://github.com/Akaizoku/PSTK) project will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0](https://github.com/Akaizoku/PSTK/releases/tag/1.1.0) - 2019-09-12
+## [1.2.1](https://github.com/Akaizoku/PSTK/releases/tag/1.2.1) - 2019-10-01
+
+Hotfix to enable overwriting empty properties.
+
+### Changed
+The following functions have been updated:
+-   Get-Properties
+-   Import-Properties
+
+## [1.2.0](https://github.com/Akaizoku/PSTK/releases/tag/1.2.0) - 2019-09-12
+
+Expansion
 
 ### Added
 The following functions have been added:

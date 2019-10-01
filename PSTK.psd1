@@ -12,7 +12,7 @@
 RootModule = 'PSTK.psm1'
 
 # Version number of this module.s
-ModuleVersion = '1.2.0'
+ModuleVersion = '1.2.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -151,6 +151,9 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
+## 1.2.1
+Fixed an issue with empty properties not being overwritten as expected
+
 ## 1.2.0
 Added support for global preferences
 Expanded existing functions
