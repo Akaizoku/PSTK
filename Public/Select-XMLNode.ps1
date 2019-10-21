@@ -34,10 +34,17 @@ function Select-XMLNode {
     # Variables
     $Delimiter          = "/"
     $Alias              = "x"
-    $SpecialCharacters  = [RegEx]::New('^[/.@]*')
-    if ($XPath -match $SpecialCharacters) {
-      $Prefix = $Matches[0]
-      $XPath  = $XPath -replace $SpecialCharacters, ''
+    # Check PowerShell version to determine if sanitation can be performed
+    if ($PSVersionTable.PSVersion.Major -ge 5) {
+      $SpecialCharacters  = [RegEx]::New('^[/.@]*')
+      if ($XPath -match $SpecialCharacters) {
+        $Prefix = $Matches[0]
+        $XPath  = $XPath -replace $SpecialCharacters, ''
+      }
+    } else {
+      # Else skip sanitation check
+      Write-Log -Type "DEBUG" -Object "XPath sanitation could not be performed due to the PowerShell version $($PSVersionTable.PSVersion.Major) limitations"
+      Write-Log -Type "DEBUG" -Object $XPath
     }
     # Get namespace
     $NamespaceManager = New-Object -TypeName "Xml.XmlNamespaceManager" -ArgumentList $XML.NameTable
