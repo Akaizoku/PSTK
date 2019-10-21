@@ -22,7 +22,7 @@ function Out-Hashtable {
       Mandatory   = $false,
       HelpMessage = "Encoding"
     )]
-    [ValidateSet ("ASCII", "BigEndianUnicode", "OEM", "Unicode", "UTF7", "UTF8", "UTF8BOM", "UTF8NoBOM", "UTF32")]
+    [ValidateSet ("ASCII", "BigEndianUnicode", "default", "OEM", "String", "Unicode", "Unknown", "UTF7", "UTF8", "UTF8BOM", "UTF8NoBOM", "UTF32")]
     [String]
     $Encoding = "UTF8",
     [Parameter (
@@ -51,7 +51,14 @@ function Out-Hashtable {
     [Switch]
     $WhatIf
   )
+  Begin {
+    # Convert UTF8NoBOM to default for Out-File encoding validation
+    if ($Encoding -eq "UTF8NoBOM") {
+        $Encoding = "default"
+    }
+  }
   Process {
+    # Write hashtable content to file
     $Hashtable.GetEnumerator() | % { "$($_.Name)=$($_.Value)"} | Out-File -FilePath $Path -Encoding $Encoding -Append:$Append -Confirm:$Confirm -NoClobber:$NoClobber -NoNewline:$NoNewLine -WhatIf:$WhatIf
   }
 }
