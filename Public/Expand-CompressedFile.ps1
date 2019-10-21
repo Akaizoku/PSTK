@@ -66,12 +66,21 @@ function Expand-CompressedFile {
     if ($PSVersionTable.PSVersion.Major -ge 5) {
       # If PowerShell version greater than 5 then use more efficien Expand-Archive
       Write-Log -Type "DEBUG" -Message "Using native PowerShell v5.0 Expand-Archive function"
-      Expand-Archive -Path $Path -DestinationPath $DestinationPath -Force:$Force
+      if (Test-Path -Path $Path) {
+        Write-Log -Type "DEBUG" -Object "Expand archive to $DestinationPath"
+        Expand-Archive -Path $Path -DestinationPath $DestinationPath -Force:$Force
+      } else {
+        Write-Log -Type "ERROR" -Object "Path not found $Path" -ErrorCode 1
+      }
     } else {
       # Else copy files "manually"
       Write-Log -Type "DEBUG" -Message "PowerShell version lower than 5.0"
       Write-Log -Type "DEBUG" -Message "Copying objects out of the compressed file"
-      $Shell = New-Object -ComObject Shell.Application
+      # Ensure target directory exists
+      if (-Not (Test-Path -Path $DestinationPath)) {
+        New-Item -Path $DestinationPath -ItemType "Directory" | Out-Null
+      }
+      $Shell = New-Object -ComObject "Shell.Application"
       $File = $Shell.NameSpace($Path)
       foreach($Item in $File.Items()) {
         if ($Force) {
