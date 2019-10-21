@@ -17,7 +17,12 @@ function Remove-EnvironmentVariable {
     )]
     [ValidateSet ("Machine", "Process", "User")]
     [String]
-    $Scope = "Machine"
+    $Scope = "Machine",
+    [Parameter (
+      HelpMessage = "Confirmation prompt"
+    )]
+    [Switch]
+    $Confirm
   )
   Begin {
     # Get global preference variables
@@ -26,10 +31,17 @@ function Remove-EnvironmentVariable {
   Process {
     # Check if variable is defined
     if (Test-EnvironmentVariable -Variable $Name -Scope $Scope) {
-      Write-Log -Type "INFO" -Message "Removing $Name environment variable in $Scope scope"
-      [Environment]::SetEnvironmentVariable($Name, "", $Scope)
+      if ($Confirm) {
+        $Confirmation = Confirm-Prompt -Prompt "Do you want to remove the environment variable $Name?"
+      }
+      if ((-Not $Confirm) -Or $Confirmation) {
+        Write-Log -Type "INFO" -Object "Removing $Name environment variable in $Scope scope"
+        [Environment]::SetEnvironmentVariable($Name, "", $Scope)
+      } else {
+        Write-Log -Type "WARN" -Object "Removal of environment variable cancelled by the user"
+      }
     } else {
-      Write-Log -Type "WARN" -Message "$Name environment variable is not defined in $Scope scope"
+      Write-Log -Type "WARN" -Object "$Name environment variable is not defined in $Scope scope"
     }
   }
 }
