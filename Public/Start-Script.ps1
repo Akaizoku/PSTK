@@ -35,6 +35,7 @@ function Start-Script {
     Set-StrictMode -Version Latest
   }
   Process {
+    # Start transcript
     Start-Transcript -Path $Transcript -Append -Force
   }
 }
