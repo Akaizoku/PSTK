@@ -1,6 +1,3 @@
-# ------------------------------------------------------------------------------
-# Format string
-# ------------------------------------------------------------------------------
 function Format-String {
   <#
     .SYNOPSIS
@@ -15,6 +12,16 @@ function Format-String {
 
     .PARAMETER Format
     The format parameter corresponds to the case to convert the string to.
+    The following values are available:
+    - CamelCase
+    - KebabCase
+    - LowerCase
+    - PaslcalCase
+    - SentenceCase
+    - SnakeCase
+    - TitleCase
+    - TrainCase
+    - UpperCase
 
     .PARAMETER Delimiter
     The delimiter parameter corresponds to the character used to delimit dis-
@@ -84,7 +91,7 @@ function Format-String {
     }
     $Words          = $String.Split($Delimiter)
     $Counter        = 0
-    $FormattedWords = New-Object -TypeName System.Collections.ArrayList
+    $FormattedWords = New-Object -TypeName "System.Collections.ArrayList"
   }
   Process {
     foreach ($Word in $Words) {
