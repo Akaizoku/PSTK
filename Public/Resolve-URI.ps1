@@ -10,12 +10,10 @@ function Resolve-URI {
     $URI
   )
   Begin {
-    # Get global preference variables
-    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     # List of restricted characters
     $RestrictedCharacters = [Ordered]@{
-      "\" = '/'
-      " " = '%20'
+      "\" = "/"
+      " " = "%20"
     }
   }
   Process {

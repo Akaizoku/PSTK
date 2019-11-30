@@ -10,7 +10,9 @@ function Resolve-Tags {
     Transform hashtable of variables into list of tags usable by Set-Tags
 
     .PARAMETER Tags
-    The tags parameter corresponds to the list of variables to be replaced with their corresponding values.
+    The tags parameter cor-
+    responds to the list of variables to be replaced with their corresponding va-
+    lues.
 
     It has to be in the following format:
 

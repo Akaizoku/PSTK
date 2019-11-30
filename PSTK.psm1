@@ -11,7 +11,7 @@
   File name:      PSTK.psm1
   Author:         Florian Carrier
   Creation date:  23/08/2018
-  Last modified:  11/10/2019
+  Last modified:  15/10/2018
   Repository:     https://github.com/Akaizoku/PSTK
   Dependencies:   Test-SQLConnection requires the SQLServer module
 
@@ -19,15 +19,12 @@
   https://github.com/Akaizoku/PSTK
 
   .LINK
-  https://www.powershellgallery.com/packages/PSTK
-
-  .LINK
   https://docs.microsoft.com/en-us/sql/powershell/download-sql-server-ps-module
 #>
 
 # Get public and private function definition files
-$Public  = @( Get-ChildItem -Path "$PSScriptRoot\Public\*.ps1"  -ErrorAction "SilentlyContinue" )
-$Private = @( Get-ChildItem -Path "$PSScriptRoot\Private\*.ps1" -ErrorAction "SilentlyContinue" )
+$Public  = @( Get-ChildItem -Path "$PSScriptRoot\Public\*.ps1"  -ErrorAction SilentlyContinue )
+$Private = @( Get-ChildItem -Path "$PSScriptRoot\Private\*.ps1" -ErrorAction SilentlyContinue )
 
 # Import files using dot sourcing
 foreach ($File in @($Public + $Private)) {
