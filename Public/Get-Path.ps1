@@ -10,7 +10,7 @@ function Get-Path {
     File name:      Get-Path.ps1
     Author:         Florian Carrier
     Creation date:  27/11/2018
-    Last modified:  15/10/2019
+    Last modified:  12/12/2019
   #>
   [CmdletBinding ()]
   Param (
@@ -47,15 +47,16 @@ function Get-Path {
     $Paths = Resolve-Array -Array $PathToResolve -Delimiter ","
     foreach ($Path in $Paths) {
       $Pathway = $Hashtable.$Path
+      Write-Log -Type "DEBUG" -Object $Pathway
       # If path is relative
-      if ($Pathway -match "^.*\\") {
-        $RelativePath = $Pathway -replace "^.*\\", ""
+      if ($Pathway -match "^[\.\\|\\]") {
+        $RelativePath = $Pathway -replace "^[\.\\|\\]", ""
         $AbsolutePath = Join-Path -Path $Root -ChildPath $RelativePath
         if (-Not (Test-Path -Path $AbsolutePath)) {
           Write-Log -Type "INFO" -Object "Creating directory: $AbsolutePath"
           New-item -ItemType "Directory" -Path "$AbsolutePath" | Out-Null
         }
-        # Write-Log -Type "DEBUG" -Object $AbsolutePath
+        Write-Log -Type "DEBUG" -Object $AbsolutePath
         $Hashtable.$Path = $AbsolutePath
       } elseif (-Not (Test-Path -Path $Pathway)) {
         Write-Log -Type "ERROR" -Object "Path not found: $Pathway"
