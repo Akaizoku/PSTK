@@ -47,7 +47,6 @@ function Get-Path {
     $Paths = Resolve-Array -Array $PathToResolve -Delimiter ","
     foreach ($Path in $Paths) {
       $Pathway = $Hashtable.$Path
-      Write-Log -Type "DEBUG" -Object $Pathway
       # If path is relative
       if ($Pathway -match "^[\.\\|\\]") {
         $RelativePath = $Pathway -replace "^[\.\\|\\]", ""
