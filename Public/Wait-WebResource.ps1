@@ -1,34 +1,35 @@
-function Wait-WebServer {
+function Wait-WebResource {
   <#
     .SYNOPSIS
-    Wait until a web-page is accessible
+    Wait until a web resource is accessible
 
     .DESCRIPTION
-    Queries a server and returns the status of the request
+    Queries a web resource and returns the status of the request
 
-    .PARAMETER WebServer
-    The web-server parameter corresponds to the properties of the web-server.
-    It must contains the four following attributes:
-    - Protocol
-    - Hostname
-    - Port
-    - Name
+    .PARAMETER URI
+    The URI parameter corresponds to the Unified Resource Identifier (URI) of the web resource.
+
+    .PARAMETER TimeOut
+    The optional time-out parameter corresponds to the wait period after which the resource is declared unreachable.
+
+    .PARAMETER RetryInterval
+    The optional retry interval parameter is the interval in millisecond in between each queries to check the availability of the web resource.
 
     .NOTES
-    File name:     Wait-WebServer.ps1
+    File name:     Wait-WebResource.ps1
     Author:        Florian Carrier
     Creation date: 21/10/2019
-    Last modified: 21/10/2019
+    Last modified: 02/12/2019
   #>
   Param(
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
-      HelpMessage = "Properties"
+      HelpMessage = "URI of the web resource"
     )]
     [ValidateNotNullOrEmpty ()]
-    [System.Collections.Specialized.OrderedDictionary]
-    $WebServer,
+    [String]
+    $URI,
     [Parameter (
       Position    = 2,
       Mandatory   = $false,
@@ -49,15 +50,13 @@ function Wait-WebServer {
   Begin {
     # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
-    # Construct web-server URI
-    $URI = Get-URI -Scheme $WebServer.Protocol -Authority ($WebServer.Hostname + ':' + $WebServer.Port)
   }
   Process {
     # Wait for web-server to come back up
-    $Timer          = [System.Diagnostics.Stopwatch]::StartNew()
+    $Timer = [System.Diagnostics.Stopwatch]::StartNew()
     while (($Timer.Elapsed.TotalSeconds -lt $TimeOut) -And (-Not (Test-HTTPStatus -URI $URI))) {
       Start-Sleep -Seconds $RetryInterval
-      Write-Log -Type "DEBUG" -Object "Waiting for $($WebServer.Name) to come back up"
+      Write-Log -Type "DEBUG" -Object "Waiting for $URI to be available"
     }
     $Timer.Stop()
     return $true
