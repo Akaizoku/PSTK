@@ -29,7 +29,7 @@ function Test-SQLConnection {
     to use in case of SQL authentication.
 
     .PARAMETER Credentials
-    [String] The credentials parameter corresponds to the credentials of account
+    [System.Management.Automation.PSCredential] The credentials parameter corresponds to the credentials of account
     to use in case of SQL authentication.
 
     .INPUTS
@@ -65,7 +65,7 @@ function Test-SQLConnection {
     File name:      Test-SQLConnection.ps1
     Author:         Florian Carrier
     Creation date:  15/10/2018
-    Last modified:  21/10/2019
+    Last modified:  02/12/2019
     Dependencies:   Test-SQLConnection requires the SQLServer module
 
     .LINK
@@ -128,14 +128,18 @@ function Test-SQLConnection {
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
   }
   Process {
+    # Define connection string
+    $ConnectionString = "Server=$Server; Database=$Database; Connect Timeout=3;"
     # Check authentication mode
     if ($PSBoundParameters.ContainsKey("Credentials")) {
       # If "secured" credentials are provided
-      $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=False; User ID=$($Credentials.Username); Password=$($Credentials.GetNetworkCredential().Password); Connect Timeout=3;"
+      $FullConnectionString = $ConnectionString + "Integrated Security=False; User ID=$($Credentials.Username); Password=$($Credentials.GetNetworkCredential().Password);"
+      $Obfuscate            = $Credentials.GetNetworkCredential().Password
     } elseif ($PSBoundParameters.ContainsKey("Username") -And $PSBoundParameters.ContainsKey("Password")) {
       # If plain text credentials are provided
       if ($Username) {
-        $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=False; User ID=$Username; Password=$Password; Connect Timeout=3;"
+        $FullConnectionString = $ConnectionString + "Integrated Security=False; User ID=$Username; Password=$Password;"
+        $Obfuscate            = $Password
       } else {
         Write-Log -Type "ERROR" -Message "Please provide a valid username"
         Write-Log -Type "DEBUG" -Message "$Username"
@@ -144,11 +148,11 @@ function Test-SQLConnection {
     } else {
       # Else default to integrated security (Windows authentication)
       Write-Log -Type "DEBUG" -Message "Integrated Security"
-      $ConnectionString = "Server=$Server; Database=$Database; Integrated Security=True; Connect Timeout=3;"
+      $FullConnectionString = $ConnectionString + "Integrated Security=True;"
     }
     # Create connection object
-    Write-Log -Type "DEBUG" -Object $ConnectionString
-    $Connection = New-Object -TypeName "System.Data.SqlClient.SqlConnection" -ArgumentList $ConnectionString
+    Write-Log -Type "DEBUG" -Object $FullConnectionString -Obfuscate $Obfuscate
+    $Connection = New-Object -TypeName "System.Data.SqlClient.SqlConnection" -ArgumentList $FullConnectionString
     # Try to open the connection
     try {
       $Connection.Open()
@@ -156,7 +160,6 @@ function Test-SQLConnection {
       return $true
     } catch {
       # If connection fails
-      Write-Log -Type "DEBUG" -Message "Unable to connect to $ConnectionString"
       return $false
     }
   }
