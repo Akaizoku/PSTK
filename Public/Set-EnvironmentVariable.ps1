@@ -1,5 +1,29 @@
 function Set-EnvironmentVariable {
-  [CmdletBinding()]
+  <#
+    .SYNOPSIS
+    Set environment variable
+
+    .DESCRIPTION
+    Set the value of the environment variable
+
+    .PARAMETER Name
+    The name parameter corresponds to the name of the environment variable.
+
+    .PARAMETER Value
+    The value parameter corresponds to the value to assign to the environment variable.
+
+    .PARAMETER Scope
+    The optional scope parameter corresponds to the scope in which the environment variable is defined.
+
+    .NOTES
+    File name:      Set-EnvironmentVariable.ps1
+    Author:         Florian Carrier
+    Creation date:  22/01/2019
+    Last modified:  13/12/2019
+  #>
+  [CmdletBinding (
+    SupportsShouldProcess = $true
+  )]
   Param (
     [Parameter (
       Position    = 1,

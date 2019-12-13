@@ -1,5 +1,26 @@
 function Get-EnvironmentVariable {
-  [CmdletBinding()]
+  <#
+    .SYNOPSIS
+    Get environment variable
+
+    .DESCRIPTION
+    Retrieve the value of an environment variable in the specified scope
+
+    .PARAMETER Name
+    The name parameter corresponds to the name of the environment variable.
+
+    .PARAMETER Scope
+    The optional scope parameter corresponds to the scope in which the environment variable is defined.
+
+    .NOTES
+    File name:      Get-EnvironmentVariable.ps1
+    Author:         Florian Carrier
+    Creation date:  22/01/2019
+    Last modified:  13/12/2019
+  #>
+  [CmdletBinding (
+    SupportsShouldProcess = $true
+  )]
   Param (
     [Parameter (
       Position    = 1,
@@ -27,7 +48,7 @@ function Get-EnvironmentVariable {
     # Check if variable is defined
     $Value = [Environment]::GetEnvironmentVariable($Name, $Scope)
     if ($Value) {
-      Write-Log -Type "DEBUG" -Message "$Scope`t$Name=$Value"
+      Write-Log -Type "DEBUG" -Message "Scope=$Scope`t$Name=$Value"
     }
     # If variable does not exists, the value will be null
     return $Value

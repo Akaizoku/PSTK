@@ -1,10 +1,10 @@
-function Test-EnvironmentVariable {
+function Sync-EnvironmentVariable {
   <#
     .SYNOPSIS
-    Check environment variable
+    Reload environment variable
 
     .DESCRIPTION
-    Retrieve the value of an environment variable in the specified scope
+    Force a reload of the session's environment variable
 
     .PARAMETER Name
     The name parameter corresponds to the name of the environment variable.
@@ -13,9 +13,9 @@ function Test-EnvironmentVariable {
     The optional scope parameter corresponds to the scope in which the environment variable is defined.
 
     .NOTES
-    File name:      Test-EnvironmentVariable.ps1
+    File name:      Sync-EnvironmentVariable.ps1
     Author:         Florian Carrier
-    Creation date:  22/01/2019
+    Creation date:  13/12/2019
     Last modified:  13/12/2019
   #>
   [CmdletBinding (
@@ -45,8 +45,10 @@ function Test-EnvironmentVariable {
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
   }
   Process {
-    # Check if variable is defined
-    if (Get-EnvironmentVariable -Name $Name -Scope $Scope) {
+    # Check if environment variable exists in specified scope
+    if (Test-EnvironmentVariable -Name $Name -Scope $Scope) {
+      # Reload variable value in current session
+      Set-Item -Path "env:$Name" -Value (Get-EnvironmentVariable -Name $Name -Scope $Scope) -Force
       return $true
     } else {
       return $false
