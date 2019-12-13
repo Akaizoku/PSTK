@@ -29,9 +29,15 @@ function Write-Log {
     The Message parameter corresponds to the desired output to be logged.
 
     .PARAMETER ErrorCode
-    The error code parameter acts as a switch. If specified, the script exe-
+    The optional error code parameter acts as a switch. If specified, the script exe-
     cution is terminated and the value corresponds to the error code to throw
     when terminating the script.
+
+    .PARAMETER File
+    The optional file parameter corresponds to an output file in which to save the message.
+
+    .PARAMETER Obfuscate
+    The optional obfuscate parameter corresponds to specific text to obfuscate from the output. Multiple values can be passed.
 
     .INPUTS
     None. You cannot pipe objects to Write-Log.
@@ -77,17 +83,25 @@ function Write-Log {
     Write-Log -Type "DEBUG" -Message "This is a debug message."
 
     This example outputs a message through the default DEBUG PowerShell chanel,
-    if the -DEBUG flag is enabled.
+    if the -Debug flag is enabled.
+
+    .EXAMPLE
+    Write-Log -Type "INFO" -Message "This is a password." -Obfuscate "password"
+
+    This example outputs a message with the timestamp, the "INFO"
+     tag, and the specified message itself with the "password" word obfuscated.
+
+     Output: "This is a *******."
 
     .NOTES
     File name:      Write-Log.ps1
     Author:         Florian Carrier
     Creation date:  15/10/2018
-    Last modified:  06/06/2019
+    Last modified:  02/12/2019
     TODO            Add locale variable
 
     .LINK
-    https://github.com/Akaizoku/PSTK
+    https://www.powershellgallery.com/packages/PSTK
   #>
   [CmdletBinding ()]
   # Inputs
@@ -120,6 +134,7 @@ function Write-Log {
       Mandatory   = $false,
       HelpMessage = "Error code"
     )]
+    [ValidateNotNullOrEmpty ()]
     [Int]
     $ErrorCode,
     [Parameter (
@@ -127,9 +142,17 @@ function Write-Log {
       Mandatory   = $false,
       HelpMessage = "Path to an optional output file"
     )]
+    [ValidateNotNullOrEmpty ()]
     [Alias ("Path")]
     [String]
-    $File
+    $File,
+    [Parameter (
+      Position    = 5,
+      Mandatory   = $false,
+      HelpMessage = "Text to obfuscate"
+    )]
+    [String[]]
+    $Obfuscate
   )
   Begin {
     # Get global preference variables
@@ -147,6 +170,12 @@ function Write-Log {
       $Message = ($Object | Out-String).Trim()
     } else {
       $Message = $Object.Trim()
+    }
+    # Obfuscate text
+    if ($PSBoundParameters.ContainsKey("Obfuscate")) {
+      foreach ($SensitiveText in $Obfuscate) {
+        $Message = $Message.Replace($SensitiveText, '*******')
+      }
     }
   }
   Process {
