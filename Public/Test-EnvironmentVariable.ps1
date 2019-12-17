@@ -46,7 +46,7 @@ function Test-EnvironmentVariable {
   }
   Process {
     # Check if variable is defined
-    if (Get-EnvironmentVariable -Name $Name -Scope $Scope) {
+    if ([Environment]::GetEnvironmentVariable($Name, $Scope)) {
       return $true
     } else {
       return $false
