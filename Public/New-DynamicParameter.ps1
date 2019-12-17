@@ -33,6 +33,9 @@ function New-DynamicParameter {
     The alias parameter corresponds to the list of aliases to assig to the dyna-
     mic parameter.
 
+    .PARAMETER Mandatory
+    The mandatory switch defines if the parameter is required.
+
     .OUTPUTS
     [System.Management.Automation.RuntimeDefinedParameterDictionary]
     New-DynamicParameter returns a parameter dictionnary containing the dynamic
