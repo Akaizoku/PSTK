@@ -52,7 +52,7 @@ function Sync-EnvironmentVariable {
       return $true
     } else {
       # If environment variable no longer exists in the specifed scope then remove it (if it exists)
-      if ($env:$Name) {
+      if (Get-Item -Path "env:$Name") {
         Remove-Item -Path "env:$Name"
       }
       return $false
