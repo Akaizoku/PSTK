@@ -22,7 +22,7 @@ function Write-ErrorLog {
       HelpMessage = "Error code"
     )]
     [Int]
-    $ErrorCode
+    $ExitCode
   )
   Begin {
     # Get global preference variables
@@ -37,8 +37,8 @@ function Write-ErrorLog {
   Process {
     Write-Log -Type "DEBUG" -Message $Path
     $Message | Out-File -FilePath $Path -Append -Force
-    if ($PSBoundParameters.ContainsKey("ErrorCode")) {
-      Stop-Script -ErrorCode $ErrorCode
+    if ($PSBoundParameters.ContainsKey("ExitCode")) {
+      Stop-Script -ExitCode $ExitCode
     }
   }
 }

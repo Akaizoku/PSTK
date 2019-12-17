@@ -112,10 +112,10 @@ function Read-Properties {
       }
     } else {
       # Alert that configuration file does not exist at specified location
-      Write-Log -Type "ERROR" -Message "Path not found $Path" -ErrorCode 1
+      Write-Log -Type "ERROR" -Message "Path not found $Path" -ExitCode 1
     }
     if ($Errors -gt 0) {
-      Write-Log -Type "ERROR" -Object "Unable to proceed. Resolve the issues in $Path" -ErrorCode 1
+      Write-Log -Type "ERROR" -Object "Unable to proceed. Resolve the issues in $Path" -ExitCode 1
     }
     return $Properties
   }

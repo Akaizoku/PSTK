@@ -77,10 +77,10 @@ function Write-InsertOrUpdate {
       if (Find-Key -Hashtable $Fields -Key $Key) {
         Write-Log -Type "DEBUG" -Object $Fields.$Key
         if ($Fields.$Key -eq $null) {
-          Write-Log -Type "ERROR" -Object "Missing value for primary key $Key" -ErrorCode 1
+          Write-Log -Type "ERROR" -Object "Missing value for primary key $Key" -ExitCode 1
         }
       } else {
-        Write-Log -Type "ERROR" -Object "The primary key $Key is not in the list of fields provided" -ErrorCode 1
+        Write-Log -Type "ERROR" -Object "The primary key $Key is not in the list of fields provided" -ExitCode 1
       }
     }
   }

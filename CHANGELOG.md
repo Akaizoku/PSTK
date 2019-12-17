@@ -12,12 +12,14 @@ The following functions have been added:
 -   Get-URI
 -   Import-Function
 -   Protect-WindowsCmdValue
--   Wait-WebServer
+-   Wait-WebResource
 -   Write-Checksum
+-   Write-InsertOrUpdate
 
 ### Changed
 The following functions have been updated:
 -   Resolve-URI: Fixed an issue causing it to only resolve the last restricted character of the list
+-   Stop-Script/Write-Log: Renamed error code parameter to exit code (aliases have been set for retro-compatibility)
 
 ## [1.2.1](https://github.com/Akaizoku/PSTK/releases/tag/1.2.1) - 2019-10-01
 

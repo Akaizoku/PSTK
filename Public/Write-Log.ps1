@@ -28,8 +28,8 @@ function Write-Log {
     .PARAMETER Message
     The Message parameter corresponds to the desired output to be logged.
 
-    .PARAMETER ErrorCode
-    The optional error code parameter acts as a switch. If specified, the script exe-
+    .PARAMETER ExitCode
+    The optional exit code parameter acts as a switch. If specified, the script exe-
     cution is terminated and the value corresponds to the error code to throw
     when terminating the script.
 
@@ -66,7 +66,7 @@ function Write-Log {
      the host.
 
     .EXAMPLE
-    Write-Log -Type "ERROR" -Message "This is an error message." -ErrorCode 1
+    Write-Log -Type "ERROR" -Message "This is an error message." -ExitCode 1
 
     This example outputs an error message with the timestamp, the "ERROR" tag,
     and the specified message itself. The script will terminate with the exit
@@ -97,7 +97,7 @@ function Write-Log {
     File name:      Write-Log.ps1
     Author:         Florian Carrier
     Creation date:  15/10/2018
-    Last modified:  02/12/2019
+    Last modified:  17/12/2019
     TODO            Add locale variable
 
     .LINK
@@ -135,8 +135,12 @@ function Write-Log {
       HelpMessage = "Error code"
     )]
     [ValidateNotNullOrEmpty ()]
+    [Alias (
+      "ErrorCode",
+      "ReturnCode"
+    )]
     [Int]
-    $ErrorCode,
+    $ExitCode,
     [Parameter (
       Position    = 4,
       Mandatory   = $false,
@@ -191,8 +195,8 @@ function Write-Log {
       Write-Log -Type "DEBUG" -Message $Path
       $Message | Out-File -FilePath $Path -Append -Force
     }
-    if ($PSBoundParameters.ContainsKey("ErrorCode")) {
-      Stop-Script -ErrorCode $ErrorCode
+    if ($PSBoundParameters.ContainsKey("ExitCode")) {
+      Stop-Script -ExitCode $ExitCode
     }
   }
 }

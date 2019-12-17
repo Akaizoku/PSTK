@@ -52,7 +52,7 @@ function Import-CSVProperties {
     # Check key parameter
     if ($PSBoundParameters.ContainsKey('Key')) {
       if ($Headers -NotContains $Key) {
-        Write-Log -Type "ERROR" -Object "$Key property was not found in $Path" -ErrorCode 1
+        Write-Log -Type "ERROR" -Object "$Key property was not found in $Path" -ExitCode 1
       }
     }
     # Loop through CSV rows

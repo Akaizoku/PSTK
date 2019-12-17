@@ -70,7 +70,7 @@ function Expand-CompressedFile {
         Write-Log -Type "DEBUG" -Object "Expand archive to $DestinationPath"
         Expand-Archive -Path $Path -DestinationPath $DestinationPath -Force:$Force
       } else {
-        Write-Log -Type "ERROR" -Object "Path not found $Path" -ErrorCode 1
+        Write-Log -Type "ERROR" -Object "Path not found $Path" -ExitCode 1
       }
     } else {
       # Else copy files "manually"

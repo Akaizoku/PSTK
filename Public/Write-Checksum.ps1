@@ -117,7 +117,7 @@ function Write-Checksum {
         }
       }
     } else {
-      Write-Log -Type "ERROR" -Object "Path not found: $Path" -ErrorCode 1
+      Write-Log -Type "ERROR" -Object "Path not found: $Path" -ExitCode 1
     }
   }
   Process {
