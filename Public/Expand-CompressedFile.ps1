@@ -67,7 +67,7 @@ function Expand-CompressedFile {
       # If PowerShell version greater than 5 then use more efficien Expand-Archive
       Write-Log -Type "DEBUG" -Message "Using native PowerShell v5.0 Expand-Archive function"
       if (Test-Path -Path $Path) {
-        Write-Log -Type "DEBUG" -Object "Expand archive to $DestinationPath"
+        Write-Log -Type "DEBUG" -Object "Expand archive to ""$DestinationPath"""
         Expand-Archive -Path $Path -DestinationPath $DestinationPath -Force:$Force
       } else {
         Write-Log -Type "ERROR" -Object "Path not found $Path" -ExitCode 1
