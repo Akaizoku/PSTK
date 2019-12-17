@@ -51,6 +51,10 @@ function Sync-EnvironmentVariable {
       Set-Item -Path "env:$Name" -Value (Get-EnvironmentVariable -Name $Name -Scope $Scope) -Force
       return $true
     } else {
+      # If environment variable no longer exists in the specifed scope then remove it (if it exists)
+      if ($env:$Name) {
+        Remove-Item -Path "env:$Name"
+      }
       return $false
     }
   }
