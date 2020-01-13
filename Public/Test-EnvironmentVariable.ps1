@@ -16,7 +16,7 @@ function Test-EnvironmentVariable {
     File name:      Test-EnvironmentVariable.ps1
     Author:         Florian Carrier
     Creation date:  22/01/2019
-    Last modified:  13/12/2019
+    Last modified:  17/12/2019
   #>
   [CmdletBinding (
     SupportsShouldProcess = $true
