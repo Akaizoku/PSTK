@@ -4,7 +4,7 @@ All notable changes to the [PSTK](https://github.com/Akaizoku/PSTK) project will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [1.2.2](https://github.com/Akaizoku/PSTK/releases/tag/1.2.2) - 2020-01-13
 
 ### Added
 The following functions have been added:
@@ -12,14 +12,19 @@ The following functions have been added:
 -   Get-URI
 -   Import-Function
 -   Protect-WindowsCmdValue
+-   Sync-EnvironmentVariable
+-   Test-HTTPStatus
 -   Wait-WebResource
 -   Write-Checksum
 -   Write-InsertOrUpdate
 
 ### Changed
 The following functions have been updated:
+-   Resolve-Boolean: Redesigned to be a generic utility
 -   Resolve-URI: Fixed an issue causing it to only resolve the last restricted character of the list
--   Stop-Script/Write-Log: Renamed error code parameter to exit code (aliases have been set for retro-compatibility)
+-   Stop-Script: Renamed error code parameter to exit code (aliases have been set for retro-compatibility)
+-   Write-Log: Renamed error code parameter to exit code (aliases have been set for retro-compatibility)
+-   Write-ErrorLog: Renamed error code parameter to exit code (aliases have been set for retro-compatibility)
 
 ## [1.2.1](https://github.com/Akaizoku/PSTK/releases/tag/1.2.1) - 2019-10-01
 

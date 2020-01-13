@@ -12,7 +12,7 @@
 RootModule = 'PSTK.psm1'
 
 # Version number of this module.s
-ModuleVersion = '1.2.3'
+ModuleVersion = '1.2.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@ Author = 'Florian Carrier'
 # CompanyName = 'Florian Carrier'
 
 # Copyright statement for this module
-Copyright = '(c) 2019 Florian Carrier. All rights reserved.'
+Copyright = '(c) 2019-2020 Florian Carrier. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'Collection of useful functions and procedures for PowerShell scripting'
@@ -160,8 +160,9 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-[1.2.3]
+[1.2.2]
 - Added new features
+- Redesign Resolve-Boolean
 - Fixed an issue with Resolve-URI causing it to only resolve the last restricted character of the list
 '@
 
