@@ -16,7 +16,7 @@ function Sync-EnvironmentVariable {
     File name:      Sync-EnvironmentVariable.ps1
     Author:         Florian Carrier
     Creation date:  13/12/2019
-    Last modified:  13/12/2019
+    Last modified:  17/12/2019
   #>
   [CmdletBinding (
     SupportsShouldProcess = $true
@@ -52,7 +52,7 @@ function Sync-EnvironmentVariable {
       return $true
     } else {
       # If environment variable no longer exists in the specifed scope then remove it (if it exists)
-      if (Get-Item -Path "env:$Name") {
+      if (Get-Item -Path "env:$Name" -ErrorAction "SilentlyContinue") {
         Remove-Item -Path "env:$Name"
       }
       return $false
