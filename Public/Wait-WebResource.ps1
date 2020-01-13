@@ -19,7 +19,7 @@ function Wait-WebResource {
     File name:     Wait-WebResource.ps1
     Author:        Florian Carrier
     Creation date: 21/10/2019
-    Last modified: 02/12/2019
+    Last modified: 20/12/2019
   #>
   Param(
     [Parameter (
@@ -59,11 +59,12 @@ function Wait-WebResource {
       Write-Log -Type "DEBUG" -Object "Waiting for $URI to be available"
     }
     $Timer.Stop()
-    return $true
     # Check state
     if (($Timer.Elapsed.TotalSeconds -gt $TimeOut) -And (-Not (Test-HTTPStatus -System $WebServer))) {
       # Timeout
       return $false
-    }
+    } else {
+       return $true
+     }
   }
 }
