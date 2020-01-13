@@ -1,39 +1,54 @@
 function Resolve-Boolean {
-  [CmdletBinding ()]
+  <#
+    .SYNOPSIS
+    Resolve boolean value
+
+    .DESCRIPTION
+    Parse value to return the corresponding boolean equivalent
+
+    .PARAMETER Value
+    The value parameter corresponds to the value to parse as boolean.
+
+    .INPUTS
+    System.String. You can pipe the value to Resolve-Boolean.
+
+    .OUTPUTS
+    Boolean. Resolve-Boolean returns a boolean value.
+
+    .NOTES
+    File name:      Resolve-Boolean.ps1
+    Author:         Florian Carrier
+    Creation date:  17/06/2019
+    Last modified:  13/01/2020
+    WARNING         If the specified value cannot be parsed as a boolean, Resolve-Boolean will write a warning to the host and return FALSE.
+  #>
+  [CmdletBinding (
+    SupportsShouldProcess = $true
+  )]
   Param (
     [Parameter (
       Position    = 1,
       Mandatory   = $true,
-      HelpMessage = "Boolean values"
-    )]
-    [String]
-    $Boolean,
-    [Parameter (
-      Position    = 2,
-      Mandatory   = $true,
-      HelpMessage = "Hashtable containing the values"
+      HelpMessage = "Boolean value to parse",
+      ValueFromPipeline               = $true,
+      ValueFromPipelineByPropertyName = $true
     )]
     [ValidateNotNullOrEmpty ()]
-    [System.Collections.Specialized.OrderedDictionary]
-    $Hashtable
+    [String]
+    $Value
   )
   Begin {
     # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
-    # Instantiate variables
-    $BooleanValues = Resolve-Array -Array $Boolean -Delimiter ","
   }
   Process {
-    # Loop through values
-    foreach ($BooleanValue in $BooleanValues) {
-      if (($Hashtable.$BooleanValue -eq $true) -Or ($Hashtable.$BooleanValue -eq 1)) {
-        $Hashtable.$BooleanValue = $true
-      } elseif (($Hashtable.$BooleanValue -eq $false) -Or ($Hashtable.$BooleanValue -eq 0)) {
-        $Hashtable.$BooleanValue = $false
-      } else {
-        Write-Log -Type "WARN" -Object "$($Hashtable.$BooleanValue) could not be parsed as a boolean"
-      }
+    if (($Value -eq $true) -Or ($Value -eq 1) -Or ($Value -eq "true")) {
+      return $true
+    } elseif (($Value -eq $false) -Or ($Value -eq 0) -Or ($Value -eq "false")) {
+      return $false
+    } else {
+      Write-Log -Type "WARN" -Object "$Value could not be parsed as a boolean"
+      return $false
     }
-    return $Hashtable
   }
 }
