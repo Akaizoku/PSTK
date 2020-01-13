@@ -1,5 +1,26 @@
 function Test-EnvironmentVariable {
-  [CmdletBinding()]
+  <#
+    .SYNOPSIS
+    Check environment variable
+
+    .DESCRIPTION
+    Retrieve the value of an environment variable in the specified scope
+
+    .PARAMETER Name
+    The name parameter corresponds to the name of the environment variable.
+
+    .PARAMETER Scope
+    The optional scope parameter corresponds to the scope in which the environment variable is defined.
+
+    .NOTES
+    File name:      Test-EnvironmentVariable.ps1
+    Author:         Florian Carrier
+    Creation date:  22/01/2019
+    Last modified:  17/12/2019
+  #>
+  [CmdletBinding (
+    SupportsShouldProcess = $true
+  )]
   Param (
     [Parameter (
       Position    = 1,
@@ -25,7 +46,7 @@ function Test-EnvironmentVariable {
   }
   Process {
     # Check if variable is defined
-    if (Get-EnvironmentVariable -Name $Name -Scope $Scope) {
+    if ([Environment]::GetEnvironmentVariable($Name, $Scope)) {
       return $true
     } else {
       return $false

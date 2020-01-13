@@ -127,12 +127,12 @@ function Get-Properties {
         if ($MissingProperties -ge 1) {
           if ($MissingProperties -eq 1) { $Grammar = "property is"    }
           else                          { $Grammar = "properties are" }
-          Write-Log -Type "ERROR" -Object "$MissingProperties $Grammar not defined" -ErrorCode 1
+          Write-Log -Type "ERROR" -Object "$MissingProperties $Grammar not defined" -ExitCode 1
         }
       }
       return $Properties
     } else {
-      Write-Log -Type "ERROR" -Object "$File not found in directory $Directory" -ErrorCode 1
+      Write-Log -Type "ERROR" -Object "$File not found in directory $Directory" -ExitCode 1
     }
   }
 }

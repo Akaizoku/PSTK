@@ -12,7 +12,7 @@
 RootModule = 'PSTK.psm1'
 
 # Version number of this module.s
-ModuleVersion = '1.2.1'
+ModuleVersion = '1.2.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -72,6 +72,7 @@ PowerShellVersion = '3.0'
 FunctionsToExport = @(
   "Compare-Hashtable",
   "Compare-Properties",
+  "Compare-Version",
   "Complete-RelativePath",
   "Confirm-Prompt",
   "Convert-FileEncoding",
@@ -88,10 +89,13 @@ FunctionsToExport = @(
   "Get-Object",
   "Get-Path",
   "Get-Properties",
+  "Get-URI",
   "Import-CSVProperties",
+  "Import-Function",
   "Import-Properties",
   "New-DynamicParameter",
   "Out-Hashtable",
+  "Protect-WindowsCmdValue",
   "Remove-EnvironmentVariable",
   "Remove-Object",
   "Rename-NumberedFile",
@@ -105,12 +109,17 @@ FunctionsToExport = @(
   "Set-Tags",
   "Start-Script",
   "Stop-Script",
+  "Sync-EnvironmentVariable",
   "Test-EnvironmentVariable",
+  "Test-HTTPStatus",
   "Test-Object",
   "Test-Service",
   "Test-SQLConnection",
   "Update-File",
+  "Wait-WebResource",
+  "Write-Checksum",
   "Write-ErrorLog",
+  "Write-InsertOrUpdate",
   "Write-Log"
 )
 
@@ -138,7 +147,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @()
+        Tags = @('PowerShell', 'PS', 'PoSh', 'Tool', 'Tool Kit', 'Utility')
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/Akaizoku/PSTK/blob/master/LICENSE'
@@ -151,22 +160,9 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-## 1.2.1
-Fixed an issue with empty properties not being overwritten as expected
-
-## 1.2.0
-Added support for global preferences
-Expanded existing functions
-Added new features
-
-## 1.1.0
-Updated folder structure
-Added about_help
-Restricted use of internal functions
-
-## 1.0.0
-First release of the PowerShell Tool Kit module.
-
+[1.2.3]
+- Added new features
+- Fixed an issue with Resolve-URI causing it to only resolve the last restricted character of the list
 '@
 
     } # End of PSData hashtable

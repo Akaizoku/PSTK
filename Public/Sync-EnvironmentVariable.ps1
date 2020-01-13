@@ -1,10 +1,10 @@
-function Get-EnvironmentVariable {
+function Sync-EnvironmentVariable {
   <#
     .SYNOPSIS
-    Get environment variable
+    Reload environment variable
 
     .DESCRIPTION
-    Retrieve the value of an environment variable in the specified scope
+    Force a reload of the session's environment variable
 
     .PARAMETER Name
     The name parameter corresponds to the name of the environment variable.
@@ -13,10 +13,10 @@ function Get-EnvironmentVariable {
     The optional scope parameter corresponds to the scope in which the environment variable is defined.
 
     .NOTES
-    File name:      Get-EnvironmentVariable.ps1
+    File name:      Sync-EnvironmentVariable.ps1
     Author:         Florian Carrier
-    Creation date:  22/01/2019
-    Last modified:  13/12/2019
+    Creation date:  13/12/2019
+    Last modified:  17/12/2019
   #>
   [CmdletBinding (
     SupportsShouldProcess = $true
@@ -45,12 +45,17 @@ function Get-EnvironmentVariable {
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
   }
   Process {
-    # Check if variable is defined
-    $Value = [Environment]::GetEnvironmentVariable($Name, $Scope)
-    if ($Value) {
-      Write-Log -Type "DEBUG" -Message "Scope=$Scope`t$Name=$Value"
+    # Check if environment variable exists in specified scope
+    if (Test-EnvironmentVariable -Name $Name -Scope $Scope) {
+      # Reload variable value in current session
+      Set-Item -Path "env:$Name" -Value (Get-EnvironmentVariable -Name $Name -Scope $Scope) -Force
+      return $true
+    } else {
+      # If environment variable no longer exists in the specifed scope then remove it (if it exists)
+      if (Get-Item -Path "env:$Name" -ErrorAction "SilentlyContinue") {
+        Remove-Item -Path "env:$Name"
+      }
+      return $false
     }
-    # If variable does not exists, the value will be null
-    return $Value
   }
 }
