@@ -21,13 +21,17 @@ function Write-Checksum {
     - SHA512  : Secure Hash Algorithm 2 (512)
     - MD5     : MD5 message-digest algorithm
 
-    .PARAMETER Filter
-    The filter parameter corresponds to the pattern to use to filter files if the path provided is a directory.
-    If not specified, by default all files will be selected.
-
     .PARAMETER OutputDirectory
     The output directory parameter corresponds to the directory in which to generate the file(s) containing the checksum value(s).
     If not specified, the default output location is the same as the file(s) analyses.
+
+    .PARAMETER Filter
+    The optional filter parameter corresponds to the pattern to use to filter files if the path provided is a directory.
+    If not specified, by default all files will be selected.
+
+    .PARAMETER Exclude
+    The optional exclude parameter corresponds to the pattern to use to exclude files if the path provided is a directory.
+    If not specified, by default all files will be selected.
 
     .EXAMPLE
     Write-Checksum -Path "C:\Files" -Algorithm "MD5" -Filter "*.zip"
@@ -80,19 +84,27 @@ function Write-Checksum {
     [Parameter (
       Position    = 3,
       Mandatory   = $false,
+      HelpMessage = "Directory in which to save generate checksum files"
+    )]
+    [ValidateNotNullOrEmpty ()]
+    [String]
+    $OutputDirectory,
+    [Parameter (
+      Position    = 4,
+      Mandatory   = $false,
       HelpMessage = "Filter to apply in case of directory"
     )]
     [ValidateNotNullOrEmpty ()]
     [String]
     $Filter = "*",
     [Parameter (
-      Position    = 4,
+      Position    = 5,
       Mandatory   = $false,
-      HelpMessage = "Directory in which to save generate checksum files"
+      HelpMessage = "Pattern for exclusion"
     )]
     [ValidateNotNullOrEmpty ()]
     [String]
-    $OutputDirectory
+    $Exclude = ""
   )
   Begin {
     # Get global preference vrariables
@@ -121,7 +133,7 @@ function Write-Checksum {
     }
   }
   Process {
-    $Files = Get-ChildItem -Path $Path -Filter $Filter
+    $Files = Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude
     foreach ($File in $Files) {
       # Get file hash
       $FileHash = Get-FileHash -Path $File.FullName -Algorithm $Algorithm
