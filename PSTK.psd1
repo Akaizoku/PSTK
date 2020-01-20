@@ -76,6 +76,7 @@ FunctionsToExport = @(
   "Complete-RelativePath",
   "Confirm-Prompt",
   "Convert-FileEncoding",
+  "ConvertTo-JavaProperty",
   "ConvertTo-NaturalSort",
   "ConvertTo-PDF",
   "Copy-OrderedHashtable",
