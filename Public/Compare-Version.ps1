@@ -22,7 +22,8 @@ function Compare-Version {
     File name:      Compare-Version.ps1
     Author:         Florian Carrier
     Creation date:  19/10/2019
-    Last modified:  19/10/2019
+    Last modified:  05/02/2020
+    WARNING         In case of modified formatting, Compare-Version only checks the semantic versionned part
   #>
   [CmdletBinding (
     SupportsShouldProcess = $true
@@ -80,13 +81,13 @@ function Compare-Version {
       "semantic" {
         # Prepare version numbers for comparison
         try {
-          $VersionNumber    = [System.Version]::Parse($Version)
+          $VersionNumber = [System.Version]::Parse($Version)
         } catch [FormatException] {
           Write-Log -Type "ERROR" -Object "The version number ""$Version"" does not match $Format numbering"
           return $false
         }
         try {
-          $ReferenceNumber    = [System.Version]::Parse($Reference)
+          $ReferenceNumber = [System.Version]::Parse($Reference)
         } catch [FormatException] {
           Write-Log -Type "ERROR" -Object "The version number ""$Reference"" does not match $Format numbering"
           return $false
@@ -101,36 +102,23 @@ function Compare-Version {
       }
       "modified" {
         if ($Operator -in ("eq", "ne")) {
-          # Build comparison command
-          $Command = """$Version"" -$Operator ""$Reference"""
-          Write-Log -Type "DEBUG" -Object $Command
-          # Execute comparison
-          $Result = Invoke-Expression -Command $Command
-          # Return comparison result
-          return $Result
+          # Compare strings as-is
+          $VersionNumber    = $Version
+          $ReferenceNumber  = $Reference
         } else {
           # Parse version numbers
-          $VersionNumbers   = $Version.Split(".")
-          $ReferenceNumbers = $Reference.Split(".")
-          # Check comparison operator
-          if ($Operator -in ("gt", "ge")) {
-            # TODO implement
-            # for ($i = 0; $i -lt $Count; $i++) {
-            #   if ($i -lt ($Count - 1)) {
-            #     $Command = """$($VersionNumbers[$i])"" -ge ""$($ReferenceNumbers[$i])"""
-            #   } else {
-            #     $Command = """$($VersionNumbers[$i])"" -Operator ""$($ReferenceNumbers[$i])"""
-            #   }
-            #   Write-Log -Type "DEBUG" -Object $Command
-            #   $Result = Invoke-Expression -Command $Command
-            #   if ($Result -eq $false) {
-            #     return $false
-            #   }
-            # }
-          } elseif ($Operator -in ("lt", "le")) {
-            # TODO implement
-          }
+          $SemanticVersion    = Select-String -InputObject $Version   -Pattern '(\d+.\d+\d+)(?=\D*)' | ForEach-Object { $_.Matches.Value }
+          $VersionNumber      = [System.Version]::Parse($SemanticVersion)
+          $SemanticReference  = Select-String -InputObject $Reference -Pattern '(\d+.\d+\d+)(?=\D*)' | ForEach-Object { $_.Matches.Value }
+          $ReferenceNumber    = [System.Version]::Parse($SemanticReference)
         }
+        # Build comparison command
+        $Command = """$VersionNumber"" -$Operator ""$ReferenceNumber"""
+        Write-Log -Type "DEBUG" -Object $Command
+        # Execute comparison
+        $Result = Invoke-Expression -Command $Command
+        # Return comparison result
+        return $Result
       }
       default {
         Write-Log -Type "ERROR" -Object "The $Format versionning format is not yet supported"
