@@ -12,7 +12,7 @@
 RootModule = 'PSTK.psm1'
 
 # Version number of this module.s
-ModuleVersion = '1.2.2'
+ModuleVersion = '1.2.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -94,6 +94,7 @@ FunctionsToExport = @(
   "Import-CSVProperties",
   "Import-Function",
   "Import-Properties",
+  "Invoke-OracleCmd",
   "New-DynamicParameter",
   "Out-Hashtable",
   "Protect-WindowsCmdValue",
@@ -114,6 +115,7 @@ FunctionsToExport = @(
   "Test-EnvironmentVariable",
   "Test-HTTPStatus",
   "Test-Object",
+  "Test-OracleConnection",
   "Test-Service",
   "Test-SQLConnection",
   "Update-File",
@@ -161,10 +163,8 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-[1.2.2]
-- Added new features
-- Redesign Resolve-Boolean
-- Fixed an issue with Resolve-URI causing it to only resolve the last restricted character of the list
+[1.2.3]
+- Added Oracle database utility functions
 '@
 
     } # End of PSData hashtable

@@ -22,7 +22,7 @@ function Compare-Version {
     File name:      Compare-Version.ps1
     Author:         Florian Carrier
     Creation date:  19/10/2019
-    Last modified:  05/02/2020
+    Last modified:  10/02/2020
     WARNING         In case of modified formatting, Compare-Version only checks the semantic versionned part
   #>
   [CmdletBinding (
@@ -107,10 +107,20 @@ function Compare-Version {
           $ReferenceNumber  = $Reference
         } else {
           # Parse version numbers
-          $SemanticVersion    = Select-String -InputObject $Version   -Pattern '(\d+.\d+\d+)(?=\D*)' | ForEach-Object { $_.Matches.Value }
-          $VersionNumber      = [System.Version]::Parse($SemanticVersion)
-          $SemanticReference  = Select-String -InputObject $Reference -Pattern '(\d+.\d+\d+)(?=\D*)' | ForEach-Object { $_.Matches.Value }
-          $ReferenceNumber    = [System.Version]::Parse($SemanticReference)
+          $SemanticVersion = Select-String -InputObject $Version -Pattern '(\d+.\d+.\d+)(?=\D*)' | ForEach-Object { $_.Matches.Value }
+          try {
+            $VersionNumber = [System.Version]::Parse($SemanticVersion)
+          } catch [FormatException] {
+            Write-Log -Type "ERROR" -Object "The version number ""$Version"" does not match semantic numbering"
+            return $false
+          }
+          $SemanticReference = Select-String -InputObject $Reference -Pattern '(\d+.\d+.\d+)(?=\D*)' | ForEach-Object { $_.Matches.Value }
+          try {
+            $ReferenceNumber = [System.Version]::Parse($SemanticReference)
+          } catch [FormatException] {
+            Write-Log -Type "ERROR" -Object "The version number ""$Reference"" does not match semantic numbering"
+            return $false
+          }
         }
         # Build comparison command
         $Command = """$VersionNumber"" -$Operator ""$ReferenceNumber"""
