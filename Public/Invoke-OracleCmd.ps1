@@ -162,7 +162,7 @@ function Invoke-OracleCmd {
     try {
       $Connection.Open()
     } catch {
-      Write-Log -Type "ERROR" -Object "Unable to reach database $($Hostname):$PortNumber/$Instance"
+      Write-Log -Type "ERROR" -Object "Unable to reach database $($Hostname):$PortNumber/$ServiceName"
       return $Error
     }
     # Create SQL command

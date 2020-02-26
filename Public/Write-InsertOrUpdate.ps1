@@ -44,7 +44,7 @@ function Write-InsertOrUpdate {
     File name:      Write-InsertOrUpdate.ps1
     Author:         Florian Carrier
     Creation date:  15/10/2019
-    Last modified:  10/02/2020
+    Last modified:  26/02/2020
   #>
   [CmdletBinding (
     SupportsShouldProcess = $true
@@ -111,6 +111,36 @@ function Write-InsertOrUpdate {
   Process {
     switch ($Vendor) {
       "Oracle" {
+        # Define existence check
+        foreach($Key in $PrimaryKey) {
+          if ($PrimaryKeyCheck -eq $null) { $PrimaryKeyCheck  = "$Key = $($Fields.$Key)" }
+          else                            { $PrimaryKeyCheck += " AND $Key = $($Fields.$Key)"   }
+        }
+        $Check = [System.String]::Concat("MERGE INTO $Table USING dual ON (", $PrimaryKeyCheck, ")")
+
+        # Loop through fields
+        foreach ($Field in $Fields.GetEnumerator()) {
+          # Select update values
+          if ($Field.Key -NotIn $PrimaryKey) {
+            if ($UpdateValues -eq $null)  { $UpdateValues  = "$($Field.Key) = $($Field.Value)"    }
+            else                          { $UpdateValues += ", $($Field.Key) = $($Field.Value)"  }
+          }
+          # Set insert fields
+          if ($InsertFields -eq $null)  { $InsertFields  = "$($Field.Key)"                        }
+          else                          { $InsertFields += ", $($Field.Key)"                      }
+          # Set insert values
+          if ($InsertValues -eq $null)  { $InsertValues  = "$($Field.Value)"                      }
+          else                          { $InsertValues += ", $($Field.Value)"                    }
+        }
+
+        # Construct update query
+        $Update = [System.String]::Concat("WHEN MATCHED THEN UPDATE SET ", $UpdateValues)
+        # Construct insert query
+        $Insert = [System.String]::Concat("WHEN NOT MATCHED THEN INSERT (", $InsertFields, ") VALUES (", $InsertValues, ")")
+
+        # Construct whole SQL query
+        $Query =  [System.String]::Concat($Check, "`n", $Update, "`n", $Insert)
+
         # TODO
       }
       "SQLServer" {
