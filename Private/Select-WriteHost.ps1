@@ -51,8 +51,8 @@ function Select-WriteHost {
     .NOTES
     File name:      Select-WriteHost.ps1
     Author:         Florian Carrier
-    Creation date:  16/10/2018
-    Last modified:  16/10/2018
+    Creation date:  2018-10-16
+    Last modified:  2018-10-16
     Credit:         @LincolnAtkinson
 
     .LINK

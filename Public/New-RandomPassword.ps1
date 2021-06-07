@@ -33,8 +33,8 @@ function New-RandomPassword {
         .NOTES
         File name:      New-RandomPassword.ps1
         Author:         Florian Carrier
-        Creation date:  05/06/2021
-        Last modified:  05/06/2021
+        Creation date:  2021-06-05
+        Last modified:  2021-06-05
 
         .LINK
         https://www.powershellgallery.com/packages/PSTK

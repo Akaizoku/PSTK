@@ -33,8 +33,8 @@ function Find-Key {
     .NOTES
     File name:      Find-Key.ps1
     Author:         Florian Carrier
-    Creation date:  08/12/2018
-    Last modified:  08/12/2018
+    Creation date:  2018-12-08
+    Last modified:  2018-12-08
   #>
   [CmdletBinding ()]
   Param (

@@ -12,8 +12,8 @@ function Update-File {
     .NOTES
     File name:      Update-File.ps1
     Author:         Florian Carrier
-    Creation date:  08/12/2018
-    Last modified:  14/06/2018
+    Creation date:  2018-12-08
+    Last modified:  2018-06-14
   #>
   [CmdletBinding ()]
   Param (

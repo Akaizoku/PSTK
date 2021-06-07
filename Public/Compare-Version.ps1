@@ -21,8 +21,8 @@ function Compare-Version {
     .NOTES
     File name:      Compare-Version.ps1
     Author:         Florian Carrier
-    Creation date:  19/10/2019
-    Last modified:  10/02/2020
+    Creation date:  2019-10-19
+    Last modified:  2020-02-10
     WARNING         In case of modified formatting, Compare-Version only checks the semantic versionned part
   #>
   [CmdletBinding (

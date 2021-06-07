@@ -9,8 +9,8 @@ function Get-Path {
     .NOTES
     File name:      Get-Path.ps1
     Author:         Florian Carrier
-    Creation date:  27/11/2018
-    Last modified:  12/12/2019
+    Creation date:  2018-11-27
+    Last modified:  2019-12-12
   #>
   [CmdletBinding ()]
   Param (

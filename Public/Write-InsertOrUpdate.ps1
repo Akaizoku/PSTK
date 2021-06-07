@@ -43,8 +43,8 @@ function Write-InsertOrUpdate {
     .NOTES
     File name:      Write-InsertOrUpdate.ps1
     Author:         Florian Carrier
-    Creation date:  15/10/2019
-    Last modified:  26/02/2020
+    Creation date:  2019-10-15
+    Last modified:  2020-02-26
   #>
   [CmdletBinding (
     SupportsShouldProcess = $true

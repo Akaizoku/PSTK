@@ -21,8 +21,8 @@ function ConvertTo-JavaProperty {
     .NOTES
     File name:      ConvertTo-JavaProperty.ps1
     Author:         Florian Carrier
-    Creation date:  15/10/2019
-    Last modified:  16/01/2020
+    Creation date:  2019-10-15
+    Last modified:  2020-01-16
   #>
   [CmdletBinding ()]
   Param(

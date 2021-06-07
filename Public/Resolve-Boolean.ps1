@@ -18,8 +18,8 @@ function Resolve-Boolean {
     .NOTES
     File name:      Resolve-Boolean.ps1
     Author:         Florian Carrier
-    Creation date:  17/06/2019
-    Last modified:  13/01/2020
+    Creation date:  2019-06-17
+    Last modified:  2020-01-13
     WARNING         If the specified value cannot be parsed as a boolean, Resolve-Boolean will write a warning to the host and return FALSE.
   #>
   [CmdletBinding (

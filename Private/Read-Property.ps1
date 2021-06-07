@@ -28,8 +28,8 @@ function Read-Property {
     .NOTES
     File name:      Read-Property.ps1
     Author:         Florian Carrier
-    Creation date:  15/10/2018
-    Last modified:  17/06/2019
+    Creation date:  2018-10-15
+    Last modified:  2019-06-17
   #>
   [CmdletBinding ()]
   Param (

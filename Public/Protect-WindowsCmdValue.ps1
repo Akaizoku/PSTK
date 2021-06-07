@@ -15,8 +15,8 @@ function Protect-WindowsCmdValue {
     .NOTES
     File name:      Protect-WindowsCmdValue.ps1
     Author:         Florian CARRIER
-    Creation date:  29/11/2019
-    Last modified:  30/11/2019
+    Creation date:  2019-11-29
+    Last modified:  2019-11-30
 
     .LINK
     https://ss64.com/nt/syntax-esc.html

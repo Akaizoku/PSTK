@@ -52,8 +52,8 @@ function Test-SQLConnection {
     .NOTES
     File name:      Test-SQLConnection.ps1
     Author:         Florian Carrier
-    Creation date:  15/10/2018
-    Last modified:  15/01/2020
+    Creation date:  2018-10-15
+    Last modified:  2020-01-15
     Dependencies:   Test-SQLConnection requires the SQLServer module
 
     .LINK

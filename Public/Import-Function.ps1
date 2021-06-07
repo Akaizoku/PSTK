@@ -12,8 +12,8 @@ function Import-Function {
     .NOTES
     File name:      Import-Function.ps1
     Author:         Florian Carrier
-    Creation date:  15/10/2019
-    Last modified:  15/10/2019
+    Creation date:  2019-10-15
+    Last modified:  2019-10-15
     Warning:        /!\ Does not propagate functions to parent script as expected
   #>
   [CmdletBinding (

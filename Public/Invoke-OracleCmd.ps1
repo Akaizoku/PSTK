@@ -9,8 +9,8 @@ function Invoke-OracleCmd {
     .NOTES
     File name:      Invoke-OracleCmd.ps1
     Author:         Florian Carrier
-    Creation date:  04/02/2020
-    Last modified:  06/02/2020
+    Creation date:  2020-02-04
+    Last modified:  2020-02-06
     Dependencies:   Invoke-OracleCmd requires Oracle Data Provider for .NET
 
     .LINK

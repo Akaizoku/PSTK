@@ -10,8 +10,8 @@
   .NOTES
   File name:      PSTK.psm1
   Author:         Florian Carrier
-  Creation date:  23/08/2018
-  Last modified:  11/10/2019
+  Creation date:  2018-08-23
+  Last modified:  2019-10-11
   Repository:     https://github.com/Akaizoku/PSTK
   Dependencies:   Test-SQLConnection requires the SQLServer module
 

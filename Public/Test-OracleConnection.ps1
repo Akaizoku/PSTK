@@ -36,8 +36,8 @@ function Test-OracleConnection {
     .NOTES
     File name:      Test-OracleConnection.ps1
     Author:         Florian Carrier
-    Creation date:  03/02/2020
-    Last modified:  04/02/2020
+    Creation date:  2020-02-03
+    Last modified:  2020-02-04
     Dependencies:   Test-OracleConnection requires Oracle Data Provider for .NET
 
     .LINK

@@ -96,8 +96,8 @@ function Write-Log {
     .NOTES
     File name:      Write-Log.ps1
     Author:         Florian Carrier
-    Creation date:  15/10/2018
-    Last modified:  17/12/2019
+    Creation date:  2018-10-15
+    Last modified:  2019-12-17
     TODO            Add locale variable
 
     .LINK

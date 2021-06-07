@@ -51,7 +51,7 @@ function Write-Checksum {
     .NOTES
     File name:      Write-Checksum.ps1
     Author:         Florian Carrier
-    Creation date:  11/10/2019
+    Creation date:  2019-10-11
     TODO            Add Exclude filter
 
     .LINK

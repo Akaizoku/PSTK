@@ -17,8 +17,8 @@ function Resolve-URI {
 
     File name:      Resolve-URI.ps1
     Author:         Florian Carrier
-    Creation date:  12/12/2018
-    Last modified:  16/01/2020
+    Creation date:  2018-12-12
+    Last modified:  2020-01-16
 
     .LINK
     https://en.wikipedia.org/wiki/Uniform_Resource_Identifier

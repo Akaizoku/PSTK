@@ -42,7 +42,7 @@ function Get-CallerPreference
 
     .NOTES
     Author:   David Wyatt
-    Updated:  02/07/2014
+    Updated:  2014-07-02
     License:  MICROSOFT LIMITED PUBLIC LICENSE
     Link:     https://gallery.technet.microsoft.com/scriptcenter/Inherit-Preference-82343b9d
     #>

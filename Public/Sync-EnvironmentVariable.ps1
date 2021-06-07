@@ -15,8 +15,8 @@ function Sync-EnvironmentVariable {
     .NOTES
     File name:      Sync-EnvironmentVariable.ps1
     Author:         Florian Carrier
-    Creation date:  13/12/2019
-    Last modified:  17/12/2019
+    Creation date:  2019-12-13
+    Last modified:  2019-12-17
   #>
   [CmdletBinding (
     SupportsShouldProcess = $true
