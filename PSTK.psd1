@@ -96,6 +96,7 @@ FunctionsToExport = @(
   "Import-Properties",
   "Invoke-OracleCmd",
   "New-DynamicParameter",
+  "New-RandomPassword",
   "Out-Hashtable",
   "Protect-WindowsCmdValue",
   "Remove-EnvironmentVariable",
