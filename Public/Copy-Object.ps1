@@ -22,7 +22,7 @@ function Copy-Object {
     File name:      Copy-Object.ps1
     Author:         Florian Carrier
     Creation date:  2021-07-06
-    Last modified:  2021-07-07
+    Last modified:  2021-07-08
   #>
   [CmdletBinding (
     SupportsShouldProcess = $true
@@ -61,36 +61,48 @@ function Copy-Object {
     [System.String[]]
     $Exclude = $null,
     [Parameter (
-      HelpMessage = "Move content only to target location"
+      HelpMessage = "Switch to force copy"
     )]
     [Switch]
-    $ContentOnly
+    $Force
   )
   Begin {
     # Get global preference vrariables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     # Check path
-    $Path = Resolve-Path -Path $Path
-    if (Test-Object -Path $Path -NotFound) {
-      Write-Log -Type "ERROR" -Message "Path not found $Path" -ErrorCode 1
+    if (Select-String -InputObject $Path -Pattern ".+\\\*") {
+      Write-Log -Type "DEBUG" -Message $Path
+      Write-Log -Type "ERROR" -Message "Please provide a path to a single directory or file" -ErrorCode 1
     }
-    # Destination
-    if ($ContentOnly -eq $false) {
-      $Content = "$Path\*"
-      $Destination = Join-Path -Path $Destination -ChildPath (Split-Path -Path $Path -Leaf)
-    }
-    Write-Log -Type "DEBUG" -Message $Content
-    Write-Log -Type "DEBUG" -Message $Destination
   }
   Process {
     if ($PSCmdlet.ShouldProcess($Path, "Copy")) {
-      # Ensure destination exists to prevent error "Copy-Item : Container cannot be copied onto existing leaf item."
-      # https://groups.google.com/g/microsoft.public.windows.powershell/c/rpuLRCTCryI/m/Ap-kKFY2CWcJ
-      if (Test-Object -Path $Destination -NotFound) {
-        New-Item -Path $Destination -ItemType "Directory"
+      # Check target type
+      $Target = Get-Object -Path $Path
+      if ($Target -is [System.IO.DirectoryInfo]) {
+        # If target is a directory
+        $Destination = Join-Path -Path $Destination -ChildPath (Split-Path -Path $Path -Leaf)
+        if (Test-Object -Path $Destination -NotFound) {
+          # Ensure destination exists to prevent error "Copy-Item : Container cannot be copied onto existing leaf item."
+          Write-Log -Type "DEBUG" -Message "Create destination directory $Destination"
+          New-Item -Path $Destination -ItemType "Directory"
+        } else {
+          if ($Force -eq $true) {
+            Write-Log -Type "DEBUG" -Message "Destination already exists - files will be overwritten"
+          } else {
+            Write-Log -Type "ERROR" -Message "Destination path already exists $Destination"
+            Write-Log -Type "WARN"  -Message "Use the -Force switch to overwrite"
+            Stop-Script -ExitCode 1
+          }
+        }
+        # Copy directory content
+        Write-Log -Type "DEBUG" -Message "Copy directory and content $Path to $Destination"
+        Copy-Item -Path "$Path\*" -Destination $Destination -Filter $Filter -Exclude $Exclude -Recurse -Force:$Force
+      } elseif ($Target -is [System.IO.FileInfo]) {
+        # If target is a single file
+        Write-Log -Type "DEBUG" -Message "Copy file $Path to $Destination"
+        Copy-Item -Path $Path -Destination $Destination -Container -Force:$Force
       }
-      # Copy directory content
-      Copy-Item -Path $Content -Destination $Destination -Filter $Filter -Exclude $Exclude -Container -Recurse -Force
     }
   }
 }
