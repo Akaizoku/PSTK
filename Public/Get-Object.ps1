@@ -111,7 +111,12 @@ function Get-Object {
     [Switch]
     $Recurse,
     [Parameter (
-      HelpMessage = "Silent execution"
+      HelpMessage = "Retrieve child items"
+    )]
+    [Switch]
+    $ChildItem,
+    [Parameter (
+      HelpMessage = "Suppresses console hints"
     )]
     [Switch]
     $Silent,
@@ -136,45 +141,50 @@ function Get-Object {
     }
   }
   Process {
-    $Objects = New-Object -TypeName "System.Collections.ArrayList"
-    # Check PowerShell version to prevent issue https://github.com/PowerShell/PowerShell/issues/6865
-    $PSVersion = $PSVersionTable.PSVersion | Select-Object -ExpandProperty "Major"
-    if ($PSVersion -lt 6) {
-      switch ($Type) {
-        "File"    { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Recurse:$Recurse -File)       }
-        "Folder"  { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Recurse:$Recurse -Directory)  }
-        default   { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Recurse:$Recurse)             }
-      }
-      # Workaround to exclude items
-      if ($null -ne $Exclude) {
-        $Objects = $Objects | Where-Object -Property "Name" -NotMatch -Value ((ConvertTo-RegularExpression -String $Exclude) -join "|")
-      }
-    } else {
-      switch ($Type) {
-        "File"    { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -Recurse:$Recurse -File)       }
-        "Folder"  { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -Recurse:$Recurse -Directory)  }
-        default   { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -Recurse:$Recurse)             }
-      }
-    }
-    # Check results
-    if ($Objects.Count -eq 0) {
-      if ($Silent -eq $false) {
-        # Print hints
-        if ($Filter -ne "*") {
-          Write-Log -Type "ERROR" -Message "No $($ObjectType.$Type) were found in $Path matching the filter ""$Filter""."
-        } elseif ($Exclude) {
-          Write-Log -Type "ERROR" -Message "No $($ObjectType.$Type) corresponding to the criterias were found in $Path."
-        } else {
-          Write-Log -Type "ERROR" -Message "No $($ObjectType.$Type) were found in $Path."
+    if ($ChildItem -eq $true) {
+      $Objects = New-Object -TypeName "System.Collections.ArrayList"
+      # Check PowerShell version to prevent issue https://github.com/PowerShell/PowerShell/issues/6865
+      $PSVersion = $PSVersionTable.PSVersion | Select-Object -ExpandProperty "Major"
+      if ($PSVersion -lt 6) {
+        switch ($Type) {
+          "File"    { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Recurse:$Recurse -File)       }
+          "Folder"  { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Recurse:$Recurse -Directory)  }
+          default   { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Recurse:$Recurse)             }
+        }
+        # Workaround to exclude items
+        if ($null -ne $Exclude) {
+          $Objects = $Objects | Where-Object -Property "Name" -NotMatch -Value ((ConvertTo-RegularExpression -String $Exclude) -join "|")
+        }
+      } else {
+        switch ($Type) {
+          "File"    { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -Recurse:$Recurse -File)       }
+          "Folder"  { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -Recurse:$Recurse -Directory)  }
+          default   { $Objects = @(Get-ChildItem -Path $Path -Filter $Filter -Exclude $Exclude -Recurse:$Recurse)             }
         }
       }
-      if ($PSBoundParameters.ContainsKey("StopScript")) {
-        Stop-Script -ExitCode 1
+      # Check results
+      if ($Objects.Count -eq 0) {
+        if ($Silent -eq $false) {
+          # Print hints
+          if ($Filter -ne "*") {
+            Write-Log -Type "ERROR" -Message "No $($ObjectType.$Type) were found in $Path matching the filter ""$Filter""."
+          } elseif ($Exclude) {
+            Write-Log -Type "ERROR" -Message "No $($ObjectType.$Type) corresponding to the criterias were found in $Path."
+          } else {
+            Write-Log -Type "ERROR" -Message "No $($ObjectType.$Type) were found in $Path."
+          }
+        }
+        if ($PSBoundParameters.ContainsKey("StopScript")) {
+          Stop-Script -ExitCode 1
+        } else {
+          return $null
+        }
       } else {
-        return $null
+        return $Objects
       }
     } else {
-      return $Objects
+      # Return item
+      Get-Item -Path $Path
     }
   }
 }
