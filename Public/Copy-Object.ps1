@@ -85,11 +85,9 @@ function Copy-Object {
         if (Test-Object -Path $Destination -NotFound) {
           # Ensure destination exists to prevent error "Copy-Item : Container cannot be copied onto existing leaf item."
           Write-Log -Type "DEBUG" -Message "Create destination directory $Destination"
-          New-Item -Path $Destination -ItemType "Directory"
+          New-Item -Path $Destination -ItemType "Directory" | Out-Null
         } else {
-          if ($Force -eq $true) {
-            Write-Log -Type "DEBUG" -Message "Destination already exists - files will be overwritten"
-          } else {
+          if ($Force -eq $false) {
             Write-Log -Type "ERROR" -Message "Destination path already exists $Destination"
             Write-Log -Type "WARN"  -Message "Use the -Force switch to overwrite"
             Stop-Script -ExitCode 1
