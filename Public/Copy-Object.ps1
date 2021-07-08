@@ -84,21 +84,21 @@ function Copy-Object {
         $Destination = Join-Path -Path $Destination -ChildPath (Split-Path -Path $Path -Leaf)
         if (Test-Object -Path $Destination -NotFound) {
           # Ensure destination exists to prevent error "Copy-Item : Container cannot be copied onto existing leaf item."
-          Write-Log -Type "DEBUG" -Message "Create destination directory $Destination"
+          Write-Log -Type "DEBUG" -Message "Create destination directory ""$Destination"""
           New-Item -Path $Destination -ItemType "Directory" | Out-Null
         } else {
           if ($Force -eq $false) {
-            Write-Log -Type "ERROR" -Message "Destination path already exists $Destination"
+            Write-Log -Type "ERROR" -Message "Destination path already exists ""$Destination"""
             Write-Log -Type "WARN"  -Message "Use the -Force switch to overwrite"
             Stop-Script -ExitCode 1
           }
         }
         # Copy directory content
-        Write-Log -Type "DEBUG" -Message "Copy directory and content $Path to $Destination"
+        Write-Log -Type "DEBUG" -Message "Copy directory and content ""$Path"" to ""$Destination"""
         Copy-Item -Path "$Path\*" -Destination $Destination -Filter $Filter -Exclude $Exclude -Recurse -Force:$Force
       } elseif ($Target -is [System.IO.FileInfo]) {
         # If target is a single file
-        Write-Log -Type "DEBUG" -Message "Copy file $Path to $Destination"
+        Write-Log -Type "DEBUG" -Message "Copy file ""$Path"" to ""$Destination"""
         Copy-Item -Path $Path -Destination $Destination -Container -Force:$Force
       }
     }

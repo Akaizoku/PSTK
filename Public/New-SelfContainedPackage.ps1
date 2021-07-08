@@ -80,11 +80,11 @@ function New-SelfContainedPackage {
         }
     }
     Process {
-        Write-Log -Type "CHECK" -Message "Creating self-contained $PackageName package"
+        Write-Log -Type "CHECK" -Message "Creating self-contained ""$PackageName"" package"
         # Stage package
         if (Test-Path -Path $PackagePath) {
             if (Test-Path -Path $StagingPath) {
-                Write-Log -Type "WARN" -Message "Removing existing staging directory $StagingPath"
+                Write-Log -Type "WARN" -Message "Removing existing staging directory ""$StagingPath"""
                 Remove-Object -Path $StagingPath
             }
             Copy-Object -Path $PackagePath -Destination $Destination -Exclude $Ignore -Force
@@ -94,7 +94,7 @@ function New-SelfContainedPackage {
         # # List all required modules
         foreach ($Module in $Modules) {
             $ModuleDirectory = Join-Path -Path $StagingPath -ChildPath "lib"
-            Write-Log -Type "INFO" -Message "Retrieving module $Module"
+            Write-Log -Type "INFO" -Message "Retrieving module ""$Module"""
             $Load = $false
             :loop foreach ($Repository in ($env:PSModulePath -split ";")) {
                 Write-Log -Type "DEBUG" -Message $Repository
@@ -125,8 +125,8 @@ function New-SelfContainedPackage {
         # Delete staging package
         Write-Log -Type "INFO"  -Message "Deleting staged package folder"
         Write-Log -Type "DEBUG" -Message $StagingPath
-        # Remove-Object -Path $StagingPath
+        Remove-Object -Path $StagingPath
         # # End
-        Write-Log -Type "CHECK" -Message "$PackageName self-contained package complete"
+        Write-Log -Type "CHECK" -Message """$PackageName"" self-contained package complete"
     }
 }
