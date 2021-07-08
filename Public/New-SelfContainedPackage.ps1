@@ -75,7 +75,9 @@ function New-SelfContainedPackage {
             }
         } else {
             $Destination        = Split-Path -Path $PackagePath -Parent
-            $StagingPath        = Join-Path -Path $Destination -ChildPath $PackageName
+            $ISOTimeStamp       = Get-Date -Format "yyyyMMdd_HHmmss"
+            $UniquePackageName  = [System.String]::Concat($PackageName, "_", $ISOTimeStamp)
+            $StagingPath        = Join-Path -Path $Destination -ChildPath $UniquePackageName
             $CompressedPackage  = [System.String]::Concat($PackagePath, ".zip")
         }
     }
