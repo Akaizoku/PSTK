@@ -13,7 +13,7 @@ function New-SelfContainedPackage {
         File name:      New-SelfContainedPackage.ps1
         Author:         Florian Carrier
         Creation date:  2021-07-06
-        Last modified:  2021-07-06
+        Last modified:  2021-07-08
     #>
     [CmdletBinding (
         SupportsShouldProcess = $true
@@ -25,9 +25,9 @@ function New-SelfContainedPackage {
             HelpMessage = "Path to the package to bundle"
         )]
         [ValidateNotNullOrEmpty ()]
-        [Alias ("Path")]
+        [Alias ("Package")]
         [System.String]
-        $Package,
+        $Path,
         [Parameter (
             Position    = 2,
             Mandatory   = $false,
@@ -57,8 +57,8 @@ function New-SelfContainedPackage {
         # Get global preference vrariables
         Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
         # Variables
-        $PackageName = Split-Path -Path $Package -Leaf
-        $PackagePath = Resolve-Path -Path $Package
+        $PackageName = Split-Path   -Path $Path -Leaf
+        $PackagePath = Resolve-Path -Path $Path
         if ($PSBoundParameters.ContainsKey('Destination')) {
             if (Test-Path -Path $Destination -PathType "Leaf") {
                 $Extension = [System.IO.Path]::GetExtension($Destination)
