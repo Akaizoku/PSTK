@@ -57,9 +57,8 @@ function New-SelfContainedPackage {
         # Get global preference vrariables
         Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
         # Variables
-        $Properties = New-Object -TypeName "System.Collections.Specialized.OrderedDictionary"
-        $Properties.PackageName = Split-Path -Path $Package -Leaf
-        $Properties.PackagePath = Resolve-Path -Path $Package
+        $PackageName = Split-Path -Path $Package -Leaf
+        $PackagePath = Resolve-Path -Path $Package
         if ($PSBoundParameters.ContainsKey('Destination')) {
             if (Test-Path -Path $Destination -PathType "Leaf") {
                 $Extension = [System.IO.Path]::GetExtension($Destination)
@@ -67,36 +66,34 @@ function New-SelfContainedPackage {
                     Write-Log -Type "WARN" -Message "$Extension is not a supported archive file format. .zip is the only supported archive file format."
                     $Destination = $Destination.Replace($Extension, ".zip")
                 }
-                $Properties.StagingPath        = Join-Path -Path (Split-Path -Path $Destination -Parent) -ChildPath $Properties.PackageName
-                $Properties.CompressedPackage  = $Destination
+                $CompressedPackage  = $Destination
+                $Destination        = Split-Path -Path $Destination -Parent
+                $StagingPath        = Join-Path -Path $Destination  -ChildPath $PackageName
             } else {
-                $Properties.StagingPath        = Join-Path -Path $Destination -ChildPath $Properties.PackageName
-                $Properties.CompressedPackage  = [System.String]::Concat($Properties.StagingPath, ".zip")
+                $StagingPath        = Join-Path -Path $Destination -ChildPath $PackageName
+                $CompressedPackage  = [System.String]::Concat($StagingPath, ".zip")
             }
         } else {
-            $Properties.StagingPath        = Join-Path -Path (Split-Path -Path $Properties.PackagePath -Parent) -ChildPath $Properties.PackageName
-            $Properties.CompressedPackage  = [System.String]::Concat($Properties.PackagePath, ".zip")
-        }
-        # Debug
-        foreach ($Property in $Properties.GetEnumerator()) {
-            Write-Log -Type "DEBUG" -Message "$($Property.Name)=$($Property.Value)"
+            $Destination        = Split-Path -Path $PackagePath -Parent
+            $StagingPath        = Join-Path -Path $Destination -ChildPath $PackageName
+            $CompressedPackage  = [System.String]::Concat($PackagePath, ".zip")
         }
     }
     Process {
-        Write-Log -Type "CHECK" -Message "Creating self-contained $($Properties.PackageName) package"
+        Write-Log -Type "CHECK" -Message "Creating self-contained $PackageName package"
         # Stage package
-        if (Test-Path -Path $Properties.PackagePath) {
-            if (Test-Path -Path $Properties.StagingPath) {
-                Write-Log -Type "WARN" -Message "Overwriting existing package folder"
-                Remove-Object -Path $Properties.StagingPath
+        if (Test-Path -Path $PackagePath) {
+            if (Test-Path -Path $StagingPath) {
+                Write-Log -Type "WARN" -Message "Removing existing staging directory $StagingPath"
+                Remove-Object -Path $StagingPath
             }
-            Copy-Item -Path "$($Properties.PackagePath)\*" -Destination $Properties.StagingPath -Recurse
-            Write-Log -Type "DEBUG" -Message $Properties.StagingPath
+            Copy-Object -Path $PackagePath -Destination $Destination -Exclude $Ignore -Force
         } else {
-            Write-Log -Type "ERROR" -Message "Path not found $Properties.PackagePath" -ErrorCode 1
+            Write-Log -Type "ERROR" -Message "Path not found $PackagePath" -ErrorCode 1
         }
-        # List all required modules
+        # # List all required modules
         foreach ($Module in $Modules) {
+            $ModuleDirectory = Join-Path -Path $StagingPath -ChildPath "lib"
             Write-Log -Type "INFO" -Message "Retrieving module $Module"
             $Load = $false
             :loop foreach ($Repository in ($env:PSModulePath -split ";")) {
@@ -104,9 +101,7 @@ function New-SelfContainedPackage {
                 $ModulePath = Join-Path -Path $Repository -ChildPath $Module
                 Write-Log -Type "DEBUG" -Message $ModulePath
                 if (Test-Path -Path $ModulePath) {
-                    $ModuleDirectory = Join-Path -Path $Properties.StagingPath -ChildPath "lib\$Module"
-                    Copy-Item -Path $ModulePath -Destination $ModuleDirectory -Recurse -Exclude $Ignore
-                    Get-Object -Path $ModuleDirectory
+                    Copy-Object -Path $ModulePath -Destination $ModuleDirectory -Exclude $Ignore -Force
                     $Load = $true
                     break loop
                 }
@@ -116,29 +111,22 @@ function New-SelfContainedPackage {
             }
         }
         # # Compress package
-        # if (Test-Path -Path $Properties.StagingPath) {
-        #     # Remove unwanted files
-        #     if ($PSBoundParameters.ContainsKey('Ignore')) {
-        #         Write-Log -Type "INFO" -Message "Removing unwanted files"
-        #         foreach ($Filter in $Ignore) {
-        #             Remove-Object -Path $Properties.StagingPath -Filter $Filter
-        #         }
-        #     }
-        #     Write-Log -Type "INFO" -Message "Compressing package"
-        #     Write-Log -Type "DEBUG" -Message $Properties.CompressedPackage
-        #     if (Test-Path -Path $Properties.CompressedPackage) {
-        #         Write-Log -Type "WARN" -Message "Overwriting existing package"
-        #     }
-        #     Compress-Archive -Path "$Properties.StagingPath\*" -DestinationPath $Properties.CompressedPackage -CompressionLevel "Fastest" -Force
-        # } else {
-        #     Write-Log -Type "ERROR" -Message "Path not found $Properties.StagingPath"
-        #     Write-Log -Type "ERROR" -Message "Script packaging failed" -ErrorCode 1
-        # }
-        # # Delete staging package
-        # Write-Log -Type "INFO"  -Message "Deleting staged package folder"
-        # Write-Log -Type "DEBUG" -Message $Properties.StagingPath
-        # # Remove-Object -Path $Properties.StagingPath
+        if (Test-Path -Path $StagingPath) {
+            Write-Log -Type "INFO" -Message "Compressing package"
+            Write-Log -Type "DEBUG" -Message $CompressedPackage
+            if (Test-Path -Path $CompressedPackage) {
+                Write-Log -Type "WARN" -Message "Overwriting existing package"
+            }
+            Compress-Archive -Path "$StagingPath\*" -DestinationPath $CompressedPackage -CompressionLevel "Fastest" -Force
+        } else {
+            Write-Log -Type "ERROR" -Message "Path not found $StagingPath"
+            Write-Log -Type "ERROR" -Message "Script packaging failed" -ErrorCode 1
+        }
+        # Delete staging package
+        Write-Log -Type "INFO"  -Message "Deleting staged package folder"
+        Write-Log -Type "DEBUG" -Message $StagingPath
+        # Remove-Object -Path $StagingPath
         # # End
-        # Write-Log -Type "CHECK" -Message "$($Properties.PackageName) self-contained package complete"
+        Write-Log -Type "CHECK" -Message "$PackageName self-contained package complete"
     }
 }
