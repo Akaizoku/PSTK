@@ -11,6 +11,7 @@ function Copy-Object {
 
     .PARAMETER Destination
     The destination parameter corresponds to the target copy location.
+    /!\ This path must be a directory.
 
     .PARAMETER Filter
     The filter parameter corresponds to the filter to apply to the name of objects to copy.
@@ -42,6 +43,7 @@ function Copy-Object {
       HelpMessage = "Target location"
     )]
     [ValidateNotNullOrEmpty ()]
+    [Alias ("Target")]
     [System.String]
     $Destination,
     [Parameter (
@@ -99,6 +101,12 @@ function Copy-Object {
       } elseif ($Target -is [System.IO.FileInfo]) {
         # If target is a single file
         Write-Log -Type "DEBUG" -Message "Copy file ""$Path"" to ""$Destination"""
+        # Check target destination type
+        if (Test-Object -Path $Destination -NotFound) {
+          # Ensure destination exists to prevent contents to be added to a dummy file
+          Write-Log -Type "DEBUG" -Message "Create destination directory ""$Destination"""
+          New-Item -Path $Destination -ItemType "Directory" | Out-Null
+        }
         Copy-Item -Path $Path -Destination $Destination -Container -Force:$Force
       }
     }
