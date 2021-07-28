@@ -13,7 +13,7 @@ function New-SelfContainedPackage {
         File name:      New-SelfContainedPackage.ps1
         Author:         Florian Carrier
         Creation date:  2021-07-06
-        Last modified:  2021-07-08
+        Last modified:  2021-07-28
     #>
     [CmdletBinding (
         SupportsShouldProcess = $true
@@ -82,7 +82,7 @@ function New-SelfContainedPackage {
         }
     }
     Process {
-        Write-Log -Type "CHECK" -Message "Creating self-contained ""$PackageName"" package"
+        Write-Log -Type "INFO" -Message "Creating self-contained ""$PackageName"" package"
         # Stage package
         if (Test-Path -Path $PackagePath) {
             if (Test-Path -Path $StagingPath) {
