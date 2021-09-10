@@ -17,8 +17,6 @@ function Remove-Object {
 
     .PARAMETER Exclude
     The exclude parameter corresponds to the filter to apply to the name of objects *not* to remove.
-    /!\ Exclude is currently not supported in Windows PowerShell
-    See https://github.com/PowerShell/PowerShell/issues/6865
 
     .NOTES
     File name:      Remove-Object.ps1
