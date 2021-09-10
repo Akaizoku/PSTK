@@ -24,7 +24,7 @@ function Remove-Object {
     File name:      Remove-Object.ps1
     Author:         Florian Carrier
     Creation date:  2019-06-14
-    Last modified:  2021-07-08
+    Last modified:  2021-09-10
   #>
   [CmdletBinding ()]
   Param (
@@ -94,9 +94,9 @@ function Remove-Object {
             Write-Log -Type "DEBUG" -Object $Object.FullName
           }
           try {
-            Remove-Item -Path $Object.FullName -Recurse -Force
+            Remove-Item -Path $Object.FullName -Recurse -Force -ErrorVariable "ErrorMessage" -ErrorAction "Stop"
           } catch {
-            Write-Log -Type "ERROR" -Message $Error[0].Exception.Message
+            Write-Log -Type "ERROR" -Message $ErrorMessage
           }
         }
       }
