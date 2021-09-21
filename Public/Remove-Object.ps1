@@ -24,7 +24,7 @@ function Remove-Object {
     File name:      Remove-Object.ps1
     Author:         Florian Carrier
     Creation date:  2019-06-14
-    Last modified:  2021-07-06
+    Last modified:  2021-07-08
   #>
   [CmdletBinding ()]
   Param (
@@ -63,7 +63,12 @@ function Remove-Object {
     )]
     [ValidateNotNullOrEmpty ()]
     [System.String[]]
-    $Exclude = $null
+    $Exclude = $null,
+    [Parameter (
+      HelpMessage = "Suppress debug messages"
+    )]
+    [Switch]
+    $Silent
   )
   Begin {
     # Get global preference vrariables
@@ -75,19 +80,19 @@ function Remove-Object {
     }
   }
   Process {
-    $Objects = New-Object -TypeName "System.Collections.ArrayList"
-    # Check PowerShell version to prevent issue
-    $PSVersion = $PSVersionTable.PSVersion | Select-Object -ExpandProperty "Major"
-    if ($PSVersion -lt 6) {
-      $Objects = Get-Object -Path $Path -Type $Type -Filter $Filter
-    } else {
+    # Check path content
+    if ($PSBoundParameters.ContainsKey("Exclude")) {
       $Objects = Get-Object -Path $Path -Type $Type -Filter $Filter -Exclude $Exclude
+    } else {
+      $Objects = Get-Object -Path $Path -Type $Type -Filter $Filter
     }
     # If objects are found
     if ($Objects.Count -ge 1) {
       foreach ($Object in $Objects) {
         if ($null -ne $Object) {
-          Write-Log -Type "DEBUG" -Object $Object
+          if ($Silent -eq $false) {
+            Write-Log -Type "DEBUG" -Object $Object.FullName
+          }
           try {
             Remove-Item -Path $Object.FullName -Recurse -Force
           } catch {

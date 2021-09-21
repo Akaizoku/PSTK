@@ -17,6 +17,9 @@ function Get-KeyValue {
     .PARAMETER CaseSensitive
     The case sensitive switch defines is the search should be case sensitive.
 
+    .PARAMETER Silent
+    The silent switch defines if output messages should be suppressed.
+
     .OUTPUTS
     [System.Boolean] The function returns a boolean.
 
@@ -34,7 +37,7 @@ function Get-KeyValue {
     File name:      Get-KeyValue.ps1
     Author:         Florian Carrier
     Creation date:  2018-12-08
-    Last modified:  2018-12-08
+    Last modified:  2021-08-27
   #>
   [CmdletBinding ()]
   Param (
@@ -58,7 +61,12 @@ function Get-KeyValue {
       HelpMessage = "Define if match should be case sensitive"
     )]
     [Switch]
-    $CaseSensitive
+    $CaseSensitive,
+    [Parameter (
+      HelpMessage = "Switch to suppress output messages"
+    )]
+    [Switch]
+    $Silent
   )
   Process {
     if (Find-Key -Hashtable $Hashtable -Key $Key -CaseSensitive:$CaseSensitive) {
@@ -76,7 +84,9 @@ function Get-KeyValue {
       return $Value
     } else {
       # If key does not exists, returns null
-      Write-Log -Type "WARN" -Message """$Key"" was not found"
+      if ($Silent -eq $false) {
+        Write-Log -Type "WARN" -Message "Key ""$Key"" was not found in the hashtable"
+      }
       return $null
     }
   }
