@@ -25,7 +25,7 @@ jobs:
       # Publish module
       - name: Publish PowerShell Module
         # You may pin to the exact commit or the version.
-        uses: Akaizoku/publish-powershell-module-action@1368631c642a605cd4378715c636c960770ce2bb
+        uses: Akaizoku/publish-powershell-module-action@master
         with:
           # The NuGet API Key for PowerShell Gallery, with permission to push this module.
           NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
