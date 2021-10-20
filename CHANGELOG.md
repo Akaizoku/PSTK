@@ -5,21 +5,32 @@ All notable changes to the [PSTK](https://github.com/Akaizoku/PSTK) project will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/Akaizoku/PSTK/compare/1.2.3...HEAD)
+## [1.2.4](https://github.com/Akaizoku/PSTK/releases/tag/1.2.4) - 2021-09-21
 
-Work in progress
+Standardisation effort
 
 ### Added
 
 The following functions have been added:
 
+- ConvertTo-RegularExpression
+- Copy-Object
+- Get-Object
 - New-RandomPassword
+- New-SelfContainedPackage
 
 ### Changed
 
+Date formats have been updated to follow ISO 8601 standard.
+
 The following functions have been updated:
 
+- Copy-Object
 - Copy-OrderedHashtable
+- Get-KeyValue
+- Get-KeyValue
+- Remove-Object
+- Write-Log
 
 ## [1.2.3](https://github.com/Akaizoku/PSTK/releases/tag/1.2.3) - 2020-03-26
 
