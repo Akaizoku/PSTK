@@ -21,6 +21,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Check-out
         uses: actions/checkout@v2
+        with:
+          # Create module sub-directory for publish-powershell-module-action
+          path: 'PSTK'
 
       # Publish module
       - name: Publish PowerShell Module
