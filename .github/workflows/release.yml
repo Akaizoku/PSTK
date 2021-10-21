@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           # Create module sub-directory for publish-powershell-module-action
-          path: 'PSTK'
+          path: ${{ github.event.repository.name }}
 
       # Publish module
       - name: Publish PowerShell Module
