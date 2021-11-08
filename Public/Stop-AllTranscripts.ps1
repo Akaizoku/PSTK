@@ -40,7 +40,7 @@ function Stop-AllTranscripts {
         # Generate log
         if ($Silent -eq $false) {
             switch ($Count) {
-                0       { $Log = "The host is not currently transcribing."  }
+                0       { return "The host is not currently transcribing."  }
                 1       { $Log = "One single transcript was stopped."       }
                 default { $Log = "$Count transcripts were stopped."         }
             }
