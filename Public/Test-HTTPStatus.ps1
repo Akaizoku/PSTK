@@ -25,8 +25,8 @@ function Test-HTTPStatus {
     .NOTES
     File name:     Test-HTTPStatus.ps1
     Author:        Florian Carrier
-    Creation date: 18/10/2019
-    Last modified: 18/10/2019
+    Creation date: 2019-10-18
+    Last modified: 2019-10-18
   #>
   [CmdletBinding()]
   Param(
