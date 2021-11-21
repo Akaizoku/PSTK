@@ -9,8 +9,8 @@ function Get-URI {
     .NOTES
     File name:     Get-URI.ps1
     Author:        Florian Carrier
-    Creation date: 21/10/2019
-    Last modified: 21/10/2019
+    Creation date: 2019-10-21
+    Last modified: 2019-10-21
   #>
   Param(
     [Parameter (

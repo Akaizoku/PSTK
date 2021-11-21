@@ -10,7 +10,7 @@ function Resolve-URI {
     The URI parameter corresponds to the uniform resource identifier to resolve.
 
     .INPUTS
-    System.String. You can pipe the uniform resource identifier to Resolve-URI.DESCRIPTION
+    System.String. You can pipe the uniform resource identifier to Resolve-URI.
 
     .OUTPUTS
     System.String. Resolve-URI returns the encoded uniform resource identifier.

@@ -1,6 +1,3 @@
-# ------------------------------------------------------------------------------
-# Advanced start function
-# ------------------------------------------------------------------------------
 function Start-Script {
   <#
     .SYNOPSIS
@@ -18,6 +15,12 @@ function Start-Script {
 
     In this example, Start-Script will set stric mode on, and record all the
     output in a file colled "transcript.log" under the ".\log" directory.
+
+    .NOTES
+    File name:      Start-Script.ps1
+    Author:         Florian Carrier
+    Creation date:  2018-10-15
+    Last modified:  2018-10-15
   #>
   [CmdletBinding ()]
   Param (

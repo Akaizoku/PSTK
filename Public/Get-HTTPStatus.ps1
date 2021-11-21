@@ -13,8 +13,8 @@ function Get-HTTPStatus {
     .NOTES
     File name:     Get-HTTPStatus.ps1
     Author:        Florian Carrier
-    Creation date: 15/01/2019
-    Last modified: 17/01/2019
+    Creation date: 2019-01-15
+    Last modified: 2021-11-14
   #>
   Param(
     [Parameter(
@@ -32,10 +32,13 @@ function Get-HTTPStatus {
   Process {
     try {
       # Query server
-      Write-Debug -Message $URI
-      $Status = Invoke-WebRequest -URI $URI | Select-Object -ExpandProperty "StatusCode"
+      Write-Log -Type "DEBUG" -Object $URI
+      $Status = Invoke-WebRequest -URI $URI -UseBasicParsing | Select-Object -ExpandProperty "StatusCode"
     } catch {
-      # If server is offline
+      # If server is offline or an error occurs
+      if ($null -ne $Error[0].Exception.Message) {
+        Write-Log -Type "DEBUG" -Object $Error[0].Exception.Message
+      }
       $Status = 0
     }
     return $Status
