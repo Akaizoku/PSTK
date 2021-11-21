@@ -5,11 +5,21 @@ All notable changes to the [PSTK](https://github.com/Akaizoku/PSTK) project will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.5](https://github.com/Akaizoku/PSTK/compare/1.2.4...main) - Unreleased
+## [1.2.5](https://github.com/Akaizoku/PSTK/releases/1.2.5) - 2021-11-21
 
-Package maintenance automation
+Maintenance automation and incremental update
 
-## [1.2.4](https://github.com/Akaizoku/PSTK/releases/tag/1.2.4) - 2021-09-21
+### Added
+
+- Package release automation
+- Easily stop all transcripts for current session with `Stop-AllTranscript`
+
+### Changed
+
+- Use `-UseBasicParsing` in `Get-HTTPStatus` calls to avoid issues when IE is not configured
+- Update `Remove-Object` to use `ErrorVariable`
+
+## [1.2.4](https://github.com/Akaizoku/PSTK/releases/1.2.4) - 2021-09-21
 
 Standardisation effort
 
@@ -36,7 +46,7 @@ The following functions have been updated:
 - Remove-Object
 - Write-Log
 
-## [1.2.3](https://github.com/Akaizoku/PSTK/releases/tag/1.2.3) - 2020-03-26
+## [1.2.3](https://github.com/Akaizoku/PSTK/releases/1.2.3) - 2020-03-26
 
 Oracle update
 
@@ -58,7 +68,7 @@ The following functions have been updated:
 - Write-Checksum: Added an exclusion parameter
 - Write-InsertOrUpdate: Added Oracle syntax
 
-## [1.2.2](https://github.com/Akaizoku/PSTK/releases/tag/1.2.2) - 2020-01-13
+## [1.2.2](https://github.com/Akaizoku/PSTK/releases/1.2.2) - 2020-01-13
 
 Utility update
 
@@ -86,7 +96,7 @@ The following functions have been updated:
 - Write-Log: Renamed error code parameter to exit code (aliases have been set for retro-compatibility)
 - Write-ErrorLog: Renamed error code parameter to exit code (aliases have been set for retro-compatibility)
 
-## [1.2.1](https://github.com/Akaizoku/PSTK/releases/tag/1.2.1) - 2019-10-01
+## [1.2.1](https://github.com/Akaizoku/PSTK/releases/1.2.1) - 2019-10-01
 
 Hotfix to enable overwriting empty properties.
 
@@ -101,7 +111,7 @@ The following functions have been updated:
 - Get-Properties
 - Import-Properties
 
-## [1.2.0](https://github.com/Akaizoku/PSTK/releases/tag/1.2.0) - 2019-09-12
+## [1.2.0](https://github.com/Akaizoku/PSTK/releases/1.2.0) - 2019-09-12
 
 Expansion
 
@@ -148,7 +158,7 @@ The following functions have been updated:
 - Test-SQLConnection
 - Write-Log
 
-## [1.1.0](https://github.com/Akaizoku/PSTK/releases/tag/1.1.0) - 2018-10-15
+## [1.1.0](https://github.com/Akaizoku/PSTK/releases/1.1.0) - 2018-10-15
 
 Restructuring
 
@@ -173,7 +183,7 @@ The following functions have been marked as internal and are no longer public:
 - Show-ExceptionFullName
 - Test-Alphanumeric
 
-## [1.0.0](https://github.com/Akaizoku/PSTK/releases/tag/1.0.0) - 2018-10-05
+## [1.0.0](https://github.com/Akaizoku/PSTK/releases/1.0.0) - 2018-10-05
 
 First stable release
 
