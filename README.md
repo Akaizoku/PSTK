@@ -1,5 +1,7 @@
 # PowerShell Tool Kit
 
+[![PSScriptAnalyzer](https://github.com/Akaizoku/PSTK/actions/workflows/scan.yml/badge.svg?branch=main)](https://github.com/Akaizoku/PSTK/actions/workflows/scan.yml)
+
 PowerShell Tool Kit (PSTK) is a library containing a collection of useful PowerShell functions and procedures.
 
 ## Usage
