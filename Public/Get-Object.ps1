@@ -32,29 +32,34 @@ function Get-Object {
     .EXAMPLE
     Get-Object -Path "\path\to\folder"
 
+    In this example, Get-Object will return the object "folder".
+
+    .EXAMPLE
+    Get-Object -Path "\path\to\folder" -ChildItem
+
     In this example, Get-Object will return all the objects (files and folders)
     listed in the "\path\to\folder" directory.
 
     .EXAMPLE
-    Get-Object -Path "\path\to\folder" -Type "File"
+    Get-Object -Path "\path\to\folder" -Type "File" -ChildItem
 
     In this example, Get-Object will return all the files listed in the
     "\path\to\folder" directory.
 
     .EXAMPLE
-    Get-Object -Path "\path\to\folder" -Type "Folder"
+    Get-Object -Path "\path\to\folder" -Type "Folder" -ChildItem
 
     In this example, Get-Object will return all the folders listed in the
     "\path\to\folder" directory.
 
     .EXAMPLE
-    Get-Object -Path "\path\to\folder" -Type "File" -Filter "*.txt"
+    Get-Object -Path "\path\to\folder" -Type "File" -Filter "*.txt" -ChildItem
 
     In this example, Get-Object will return all the text files listed in the
     "\path\to\folder" directory.
 
     .EXAMPLE
-    Get-Object -Path "\path\to\folder" -Type "File" -Exclude "*.txt"
+    Get-Object -Path "\path\to\folder" -Type "File" -Exclude "*.txt" -ChildItem
 
     In this example, Get-Object will return all the non-text files listed in the
      "\path\to\folder" directory.
@@ -65,7 +70,7 @@ function Get-Object {
     File name:      Get-Object.ps1
     Author:         Florian Carrier
     Creation date:  2019-06-14
-    Last modified:  2021-07-06
+    Last modified:  2022-04-19
   #>
   [CmdletBinding ()]
   Param (
