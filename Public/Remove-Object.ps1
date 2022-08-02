@@ -18,11 +18,14 @@ function Remove-Object {
     .PARAMETER Exclude
     The exclude parameter corresponds to the filter to apply to the name of objects *not* to remove.
 
+    .PARAMETER Force
+    The force parameter enable the deletion of read-only or hidden files.
+
     .NOTES
     File name:      Remove-Object.ps1
     Author:         Florian Carrier
     Creation date:  2019-06-14
-    Last modified:  2021-09-10
+    Last modified:  2022-08-02
   #>
   [CmdletBinding ()]
   Param (
@@ -63,6 +66,11 @@ function Remove-Object {
     [System.String[]]
     $Exclude = $null,
     [Parameter (
+      HelpMessage = "Switch to force copy"
+    )]
+    [Switch]
+    $Force,
+    [Parameter (
       HelpMessage = "Suppress debug messages"
     )]
     [Switch]
@@ -92,7 +100,7 @@ function Remove-Object {
             Write-Log -Type "DEBUG" -Object $Object.FullName
           }
           try {
-            Remove-Item -Path $Object.FullName -Recurse -Force -ErrorVariable "ErrorMessage" -ErrorAction "Stop"
+            Remove-Item -Path $Object.FullName -Recurse -Force:$Force -ErrorVariable "ErrorMessage" -ErrorAction "Stop"
           } catch {
             Write-Log -Type "ERROR" -Message $ErrorMessage
           }
