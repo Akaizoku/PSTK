@@ -1,6 +1,3 @@
-# ------------------------------------------------------------------------------
-# Properties setting function
-# ------------------------------------------------------------------------------
 function Get-Properties {
   <#
     .SYNOPSIS
@@ -13,15 +10,19 @@ function Get-Properties {
     The File parameter should be the name of the property file.
 
     .PARAMETER Directory
-    The Directory parameter should be the path to the directory containing the
-    property file.
+    The Directory parameter should be the path to the directory containing the property file.
 
     .PARAMETER Custom
     The Custom parameter should be the name of the custom property file.
 
     .PARAMETER CustomDirectory
-    The CustomDirectory parameter should be the path to the directory containing
-     the custom property file.
+    The CustomDirectory parameter should be the path to the directory containing the custom property file.
+
+    .PARAMETER Path
+    The path parameter corresponds to the path to the property file.
+
+    .PARAMETER CustomPath
+    The custom path parameter corresponds to the path to the custom property file.
 
     .OUTPUTS
     System.Collections.Specialized.OrderedDictionary. Get-Properties returns an
@@ -37,15 +38,19 @@ function Get-Properties {
     default ones with the custom ones.
 
     .NOTES
-    Get-Properties does not currently allow the use of sections to group proper-
-    ties in custom files
+    File name:      Properties.ps1
+    Author:         Florian Carrier
+    Creation date:  2018-11-27
+    Last modified:  2023-03-23
+    Comment:        Get-Properties does not currently allow the use of sections to group properties in custom files
   #>
-  [CmdletBinding ()]
+  [CmdletBinding (DefaultParameterSetName = "File")]
   Param (
     [Parameter (
-      Position    = 1,
-      Mandatory   = $true,
-      HelpMessage = "Property file name"
+      Position          = 1,
+      Mandatory         = $true,
+      ParameterSetName  = "File",
+      HelpMessage       = "Property file name"
     )]
     [ValidateNotNullOrEmpty ()]
     [String]
@@ -53,6 +58,7 @@ function Get-Properties {
     [Parameter (
       Position    = 2,
       Mandatory   = $true,
+      ParameterSetName  = "File",
       HelpMessage = "Path to the directory containing the property files"
     )]
     [ValidateNotNullOrEmpty ()]
@@ -61,6 +67,7 @@ function Get-Properties {
     [Parameter (
       Position    = 3,
       Mandatory   = $false,
+      ParameterSetName  = "File",
       HelpMessage = "Custom property file name"
     )]
     [String]
@@ -68,10 +75,29 @@ function Get-Properties {
     [Parameter (
       Position    = 4,
       Mandatory   = $false,
+      ParameterSetName  = "File",
       HelpMessage = "Path to the directory containing the custom property file"
     )]
     [String]
     $CustomDirectory = $Directory,
+    [Parameter (
+      Position          = 1,
+      Mandatory         = $true,
+      ParameterSetName  = "Path",
+      HelpMessage       = "Property file path"
+    )]
+    [ValidateNotNullOrEmpty ()]
+    [String]
+    $Path,
+    [Parameter (
+      Position          = 2,
+      Mandatory         = $false,
+      ParameterSetName  = "Path",
+      HelpMessage       = "Custom property file path"
+    )]
+    [ValidateNotNullOrEmpty ()]
+    [String]
+    $CustomPath,
     [Parameter (
       Position    = 5,
       Mandatory   = $false,
@@ -90,15 +116,21 @@ function Get-Properties {
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
   }
   Process {
-    # Check that specified file exists
-    $Path = Join-Path -Path $Directory -ChildPath $File
+    if ($PSCmdlet.ParameterSetName -eq "File") {
+        # Check that specified file exists
+        $Path = Join-Path -Path $Directory -ChildPath $File
+        # Check if a custom file is provided
+        if ($Custom) {
+            # Make sure said file does exists
+            $CustomPath = Join-Path -Path $CustomDirectory -ChildPath $Custom
+        }
+    }
     if (Test-Path -Path $Path) {
       # Parse properties with or without section split
       $Properties = Read-Properties -Path $Path -Section:$Section
       # Check if a custom file is provided
-      if ($Custom) {
+      if ($CustomPath) {
         # Make sure said file does exists
-        $CustomPath = Join-Path -Path $CustomDirectory -ChildPath $Custom
         if (Test-Path -Path $CustomPath) {
           # Override default properties with custom ones
           $Customs = Read-Properties -Path $CustomPath
