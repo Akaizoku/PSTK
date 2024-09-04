@@ -22,7 +22,7 @@ function Compare-Version {
     File name:      Compare-Version.ps1
     Author:         Florian Carrier
     Creation date:  2019-10-19
-    Last modified:  2020-02-10
+    Last modified:  2024-09-04
     WARNING         In case of modified formatting, Compare-Version only checks the semantic versionned part
   #>
   [CmdletBinding (
@@ -35,10 +35,10 @@ function Compare-Version {
       HelpMessage = "Version number to test"
     )]
     [ValidateNotNullOrEmpty()]
-    [String]
+    [System.String]
     $Version,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Comparison operator"
     )]
@@ -50,7 +50,7 @@ function Compare-Version {
       "lt", # Less than
       "le"  # Less than or equal
     )]
-    [String]
+    [System.String]
     $Operator,
     [Parameter (
       Position    = 3,
@@ -58,7 +58,7 @@ function Compare-Version {
       HelpMessage = "Reference version number to check against"
     )]
     [ValidateNotNullOrEmpty()]
-    [String]
+    [System.String]
     $Reference,
     [Parameter (
       Position    = 4,
@@ -69,7 +69,7 @@ function Compare-Version {
       "modified",
       "semantic"
     )]
-    [String]
+    [System.String]
     $Format = "semantic"
   )
   Begin {
@@ -107,14 +107,14 @@ function Compare-Version {
           $ReferenceNumber  = $Reference
         } else {
           # Parse version numbers
-          $SemanticVersion = Select-String -InputObject $Version -Pattern '(\d+.\d+.\d+)(?=\D*)' | ForEach-Object { $_.Matches.Value }
+          $SemanticVersion = Select-String -InputObject $Version -Pattern '(\d+.\d+.\d+)(?=\D*)' | ForEach-Object { $PSItem.Matches.Value }
           try {
             $VersionNumber = [System.Version]::Parse($SemanticVersion)
           } catch [FormatException] {
             Write-Log -Type "ERROR" -Object "The version number ""$Version"" does not match semantic numbering"
             return $false
           }
-          $SemanticReference = Select-String -InputObject $Reference -Pattern '(\d+.\d+.\d+)(?=\D*)' | ForEach-Object { $_.Matches.Value }
+          $SemanticReference = Select-String -InputObject $Reference -Pattern '(\d+.\d+.\d+)(?=\D*)' | ForEach-Object { $PSItem.Matches.Value }
           try {
             $ReferenceNumber = [System.Version]::Parse($SemanticReference)
           } catch [FormatException] {
