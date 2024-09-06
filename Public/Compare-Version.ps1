@@ -22,8 +22,17 @@ function Compare-Version {
     File name:      Compare-Version.ps1
     Author:         Florian Carrier
     Creation date:  2019-10-19
-    Last modified:  2024-09-04
+    Last modified:  2024-09-06
     WARNING         In case of modified formatting, Compare-Version only checks the semantic versionned part
+
+    .LINK
+    https://semver.org/
+
+    .LINK
+    https://learn.microsoft.com/en-us/dotnet/api/system.version
+
+    .LINK
+    https://learn.microsoft.com/en-us/dotnet/api/system.version.compareto
   #>
   [CmdletBinding (
     SupportsShouldProcess = $true
@@ -79,6 +88,7 @@ function Compare-Version {
   Process {
     switch ($Format) {
       "semantic" {
+        Write-Log -Type "DEBUG" -Message "Semantic version comparison"
         # Prepare version numbers for comparison
         try {
           $VersionNumber = [System.Version]::Parse($Version)
@@ -92,15 +102,20 @@ function Compare-Version {
           Write-Log -Type "ERROR" -Object "The version number ""$Reference"" does not match $Format numbering"
           return $false
         }
-        # Build comparison command
-        $Command = """$VersionNumber"" -$Operator ""$ReferenceNumber"""
-        Write-Log -Type "DEBUG" -Object $Command
-        # Execute comparison
-        $Result = Invoke-Expression -Command $Command
-        # Return comparison result
-        return $Result
+        # Compare versions
+        $Compare = $VersionNumber.CompareTo($ReferenceNumber)
+        if (($Operator -in ("eq", "ge", "le")) -And ($Compare -eq 0)) {
+            return $True
+        } elseif (($Operator -in ("ne", "gt")) -And ($Compare -eq 1)) {
+            return $True
+        } elseif (($Operator -in ("ne", "lt")) -And ($Compare -eq -1)) {
+            return $True
+        } else {
+            return $False
+        }
       }
       "modified" {
+        Write-Log -Type "DEBUG" -Message "String version comparison"
         if ($Operator -in ("eq", "ne")) {
           # Compare strings as-is
           $VersionNumber    = $Version
