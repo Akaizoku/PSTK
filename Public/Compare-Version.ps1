@@ -22,7 +22,7 @@ function Compare-Version {
     File name:      Compare-Version.ps1
     Author:         Florian Carrier
     Creation date:  2019-10-19
-    Last modified:  2024-09-06
+    Last modified:  2024-09-11
     WARNING         In case of modified formatting, Compare-Version only checks the semantic versionned part
 
     .LINK
@@ -106,9 +106,9 @@ function Compare-Version {
         $Compare = $VersionNumber.CompareTo($ReferenceNumber)
         if (($Operator -in ("eq", "ge", "le")) -And ($Compare -eq 0)) {
             return $True
-        } elseif (($Operator -in ("ne", "gt")) -And ($Compare -eq 1)) {
+        } elseif (($Operator -in ("ne", "ge", "gt")) -And ($Compare -eq 1)) {
             return $True
-        } elseif (($Operator -in ("ne", "lt")) -And ($Compare -eq -1)) {
+        } elseif (($Operator -in ("ne", "le", "lt")) -And ($Compare -eq -1)) {
             return $True
         } else {
             return $False
