@@ -41,7 +41,7 @@ function New-ProcessObject {
         }
     }
     End {
-        Write-Log -Type "DEBUG" -Message $Process
+        Write-Log -Type "DEBUG" -Message ($Process | Format-Table)
         return $Process
     }
 }

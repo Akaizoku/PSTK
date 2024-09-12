@@ -88,7 +88,7 @@ function Update-ProcessObject {
         }
     }
     End {
-        Write-Log -Type "DEBUG" -Message $Process
+        Write-Log -Type "DEBUG" -Message ($ProcessObject | Format-Table)
         return $ProcessObject
     }
 }
