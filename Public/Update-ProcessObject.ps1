@@ -10,7 +10,7 @@ function Update-ProcessObject {
         File name:      Update-ProcessObject.ps1
         Author:         Florian Carrier
         Creation date:  2024-09-10
-        Last modified:  2024-09-10
+        Last modified:  2024-09-12
     #>
     [CmdletBinding ()]
     Param (
@@ -88,6 +88,7 @@ function Update-ProcessObject {
         }
     }
     End {
+        Write-Log -Type "DEBUG" -Message $Process
         return $ProcessObject
     }
 }
