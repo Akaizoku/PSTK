@@ -38,10 +38,10 @@ function Get-Properties {
     default ones with the custom ones.
 
     .NOTES
-    File name:      Properties.ps1
+    File name:      Get-Properties.ps1
     Author:         Florian Carrier
     Creation date:  2018-11-27
-    Last modified:  2023-03-23
+    Last modified:  2024-09-13
     Comment:        Get-Properties does not currently allow the use of sections to group properties in custom files
   #>
   [CmdletBinding (DefaultParameterSetName = "File")]
@@ -109,13 +109,19 @@ function Get-Properties {
       HelpMessage = "Define if section headers should be used to group properties or be ignored"
       )]
     [Switch]
-    $Section
+    $Section,
+    [Parameter (
+      HelpMessage = "Switch to retrieve metadata about properties"
+      )]
+    [Switch]
+    $Metadata
   )
   Begin {
     # Get global preference variables
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
   }
   Process {
+    # Build paths
     if ($PSCmdlet.ParameterSetName -eq "File") {
         # Check that specified file exists
         $Path = Join-Path -Path $Directory -ChildPath $File
@@ -125,19 +131,25 @@ function Get-Properties {
             $CustomPath = Join-Path -Path $CustomDirectory -ChildPath $Custom
         }
     }
+    # Check path
     if (Test-Path -Path $Path) {
       # Parse properties with or without section split
-      $Properties = Read-Properties -Path $Path -Section:$Section
+      $Properties = Read-Properties -Path $Path -Section:$Section -Metadata:$Metadata
       # Check if a custom file is provided
       if ($CustomPath) {
         # Make sure said file does exists
         if (Test-Path -Path $CustomPath) {
           # Override default properties with custom ones
-          $Customs = Read-Properties -Path $CustomPath
+          $Customs = Read-Properties -Path $CustomPath -Metadata:$Metadata
           foreach ($Property in $Customs.Keys) {
             # Override default with custom
             if (Find-Key -Hashtable $Properties -Key $Property) {
-              $Properties.$Property = $Customs.$Property
+                if ($Metadata -eq $true) {
+                    # Update value but retain metadata
+                    $Properties.$Property.Value = $Customs.$Property.Value
+                } else {
+                    $Properties.$Property = $Customs.$Property
+                }
             } else {
               Write-Log -Type "WARN" -Object "The ""$Property"" property defined in $Custom is unknown"
             }
