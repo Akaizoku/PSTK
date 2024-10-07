@@ -22,8 +22,17 @@ function Compare-Version {
     File name:      Compare-Version.ps1
     Author:         Florian Carrier
     Creation date:  2019-10-19
-    Last modified:  2020-02-10
+    Last modified:  2024-09-11
     WARNING         In case of modified formatting, Compare-Version only checks the semantic versionned part
+
+    .LINK
+    https://semver.org/
+
+    .LINK
+    https://learn.microsoft.com/en-us/dotnet/api/system.version
+
+    .LINK
+    https://learn.microsoft.com/en-us/dotnet/api/system.version.compareto
   #>
   [CmdletBinding (
     SupportsShouldProcess = $true
@@ -35,10 +44,10 @@ function Compare-Version {
       HelpMessage = "Version number to test"
     )]
     [ValidateNotNullOrEmpty()]
-    [String]
+    [System.String]
     $Version,
     [Parameter (
-      Position    = 1,
+      Position    = 2,
       Mandatory   = $true,
       HelpMessage = "Comparison operator"
     )]
@@ -50,7 +59,7 @@ function Compare-Version {
       "lt", # Less than
       "le"  # Less than or equal
     )]
-    [String]
+    [System.String]
     $Operator,
     [Parameter (
       Position    = 3,
@@ -58,7 +67,7 @@ function Compare-Version {
       HelpMessage = "Reference version number to check against"
     )]
     [ValidateNotNullOrEmpty()]
-    [String]
+    [System.String]
     $Reference,
     [Parameter (
       Position    = 4,
@@ -69,7 +78,7 @@ function Compare-Version {
       "modified",
       "semantic"
     )]
-    [String]
+    [System.String]
     $Format = "semantic"
   )
   Begin {
@@ -79,6 +88,7 @@ function Compare-Version {
   Process {
     switch ($Format) {
       "semantic" {
+        Write-Log -Type "DEBUG" -Message "Semantic version comparison"
         # Prepare version numbers for comparison
         try {
           $VersionNumber = [System.Version]::Parse($Version)
@@ -92,29 +102,34 @@ function Compare-Version {
           Write-Log -Type "ERROR" -Object "The version number ""$Reference"" does not match $Format numbering"
           return $false
         }
-        # Build comparison command
-        $Command = """$VersionNumber"" -$Operator ""$ReferenceNumber"""
-        Write-Log -Type "DEBUG" -Object $Command
-        # Execute comparison
-        $Result = Invoke-Expression -Command $Command
-        # Return comparison result
-        return $Result
+        # Compare versions
+        $Compare = $VersionNumber.CompareTo($ReferenceNumber)
+        if (($Operator -in ("eq", "ge", "le")) -And ($Compare -eq 0)) {
+            return $True
+        } elseif (($Operator -in ("ne", "ge", "gt")) -And ($Compare -eq 1)) {
+            return $True
+        } elseif (($Operator -in ("ne", "le", "lt")) -And ($Compare -eq -1)) {
+            return $True
+        } else {
+            return $False
+        }
       }
       "modified" {
+        Write-Log -Type "DEBUG" -Message "String version comparison"
         if ($Operator -in ("eq", "ne")) {
           # Compare strings as-is
           $VersionNumber    = $Version
           $ReferenceNumber  = $Reference
         } else {
           # Parse version numbers
-          $SemanticVersion = Select-String -InputObject $Version -Pattern '(\d+.\d+.\d+)(?=\D*)' | ForEach-Object { $_.Matches.Value }
+          $SemanticVersion = Select-String -InputObject $Version -Pattern '(\d+.\d+.\d+)(?=\D*)' | ForEach-Object { $PSItem.Matches.Value }
           try {
             $VersionNumber = [System.Version]::Parse($SemanticVersion)
           } catch [FormatException] {
             Write-Log -Type "ERROR" -Object "The version number ""$Version"" does not match semantic numbering"
             return $false
           }
-          $SemanticReference = Select-String -InputObject $Reference -Pattern '(\d+.\d+.\d+)(?=\D*)' | ForEach-Object { $_.Matches.Value }
+          $SemanticReference = Select-String -InputObject $Reference -Pattern '(\d+.\d+.\d+)(?=\D*)' | ForEach-Object { $PSItem.Matches.Value }
           try {
             $ReferenceNumber = [System.Version]::Parse($SemanticReference)
           } catch [FormatException] {

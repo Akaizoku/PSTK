@@ -5,6 +5,32 @@ All notable changes to the [PSTK](https://github.com/Akaizoku/PSTK) project will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.6](https://github.com/Akaizoku/PSTK/releases/1.2.6) - 2024-10-07
+
+Quality of life
+
+### Added
+
+The following functions have been added:
+
+- Ping-Host: Check connectivity to a specified host
+- Show-EnvironmentVariables: Fetch environment variables
+- Get-PowerShellError: Returns the latest error
+- New-ProcessObject: Create standardised process object to monitor custom processes
+- Update-ProcessObject: Update standardised process object to monitor custom processes
+
+### Changed
+
+The following functions have been updated:
+
+- Get-Properties: Now provides an option to pull metadata such as section and description
+- Read-Properties: Now provides an option to pull metadata such as section and description
+- Write-Log: Added notice message option
+
+### Fixed
+
+- Compare-Version: Fixed version comparison issues by using built-in version compare function when applciable
+
 ## [1.2.5](https://github.com/Akaizoku/PSTK/releases/1.2.5) - 2021-11-21
 
 Maintenance automation and incremental update

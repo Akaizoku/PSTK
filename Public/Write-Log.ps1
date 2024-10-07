@@ -19,6 +19,7 @@ function Write-Log {
     - DEBUG:  debug message, used to debug scripts;
     - ERROR:  error message, used to provide detail on an issue;
     - INFO:   information, used to convey a message;
+    - NOTICE: important information, used to highlight key details;
     - WARN:   warning, used to highlight a non-blocking issue.
 
     .PARAMETER Object
@@ -80,7 +81,7 @@ function Write-Log {
     File name:      Write-Log.ps1
     Author:         Florian Carrier
     Creation date:  2018-10-15
-    Last modified:  2021-09-02
+    Last modified:  2024-09-11
     TODO            Add locale variable
 
     .LINK
@@ -98,6 +99,7 @@ function Write-Log {
       "DEBUG",
       "ERROR",
       "INFO",
+      "NOTICE",
       "WARN"
     )]
     [System.String]
@@ -149,6 +151,7 @@ function Write-Log {
       "CHECK" = "Green"
       "ERROR" = "Red"
       "INFO"  = "White"
+      "NOTICE"= "Blue"
       "WARN"  = "Yellow"
     }
     # Message object check
@@ -184,9 +187,12 @@ function Write-Log {
       Write-Log -Type "DEBUG" -Object $FilePath
       $Message | Out-File -FilePath $FilePath -Append -Force
     }
+    
+  }
+  End {
     # Stop script if exit code is specified
     if ($PSBoundParameters.ContainsKey("ExitCode")) {
-      Stop-Script -ExitCode $ExitCode
+        Stop-Script -ExitCode $ExitCode
     }
   }
 }

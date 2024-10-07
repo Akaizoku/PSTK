@@ -19,11 +19,14 @@ function Copy-Object {
     .PARAMETER Exclude
     The exclude parameter corresponds to the filter to apply to the name of objects *not* to copy.
 
+    .PARAMETER Force
+    The force parameter enable the overwrite of the target object.
+
     .NOTES
     File name:      Copy-Object.ps1
     Author:         Florian Carrier
     Creation date:  2021-07-06
-    Last modified:  2021-07-08
+    Last modified:  2022-08-02
   #>
   [CmdletBinding (
     SupportsShouldProcess = $true
